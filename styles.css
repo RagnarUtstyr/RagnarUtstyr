@@ -128,3 +128,37 @@ footer {
     margin-top: 20px;
     color: #777;
 }
+
+/* General reset to avoid margin and padding issues */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Ensure the page takes up at least the full height of the viewport */
+html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main container for content, so it grows and allows scrolling */
+body {
+    min-height: 100vh;
+}
+
+/* Flex container to grow and push the footer down */
+main {
+    flex: 1;
+}
+
+/* Ensure footer stays at the bottom but doesn't overlap */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: relative;
+    width: 100%;
+}
