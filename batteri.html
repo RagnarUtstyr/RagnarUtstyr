@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batteries</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+    <h1>Ragnar Bøe Utstyrsleie</h1>
+    <nav>
+        <ul class="navbar">
+            <li><a href="index.html">Home</a></li>
+            <li class="dropdown">
+                <a href="index.html" class="dropbtn">Equipment</a>
+                <ul class="dropdown-content">
+                    <li><a href="Camera.html">Camera</a></li>
+                    <li><a href="optikk.html">Optikk</a></li>
+                    <li><a href="monitor.html">Monitor</a></li>
+                    <li><a href="fokus.html">Fokus</a></li>
+                    <li><a href="video.html">Video</a></li>
+                    <li><a href="batteri.html">Batteri</a></li>
+                    <li><a href="lys.html">Lys</a></li>
+                    <li><a href="stativ.html">Stativ</a></li>
+                    <li><a href="grip.html">Grip</a></li>
+                    <li><a href="lyd.html">Lyd</a></li>
+                    <li><a href="filter.html">Filter</a></li>
+                    <li><a href="tralle.html">Tralle</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="Contact.html" class="dropbtn">Contact</a>
+                <ul class="dropdown-content">
+                    <li><a href="About.html">About</a></li>
+                    <li><a href="Contact.html">Contact</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <h1>Batteries</h1>
+
+    <!-- Battery Equipment Grid -->
+    <div class="equipment-grid">
+    
+    <!-- IDX iMicro98 V-mount battery -->
+    <div class="equipment-card">
+        <a href="idx-imicro98.html">
+            <img src="images-small/idx-imicro98-small.jpg" alt="IDX iMicro98 V-mount battery" />
+            <h2>IDX iMicro98 V-mount battery</h2>
+        </a>
+        <button class="add-to-basket" data-item="IDX iMicro98 V-mount battery">Add to Basket</button>
+    </div>
+
+    <!-- IDX Duo C198 V-mount battery -->
+    <div class="equipment-card">
+        <a href="idx-duo-c198.html">
+            <img src="images-small/idx-duo-c198-small.jpg" alt="IDX Duo C198 V-mount battery" />
+            <h2>IDX Duo C198 V-mount battery</h2>
+        </a>
+        <button class="add-to-basket" data-item="IDX Duo C198 V-mount battery">Add to Basket</button>
+    </div>
+
+    <!-- IDX DUO 300 V-mount battery -->
+    <div class="equipment-card">
+        <a href="idx-duo-300.html">
+            <img src="images-small/idx-duo-300-small.jpg" alt="IDX DUO 300 V-mount battery" />
+            <h2>IDX DUO 300 V-mount battery</h2>
+        </a>
+        <button class="add-to-basket" data-item="IDX DUO 300 V-mount battery">Add to Basket</button>
+    </div>
+
+    <!-- LP-E6 Canon battery -->
+    <div class="equipment-card">
+        <a href="lp-e6-canon.html">
+            <img src="images-small/lp-e6-small.jpg" alt="LP-E6 Canon battery" />
+            <h2>LP-E6 Canon battery</h2>
+        </a>
+        <button class="add-to-basket" data-item="LP-E6 Canon battery">Add to Basket</button>
+    </div>
+
+    <!-- Deity S-95 Smart Battery -->
+    <div class="equipment-card">
+        <a href="deity-s95-smart.html">
+            <img src="images-small/deity-s95-small.jpg" alt="Deity S-95 Smart Battery" />
+            <h2>Deity S-95 Smart Battery</h2>
+        </a>
+        <button class="add-to-basket" data-item="Deity S-95 Smart Battery">Add to Basket</button>
+    </div>
+
+    <!-- 3Kw Bensin Aggregat -->
+    <div class="equipment-card">
+        <a href="3kw-bensin-aggregat.html">
+            <img src="images-small/3kw-bensin-small.jpg" alt="3Kw Bensin Aggregat" />
+            <h2>3Kw Bensin Aggregat</h2>
+        </a>
+        <button class="add-to-basket" data-item="3Kw Bensin Aggregat">Add to Basket</button>
+    </div>
+
+    </div>
+
+    <nav>
+        <a href="index.html">Back to Main Page</a>
+    </nav>
+
+</main>
+
+<footer>
+    <p>© 2024 Ragnar Bøe Utstyrsleie</p>
+</footer>
+
+<!-- Basket Section -->
+<div id="basket" class="basket">
+    <h2>Basket</h2>
+    <ul id="basket-items"></ul>
+    <button id="clear-basket">Clear Basket</button>
+</div>
+<script src="basket.js"></script>
+
+</body>
+</html>
