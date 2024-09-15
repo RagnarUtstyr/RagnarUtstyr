@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Carts</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+    <h1>Ragnar Bøe Utstyrsleie</h1>
+    <nav>
+        <ul class="navbar">
+            <li><a href="index.html">Home</a></li>
+            <li class="dropdown">
+                <a href="index.html" class="dropbtn">Equipment</a>
+                <ul class="dropdown-content">
+                    <li><a href="Camera.html">Camera</a></li>
+                    <li><a href="optikk.html">Optikk</a></li>
+                    <li><a href="monitor.html">Monitor</a></li>
+                    <li><a href="fokus.html">Fokus</a></li>
+                    <li><a href="video.html">Video</a></li>
+                    <li><a href="batteri.html">Batteri</a></li>
+                    <li><a href="lys.html">Lys</a></li>
+                    <li><a href="stativ.html">Stativ</a></li>
+                    <li><a href="grip.html">Grip</a></li>
+                    <li><a href="lyd.html">Lyd</a></li>
+                    <li><a href="filter.html">Filter</a></li>
+                    <li><a href="tralle.html">Tralle</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="Contact.html" class="dropbtn">Contact</a>
+                <ul class="dropdown-content">
+                    <li><a href="About.html">About</a></li>
+                    <li><a href="Contact.html">Contact</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <h1>Sound Carts</h1>
+
+    <!-- Sound Carts Equipment Grid -->
+    <div class="equipment-grid">
+    
+    <!-- ShittyCarts Soundcart -->
+    <div class="equipment-card">
+        <a href="shittycarts-soundcart.html">
+            <img src="images-small/shittycarts-soundcart.jpg" alt="ShittyCarts Soundcart" />
+            <h2>ShittyCarts Soundcart</h2>
+        </a>
+        <button class="add-to-basket" data-item="ShittyCarts Soundcart">Add to Basket</button>
+    </div>
+
+    <!-- Magliner Sr -->
+    <div class="equipment-card">
+        <a href="magliner-sr.html">
+            <img src="images-small/magliner-sr.jpg" alt="Magliner Sr" />
+            <h2>Magliner Sr</h2>
+        </a>
+        <button class="add-to-basket" data-item="Magliner Sr">Add to Basket</button>
+    </div>
+
+    </div>
+
+    <nav>
+        <a href="index.html">Back to Main Page</a>
+    </nav>
+
+</main>
+
+<footer>
+    <p>© 2024 Ragnar Bøe Utstyrsleie</p>
+</footer>
+
+<!-- Basket Section -->
+<div id="basket" class="basket">
+    <h2>Basket</h2>
+    <ul id="basket-items"></ul>
+    <button id="clear-basket">Clear Basket</button>
+</div>
+<script src="basket.js"></script>
+
+</body>
+</html>
