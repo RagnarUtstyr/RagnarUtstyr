@@ -1,40 +1,43 @@
-/* General styling */
-body {
-    font-family: Arial, sans-serif;
+/* General reset */
+* {
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    box-sizing: border-box;
 }
 
-h1 {
-    text-align: center;
-    margin: 20px 0;
-}
-
-.main-container {
+body {
+    font-family: Arial, sans-serif;
     display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.sidebar {
-    width: 200px;
+/* Header and Nav */
+header {
     background-color: #333;
     padding: 20px;
-    height: 100vh;
+    color: white;
+    text-align: center;
 }
 
+/* Navbar styling */
 .navbar {
     list-style: none;
+    display: flex;
+    justify-content: center;
+    background-color: #444;
+    margin: 0;
     padding: 0;
 }
 
 .navbar li {
-    margin-bottom: 15px;
+    position: relative; /* Needed for dropdown */
 }
 
 .navbar a {
     color: white;
+    padding: 14px 20px;
     text-decoration: none;
-    padding: 10px;
     display: block;
 }
 
@@ -42,40 +45,52 @@ h1 {
     background-color: #555;
 }
 
+/* Dropdown styling */
 .dropdown {
     position: relative;
+}
+
+.dropbtn {
+    cursor: pointer;
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
-    left: 200px; /* Adjust based on sidebar width */
-    top: 0;
-    background-color: #444;
+    background-color: #555;
     min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1;
 }
 
 .dropdown-content a {
     padding: 12px 16px;
-    color: white;
     text-decoration: none;
     display: block;
+    color: white;
 }
 
 .dropdown-content a:hover {
     background-color: #666;
 }
 
+/* Show the dropdown on hover */
 .dropdown:hover .dropdown-content {
     display: block;
 }
 
-/* Content styling */
-.content {
+/* Main content */
+main {
+    flex: 1;
     padding: 20px;
-    flex-grow: 1;
 }
 
-.equipment-grid {
-    display:
+/* Footer styling */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: relative;
+    width: 100%;
+}
