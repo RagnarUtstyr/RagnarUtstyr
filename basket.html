@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Basket</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+    <!-- Logo on the left -->
+    <div class="logo">
+        <a href="index.html">
+            <img src="images/logo.png" alt="Ragnar Bøe Utstyrsleie Logo">
+        </a>
+    </div>
+
+    <nav>
+        <ul class="navbar">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="equipment.html">Equipment</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <h1>Your Basket</h1>
+
+    <!-- Basket Items List -->
+    <ul id="basket-items"></ul> <!-- Dynamically populated -->
+
+    <p>Total items: <span id="basket-total">0</span></p>
+    <button id="submit-inquiry" class="rtn-submit-button">Submit Inquiry</button>
+</main>
+
+<footer>
+    <p>© 2024 Ragnar Bøe Utstyrsleie</p>
+</footer>
+
+<script src="basket.js"></script> <!-- Include the basket.js file -->
+</body>
+</html>

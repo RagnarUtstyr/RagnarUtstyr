@@ -1,0 +1,251 @@
+/* General styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0 20px;
+    background-color: #1e1e1e; 
+    color: #fff; 
+    text-align: center; 
+    
+    /* Add the background image */
+    background-image: url('images/bckgrnd.webp'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    
+    /* Create a semi-opaque overlay using ::before pseudo-element */
+    position: relative;
+    min-height: 100vh; 
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(30, 30, 30, 0.9);
+    z-index: -1; 
+}
+
+/* Header styling */
+header {
+    background-color: transparent; 
+    color: white;
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Logo styling */
+.logo {
+    margin-left: 0px;
+}
+
+.logo img {
+    width: 100px;
+    height: auto;
+}
+
+/* Navbar styling */
+.navbar {
+    list-style: none; 
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar li {
+    position: relative;
+}
+
+.navbar a {
+    color: white;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-size: 18px;
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.navbar a:hover {
+    background-color: transparent;
+    color: #ffcc00;
+}
+
+/* Basket icon styling */
+.basket-icon-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.basket-icon {
+    width: 32px;
+    height: 32px;
+}
+
+#basket-icon-count {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #ffcc00;
+    color: #333;
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Basket page styling */
+.rtn-basket {
+    background-color: #333;
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    max-width: 300px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.rtn-basket h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+#basket-items {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+#basket-items li {
+    font-size: 18px;
+    padding: 10px 0;
+    border-bottom: 1px solid #555;
+}
+
+#basket-total {
+    font-size: 20px;
+    color: #ffcc00;
+}
+
+/* Submit Button Styling */
+.rtn-submit-button {
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rtn-submit-button:hover {
+    background-color: #555;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: #ffcc00;
+}
+
+/* Add to Basket Button Styling */
+.rtn-add-to-basket {
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 20px;
+}
+
+.rtn-add-to-basket:hover {
+    background-color: #555;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: #ffcc00;
+}
+
+/* Responsive Basket for Mobile Devices */
+@media (max-width: 768px) {
+    .rtn-basket {
+        max-width: 100%;
+        padding: 15px;
+    }
+}
+
+/* Content grid for product listing */
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 60px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Styling the navigation cards */
+.nav-card {
+    background-color: #333;
+    border: none;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.nav-card:hover {
+    transform: scale(1.08);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+.nav-card a {
+    color: white;
+    font-size: 22px;
+    font-family: 'Poppins', sans-serif;
+    text-decoration: none;
+    margin-top: 20px;
+}
+
+.nav-card a:hover {
+    color: #ffcc00;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar li {
+        margin-bottom: 10px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
