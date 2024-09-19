@@ -1,4 +1,4 @@
-// Add item to basket using LocalStorage
+// Add item to basket using LocalStorage (with dynamic quantity update)
 function addToBasket(itemName) {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
     if (!basket[itemName]) {
@@ -8,20 +8,21 @@ function addToBasket(itemName) {
     }
     localStorage.setItem('basket', JSON.stringify(basket));  // Save in LocalStorage
     updateBasketIcon();
-    updateBasketPage(); // Update the basket page if necessary
+    updateQuantityDisplay(itemName); // Update the quantity display independently
 }
 
-// Remove an item or decrease quantity from the basket
+// Remove an item or decrease quantity from the basket (with dynamic quantity update)
 function removeFromBasket(itemName) {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
     if (basket[itemName]) {
         basket[itemName]--;  // Decrement the quantity
         if (basket[itemName] === 0) {
             delete basket[itemName]; // Remove the item if quantity is 0
+            document.getElementById(`item-${itemName}`).remove(); // Remove the item from the DOM
         }
         localStorage.setItem('basket', JSON.stringify(basket));  // Update the basket in LocalStorage
         updateBasketIcon();
-        updateBasketPage(); // Update the basket display on the page if on the basket page
+        updateQuantityDisplay(itemName); // Update the quantity display independently
     }
 }
 
@@ -37,7 +38,23 @@ function updateBasketIcon() {
     document.getElementById('basket-icon-count').textContent = totalItems;
 }
 
-// Update basket page display using LocalStorage (with quantity controls)
+// Update the quantity display for a single item without reloading the entire page
+function updateQuantityDisplay(itemName) {
+    let basket = JSON.parse(localStorage.getItem('basket') || '{}');
+    let quantityElement = document.getElementById(`quantity-${itemName}`);
+
+    if (basket[itemName]) {
+        quantityElement.textContent = basket[itemName]; // Update the quantity display
+    } else {
+        // If the item was removed, delete the element
+        let itemElement = document.getElementById(`item-${itemName}`);
+        if (itemElement) {
+            itemElement.remove(); // Remove the item from the page if it's no longer in the basket
+        }
+    }
+}
+
+// Update basket page display with individual quantity controls
 function updateBasketPage() {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
     let basketItems = document.getElementById('basket-items');
@@ -47,8 +64,9 @@ function updateBasketPage() {
     // Display each item in the basket with quantity controls
     for (let item in basket) {
         let li = document.createElement('li');
+        li.id = `item-${item}`; // Assign unique ID for each item
         li.innerHTML = `
-            ${item} (x${basket[item]}) 
+            ${item} (x<span id="quantity-${item}">${basket[item]}</span>)
             <button class="increase" onclick="addToBasket('${item}')">+</button>
             <button class="decrease" onclick="removeFromBasket('${item}')">-</button>
         `;
