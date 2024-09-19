@@ -1,17 +1,27 @@
-// Add item to basket using LocalStorage
-function addToBasket(itemName, maxQuantity) {
+// Add item to basket using LocalStorage (with no popup)
+function addToBasket(itemName) {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
     if (!basket[itemName]) {
         basket[itemName] = 1;  // Start with 1 item
     } else {
-        if (basket[itemName] < maxQuantity) {
-            basket[itemName]++;
-        } else {
-            alert("You cannot add more than " + maxQuantity + " of this item.");
-        }
+        basket[itemName]++;
     }
     localStorage.setItem('basket', JSON.stringify(basket));  // Save in LocalStorage
     updateBasketIcon();
+}
+
+// Remove an item or decrease quantity from the basket
+function removeFromBasket(itemName) {
+    let basket = JSON.parse(localStorage.getItem('basket') || '{}');
+    if (basket[itemName]) {
+        basket[itemName]--;
+        if (basket[itemName] === 0) {
+            delete basket[itemName]; // Remove the item if quantity is 0
+        }
+        localStorage.setItem('basket', JSON.stringify(basket));  // Update the basket in LocalStorage
+        updateBasketIcon();
+        updateBasketPage(); // Update the basket display on the page if on the basket page
+    }
 }
 
 // Update the basket icon with item count using LocalStorage
@@ -26,7 +36,7 @@ function updateBasketIcon() {
     document.getElementById('basket-icon-count').textContent = totalItems;
 }
 
-// Update basket page display using LocalStorage
+// Update basket page display using LocalStorage (with quantity controls)
 function updateBasketPage() {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
     let basketItems = document.getElementById('basket-items');
@@ -35,7 +45,11 @@ function updateBasketPage() {
 
     for (let item in basket) {
         let li = document.createElement('li');
-        li.textContent = `${item} (x${basket[item]})`;
+        li.innerHTML = `
+            ${item} (x${basket[item]}) 
+            <button class="increase" onclick="addToBasket('${item}')">+</button>
+            <button class="decrease" onclick="removeFromBasket('${item}')">-</button>
+        `;
         basketItems.appendChild(li);
         totalItems += basket[item];
     }
