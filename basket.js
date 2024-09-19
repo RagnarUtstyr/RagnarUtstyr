@@ -1,20 +1,21 @@
-// Add item to basket using LocalStorage (with no popup)
+// Add item to basket using LocalStorage
 function addToBasket(itemName) {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
     if (!basket[itemName]) {
         basket[itemName] = 1;  // Start with 1 item
     } else {
-        basket[itemName]++;
+        basket[itemName]++;  // Increment the quantity
     }
     localStorage.setItem('basket', JSON.stringify(basket));  // Save in LocalStorage
     updateBasketIcon();
+    updateBasketPage(); // Update the basket page if necessary
 }
 
 // Remove an item or decrease quantity from the basket
 function removeFromBasket(itemName) {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
     if (basket[itemName]) {
-        basket[itemName]--;
+        basket[itemName]--;  // Decrement the quantity
         if (basket[itemName] === 0) {
             delete basket[itemName]; // Remove the item if quantity is 0
         }
@@ -43,6 +44,7 @@ function updateBasketPage() {
     let totalItems = 0;
     basketItems.innerHTML = ''; // Clear basket list
 
+    // Display each item in the basket with quantity controls
     for (let item in basket) {
         let li = document.createElement('li');
         li.innerHTML = `
