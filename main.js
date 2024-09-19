@@ -53,3 +53,11 @@ dots.forEach((dot, index) => {
         currentSlide(index + 1);
     });
 });
+function showSlides() {
+    let slides = document.getElementsByClassName("mySlides");
+    if (slides.length === 0) {
+        return;  // If there are no slides, exit the function
+    }
+
+    // Rest of the slideshow code...
+}
