@@ -249,3 +249,18 @@ header {
         grid-template-columns: 1fr;
     }
 }
+.increase, .decrease {
+    background-color: #555;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.increase:hover, .decrease:hover {
+    background-color: #ffcc00;
+    color: #333;
+}
