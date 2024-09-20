@@ -154,7 +154,7 @@ function downloadBasket() {
 
     // Use html2pdf to generate and download the PDF with more detailed styling
     html2pdf(pdfContainer, {
-        margin: 1,
+        margin: 0,
         filename: 'basket_inquiry.pdf',
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
