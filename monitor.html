@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="images/favicon-64x64.png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+    <!-- Logo on the left -->
+    <div class="logo">
+        <a href="index.html">
+            <img src="images/logo.png" alt="Ragnar Bøe Utstyrsleie Logo">
+        </a>
+    </div>
+
+<div class="basket-icon-container">
+        <a href="basket.html">
+            <img src="images/basket-icon.png" alt="Basket" class="basket-icon"/>
+            <span id="basket-icon-count">0</span> <!-- Item count -->
+        </a>
+    </div>
+        
+        <nav>
+            <ul class="navbar">
+                <li><a href="index.html">Home</a></li>
+                
+                <!-- Dropdown for Camera -->
+                <li class="dropdown">
+                    <a href="equipment.html" class="dropbtn">Equipment</a>
+                    <ul class="dropdown-content">
+                    	<li><a href="camera.html">Camera</a></li>
+                        <li><a href="camacc.html">Camera Accesories</a></li>
+                        <li><a href="optikk.html">Optikk</a></li>
+                        <li><a href="monitor.html">Monitor</a></li>
+                        <li><a href="fokus.html">Focus</a></li>
+			<li><a href="video.html">Wireless</a></li>
+			<li><a href="batteri.html">Battery</a></li>
+			<li><a href="lys.html">Lights</a></li>
+			<li><a href="grip.html">Grip</a></li>
+			<li><a href="lyd.html">Sound</a></li>
+			<li><a href="filter.html">Filter</a></li>
+			<li><a href="tralle.html">Carts</a></li>
+            <li><a href="power.html">Power and EL</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Dropdown for Contact -->
+                <li class="dropdown">
+                    <a href="Contact.html" class="dropbtn">Contact</a>
+                    <ul class="dropdown-content">
+                        <li><a href="About.html">About</a></li>
+                        <li><a href="Contact.html">Contact</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="rtn-back-button-container">
+        <a href="equipment.html" class="rtn-back-button">Go Back</a>
+    </div>
+
+    <main>
+    <h1>Monitor</h1>
+
+    <!-- Monitor Equipment Grid -->
+    <div class="content-grid">
+
+        <!-- Monitor 1 -->
+        <div class="nav-card">
+            <a href="html/Atomos.html">
+                <img src="images-small/Atomos-small.jpg" alt="Atomos Ninja V 5" HDR SDI/HDMI monitor recorder m/ 2x1TB SSD" />
+                <h2>Atomos Ninja V 5"</h2>
+            </a>
+			<button class="rtn-add-to-basket" onclick="addToBasket('Atomos Ninja V 5', 1)">Add to Basket</button>
+        </div>
+
+        <!-- Monitor 2 -->
+        <div class="nav-card">
+            <a href="html/702UB.html">
+                <img src="images-small/702UB-small.jpg" alt="SmallHD 702 Ultra bright 7" B-foto monitor" />
+                <h2>SmallHD 702 Ultra bright 7" 1st AC Monitor</h2>
+            </a>
+			<button class="rtn-add-to-basket" onclick="addToBasket('SmallHD 702 Ultra bright', 1)">Add to Basket</button>
+        </div>
+
+        <!-- Monitor 3 -->
+        <div class="nav-card">
+            <a href="html/702DIR.html">
+                <img src="images-small/cat.jpg" alt="SmallHD 702 Ultra bright 7" Directors monitor" />
+                <h2>SmallHD 702 Ultra bright 7" Directors Monitor</h2>
+            </a>
+			<button class="rtn-add-to-basket" onclick="addToBasket('SmallHD 702 Ultra bright 7" Directors monitor', 1)">Add to Basket</button>
+        </div>
+
+ <!-- Monitor 4 -->
+        <div class="nav-card">
+            <a href="html/703.html">
+                <img src="images-small/703UB-small.jpg" alt="SmallHD 703 Ultra bright 7" Directors monitor" />
+                <h2>SmallHD 703 Ultra bright 7" 1st AC Monitor</h2>
+            </a>
+			<button class="rtn-add-to-basket" onclick="addToBasket('SmallHD 703 Ultra bright 7"', 1)">Add to Basket</button>
+        </div>
+
+<!-- Monitor 5 -->
+        <div class="nav-card">
+            <a href="html/1703.html">
+                <img src="images-small/1703-small.jpg" alt="SmallHD 1703 P3X 17" Directors monitor" />
+                <h2>SmallHD 1703 P3X</h2>
+            </a>
+			<button class="rtn-add-to-basket" onclick="addToBasket('SmallHD 1703 P3X 17"', 1)">Add to Basket</button>
+        </div>
+
+<!-- Monitor 6 -->
+        <div class="nav-card">
+            <a href="html/Lili28.html">
+                <img src="images-small/Lili28-small.jpg" alt="Lilliput BM280-4KS – 28″ 4K" Directors monitor" />
+                <h2>Lilliput BM280-4KS – 28″ 4K</h2>
+            </a>
+			<button class="rtn-add-to-basket" onclick="addToBasket('Lilliput 28″', 1)">Add to Basket</button>
+        </div>
+
+        <!-- Add more Monitor items similarly -->
+        
+    </div>
+
+    <nav>
+        <a href="index.html">Back to Main Page</a>
+    </nav>
+
+    <footer>
+        <p>© 2024 Ragnar Bøe Utstyrsleie</p>
+    </footer>
+    <script src="main.js"></script>
+	<script src="basket.js"></script>
+</body>
+</html>

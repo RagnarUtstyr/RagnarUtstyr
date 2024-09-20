@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grip</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="images/favicon-64x64.png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <!-- Logo on the left -->
+    <div class="logo">
+        <a href="index.html">
+            <img src="images/logo.png" alt="Ragnar Bøe Utstyrsleie Logo">
+        </a>
+    </div>
+
+<div class="basket-icon-container">
+        <a href="basket.html">
+            <img src="images/basket-icon.png" alt="Basket" class="basket-icon"/>
+            <span id="basket-icon-count">0</span> <!-- Item count -->
+        </a>
+    </div>
+        
+        <nav>
+            <ul class="navbar">
+                <li><a href="index.html">Home</a></li>
+                
+                <!-- Dropdown for Camera -->
+                <li class="dropdown">
+                    <a href="equipment.html" class="dropbtn">Equipment</a>
+                    <ul class="dropdown-content">
+                    	<li><a href="camera.html">Camera</a></li>
+                        <li><a href="camacc.html">Camera Accesories</a></li>
+                        <li><a href="optikk.html">Optikk</a></li>
+                        <li><a href="monitor.html">Monitor</a></li>
+                        <li><a href="fokus.html">Focus</a></li>
+			<li><a href="video.html">Wireless</a></li>
+			<li><a href="batteri.html">Battery</a></li>
+			<li><a href="lys.html">Lights</a></li>
+			<li><a href="grip.html">Grip</a></li>
+			<li><a href="lyd.html">Sound</a></li>
+			<li><a href="filter.html">Filter</a></li>
+			<li><a href="tralle.html">Carts</a></li>
+            <li><a href="power.html">Power and EL</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Dropdown for Contact -->
+                <li class="dropdown">
+                    <a href="Contact.html" class="dropbtn">Contact</a>
+                    <ul class="dropdown-content">
+                        <li><a href="About.html">About</a></li>
+                        <li><a href="Contact.html">Contact</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="rtn-back-button-container">
+        <a href="equipment.html" class="rtn-back-button">Go Back</a>
+    </div>
+
+    <main>
+
+    <h1>Grip</h1>
+
+    <!-- Monitor Equipment Grid -->
+    <div class="content-grid">
+<!-- C-stand 40 -->
+    <div class="nav-card">
+        <a href="html/c-stand-40.html">
+            <img src="images-small/c-stand-40.jpg" alt="C-stand 40" />
+            <h2>C-stand 40</h2>
+        </a>
+		<button class="rtn-add-to-basket" onclick="addToBasket('C-stand 40', 9)">Add to Basket</button>
+    </div>
+
+    <!-- C-stand 20 -->
+    <div class="nav-card">
+        <a href="html/c-stand-20.html">
+            <img src="images-small/c-stand-20.jpg" alt="C-stand 20" />
+            <h2>C-stand 20</h2>
+        </a>
+		<button class="rtn-add-to-basket" onclick="addToBasket('C-stand 20', 2)">Add to Basket</button>
+    </div>
+
+    <!-- Avenger tripple riser combo stand -->
+    <div class="nav-card">
+        <a href="html/avenger-tripple-riser-combo-stand.html">
+            <img src="images-small/avenger-tripple-riser.jpg" alt="Avenger tripple riser combo stand" />
+            <h2>Avenger tripple riser combo stand</h2>
+        </a>
+		<button class="rtn-add-to-basket" onclick="addToBasket('Avenger tripple riser combo', 3)">Add to Basket</button>
+    </div>
+
+    <!-- Avenger Lowboy stand -->
+    <div class="nav-card">
+        <a href="html/avenger-lowboy-stand.html">
+            <img src="images-small/avenger-lowboy.jpg" alt="Avenger Lowboy stand" />
+            <h2>Avenger Lowboy stand</h2>
+        </a>
+		<button class="rtn-add-to-basket" onclick="addToBasket('Avenger Lowboy stand', 1)">Add to Basket</button>
+    </div>
+
+    <!-- Avenger Roller 12 Folding Base -->
+    <div class="nav-card">
+        <a href="html/avenger-roller-12-folding-base.html">
+            <img src="images-small/avenger-roller-12.jpg" alt="Avenger Roller 12 Folding Base" />
+            <h2>Avenger Roller 12 Folding Base</h2>
+        </a>
+		<button class="rtn-add-to-basket" onclick="addToBasket('Avenger Roller 12 Folding Base', 1)">Add to Basket</button>
+    </div>
+
+    <!-- Manfrotto Autopole 076B Black 1,5m - 2,7m -->
+    <div class="nav-card">
+        <a href="html/manfrotto-autopole-076b-black.html">
+            <img src="images-small/manfrotto-autopole.jpg" alt="Manfrotto Autopole 076B Black 1,5m - 2,7m" />
+            <h2>Manfrotto Autopole 076B Black 1,5m - 2,7m</h2>
+        </a>
+		<button class="rtn-add-to-basket" onclick="addToBasket('Manfrotto Autopole Short', 1)">Add to Basket</button>
+    </div>
+
+    <!-- Gravity LS Vari-Pole 01 B 2,1m - 3.7m -->
+    <div class="nav-card">
+        <a href="html/gravity-ls-vari-pole.html">
+            <img src="images-small/gravity-ls-vari-pole.jpg" alt="Gravity LS Vari-Pole 01 B 2,1m - 3.7m" />
+            <h2>Gravity LS Vari-Pole 01 B 2,1m - 3.7m</h2>
+        </a>
+		<button class="rtn-add-to-basket" onclick="addToBasket('Gravity LS Vari-Pole Long', 1)">Add to Basket</button>
+    </div>
+	    
+<!-- Magicarm -->
+<div class="nav-card">
+    <a href="html/magicarm.html">
+        <img src="images-small/magicarm-small.jpg" alt="Magicarm" />
+        <h2>Magicarm</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Magicarm', 6)">Add to Basket</button>
+</div>
+
+<!-- Superclamp -->
+<div class="nav-card">
+    <a href="html/superclamp.html">
+        <img src="images-small/superclamp-small.jpg" alt="Superclamp" />
+        <h2>Superclamp</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Superclamp', 10)">Add to Basket</button>
+</div>
+
+<!-- Cardellini End-Jaw Clamp -->
+<div class="nav-card">
+    <a href="html/cardellini-end-jaw-clamp.html">
+        <img src="images-small/cardellini-end-jaw-small.jpg" alt="Cardellini End-Jaw Clamp" />
+        <h2>Cardellini End-Jaw Clamp</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Cardellini End-Jaw Clamp', 4)">Add to Basket</button>
+</div>
+
+<!-- Avenger D400B Jumbo Grip Head 4.5'' -->
+<div class="nav-card">
+    <a href="html/avenger-d400b-jumbo-grip-head.html">
+        <img src="images-small/avenger-d400b-jumbo-small.jpg" alt="Avenger D400B Jumbo Grip Head 4.5''" />
+        <h2>Avenger D400B Jumbo Grip Head 4.5''</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Avenger Jumbo Grip Head', 2)">Add to Basket</button>
+</div>
+
+<!-- Avenger F1100 Suction cups -->
+<div class="nav-card">
+    <a href="html/avenger-f1100-suction-cups.html">
+        <img src="images-small/avenger-f1100-suction-cups-small.jpg" alt="Avenger F1100 Suction cups" />
+        <h2>Avenger F1100 Suction cups</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Avenger F1100 Suction cups', 4)">Add to Basket</button>
+</div>
+
+<!-- Manfrotto C461 Tube Clamp -->
+<div class="nav-card">
+    <a href="html/c461.html">
+        <img src="images-small/c461.jpg" alt="Manfrotto C461 Tube Clamp" />
+        <h2>Manfrotto C461 Tube Clamp</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Manfrotto C461 Tube Clamp', 2)">Add to Basket</button>
+</div>
+
+<!-- Avenger f800 Baby Plate with 16mm spigot -->
+<div class="nav-card">
+    <a href="html/avenger-f800-baby-plate.html">
+        <img src="images-small/avenger-f800-baby-plate-small.jpg" alt="Avenger f800 Baby Plate with 16mm spigot" />
+        <h2>Avenger f800 Baby Plate with 16mm spigot</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Avenger f800 Plate with 16mm spigot', 4)">Add to Basket</button>
+</div>
+
+<!-- Avenger Drop Ceiling scissor clamp -->
+<div class="nav-card">
+    <a href="html/avenger-drop-ceiling-scissor-clamp.html">
+        <img src="images-small/avenger-drop-ceiling-small.jpg" alt="Avenger Drop Ceiling scissor clamp" />
+        <h2>Avenger Drop Ceiling scissor clamp</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Avenger Drop Ceiling scissor clamp', 4)">Add to Basket</button>
+</div>
+
+<!-- Kupo KS-048 Junior Wall Plate With Junior Receiver -->
+<div class="nav-card">
+    <a href="html/kupo-junior-wall-plate.html">
+        <img src="images-small/kupo-junior-wall-plate-small.jpg" alt="Kupo KS-048 Junior Wall Plate With Junior Receiver" />
+        <h2>Kupo KS-048 Junior Wall Plate With Junior Receiver</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Kupo Wall Plate With Junior Receiver', 3)">Add to Basket</button>
+</div>
+
+<!-- 100mm Danadolly -->
+<div class="nav-card">
+    <a href="html/100mm-danadolly.html">
+        <img src="images-small/cat.jpg" alt="100mm Danadolly" />
+        <h2>100mm Danadolly</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('100mm Danadolly', 1)">Add to Basket</button>
+</div>
+
+<!-- 150mm Danadolly -->
+<div class="nav-card">
+    <a href="html/150mm-danadolly.html">
+        <img src="images-small/cat.jpg" alt="150mm Danadolly" />
+        <h2>150mm Danadolly</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('150mm Danadolly', 1)">Add to Basket</button>
+</div>
+
+<!-- Mitchell mnt. Danadolly -->
+<div class="nav-card">
+    <a href="html/mitchell-danadolly.html">
+        <img src="images-small/cat.jpg" alt="Mitchell mnt. Danadolly" />
+        <h2>Mitchell mnt. Danadolly</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Mitchell mnt. Danadolly', 1)">Add to Basket</button>
+</div>
+
+<!-- Eplekasse Familie -->
+<div class="nav-card">
+    <a href="html/eplekasse-familie.html">
+        <img src="images-small/eplekasse-familie-small.jpg" alt="Eplekasse Familie" />
+        <h2>Eplekasse Familie</h2>
+    </a>
+	<button class="rtn-add-to-basket" onclick="addToBasket('Eplekasse Familie', 8)">Add to Basket</button>
+</div>
+
+       <!-- Add more Grip items similarly -->
+        
+    </div>
+
+    <nav>
+        <a href="index.html">Back to Main Page</a>
+    </nav>
+
+    <footer>
+        <p>© 2024 Ragnar Bøe Utstyrsleie</p>
+    </footer>
+    <script src="main.js"></script>
+	<script src="basket.js"></script>
+</body>
+</html>

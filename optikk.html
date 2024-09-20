@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lenses</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="images/favicon-64x64.png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+    <!-- Logo on the left -->
+    <div class="logo">
+        <a href="index.html">
+            <img src="images/logo.png" alt="Ragnar Bøe Utstyrsleie Logo">
+        </a>
+    </div>
+	
+	<div class="basket-icon-container">
+        <a href="basket.html">
+            <img src="images/basket-icon.png" alt="Basket" class="basket-icon"/>
+            <span id="basket-icon-count">0</span> <!-- Item count -->
+        </a>
+    </div>
+        
+        <nav>
+            <ul class="navbar">
+                <li><a href="index.html">Home</a></li>
+                
+                <!-- Dropdown for Camera -->
+                <li class="dropdown">
+                    <a href="equipment.html" class="dropbtn">Equipment</a>
+                    <ul class="dropdown-content">
+                    	<li><a href="camera.html">Camera</a></li>
+                        <li><a href="camacc.html">Camera Accesories</a></li>
+                        <li><a href="optikk.html">Optikk</a></li>
+                        <li><a href="monitor.html">Monitor</a></li>
+                        <li><a href="fokus.html">Focus</a></li>
+			<li><a href="video.html">Wireless</a></li>
+			<li><a href="batteri.html">Battery</a></li>
+			<li><a href="lys.html">Lights</a></li>
+			<li><a href="grip.html">Grip</a></li>
+			<li><a href="lyd.html">Sound</a></li>
+			<li><a href="filter.html">Filter</a></li>
+			<li><a href="tralle.html">Carts</a></li>
+            <li><a href="power.html">Power and EL</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Dropdown for Contact -->
+                <li class="dropdown">
+                    <a href="Contact.html" class="dropbtn">Contact</a>
+                    <ul class="dropdown-content">
+                        <li><a href="About.html">About</a></li>
+                        <li><a href="Contact.html">Contact</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="rtn-back-button-container">
+        <a href="equipment.html" class="rtn-back-button">Go Back</a>
+    </div>
+
+    <main>
+    <h1>Optikk</h1>
+
+    <!-- Camera Equipment Grid -->
+    <div class="content-grid">
+
+        <!-- Optikk 1 -->
+        <div class="nav-card">
+            <a href="html/Catta-ACE-35.html">
+                <img src="images-small/CATTA-35-small.jpg" alt="DZO Catta ACE 35-80" />
+                <h2>DZOfilm Catta ACE zoom 35-80 PL/EF</h2>
+            </a>
+			<button class="rtn-add-to-basket" onclick="addToBasket('DZOfilm Catta ACE 35-80', 1)">Add to Basket</button>
+        </div>
+ 
+		<!-- Optikk 2 -->
+        <div class="nav-card">
+            <a href="html/Catta-ACE-70.html">
+                <img src="images-small/CATTA-70-small.jpeg" alt="DZO Catta ACE" />
+                <h2>DZOfilm Catta ACE zoom 70-135 PL/EF</h2>
+            </a>
+			<button class="rtn-add-to-basket" onclick="addToBasket('DZOfilm Catta ACE', 1)">Add to Basket</button>
+        </div>
+		
+        <!-- Optikk 3 -->
+        <div class="nav-card">
+            <a href="html/usm.html">
+                <img src="images-small/Canon-24-70-small.jpg" alt="Canon EF 24-70mm F/2.8 L USM Lens" />
+                <h2>Canon EF 24-70mm F/2.8</h2>
+            </a>
+			<button class="rtn-add-to-basket" onclick="addToBasket('Canon EF 24-70mm', 1)">Add to Basket</button>
+        </div>
+
+        <!-- Add more Optikk items similarly -->
+        
+    </div>
+
+    <nav>
+        <a href="index.html">Back to Main Page</a>
+    </nav>
+
+    <footer>
+        <p>© 2024 Equipment Rental</p>
+    </footer>
+    <script src="main.js"></script>
+	<script src="basket.js"></script>
+</body>
+</html>
