@@ -1,0 +1,278 @@
+/* General styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0 20px;
+    background-color: #1e1e1e; /* Dark background color */
+    color: #fff; /* Light text for contrast */
+    text-align: center; /* Center all content by default */
+    
+    /* Add the background image */
+    background-image: url('../images/bckgrnd.webp'); /* Add your image path here */
+    background-size: cover; /* Ensure the image covers the entire background */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    
+    /* Create a semi-opaque overlay using ::before pseudo-element */
+    position: relative;
+    min-height: 100vh; /* Ensure body takes at least the full height of the viewport */
+}
+
+body::before {
+    content: '';
+    position: fixed; /* Make sure the overlay covers the entire viewport, including header and footer */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(30, 30, 30, 0.9); /* Dark overlay with opacity */
+    z-index: -1; /* Ensure the overlay is behind the content */
+}
+
+/* Header styling */
+header {
+    background-color: transparent; /* Make the header transparent */
+    color: white;
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 800px; /* Adjusted to a narrower width */
+    margin: 0 auto; /* Center the header content */
+}
+
+/* Logo styling */
+.logo {
+    margin-left: 0px; /* Adjust distance from the left side */
+}
+
+.logo img {
+    width: 100px;
+    height: auto;
+}
+
+/* Navbar styling */
+.navbar {
+    list-style: none; /* Remove bullets from the main navbar */
+    display: flex;
+    justify-content: center; /* Center the dropdown menu */
+    padding: 0;
+    margin: 0;
+    margin-right: 0px; /* Adjust distance from the right side */
+}
+
+.navbar li {
+    position: relative;
+}
+
+.navbar a {
+    color: white;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-size: 18px;
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.navbar a:hover {
+    background-color: transparent;
+    color: #ffcc00;
+}
+
+/* Dropdown styling */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    min-width: 160px;
+    z-index: 1;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-content a {
+    padding: 12px 16px;
+    text-decoration: none;
+    color: white;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #666;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Main Content Grid - Dynamic Layout */
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 60px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Styling the navigation cards */
+.nav-card {
+    background-color: #333;
+    border: none;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.nav-card:hover {
+    transform: scale(1.08);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+.nav-card a {
+    color: white;
+    font-size: 22px;
+    font-family: 'Poppins', sans-serif;
+    text-decoration: none;
+    margin-top: 20px;
+}
+
+.nav-card a:hover {
+    color: #ffcc00;
+}
+
+/* Gradient edge for images */
+.nav-card img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    mask-image: radial-gradient(circle at center, white 70%, transparent 100%);
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    transition: box-shadow 0.3s ease;
+}
+
+.nav-card img:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* Footer Styling */
+footer {
+    text-align: center;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    position: relative;
+    bottom: 0;
+    font-family: 'Poppins', sans-serif;
+    max-width: 1200px; /* Adjust to match the max width of the header */
+    margin: 0 auto;
+}
+
+/* Equipment details */
+.equipment-detail {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 40px 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Image centering in equipment details */
+.equipment-detail img {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Contact and download box styling */
+.contact-box, .download-box {
+    background-color: #333;
+    border: 2px solid #ffcc00;
+    border-radius: 10px;
+    padding: 15px 20px;
+    max-width: 300px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.contact-box a, .download-box a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.contact-box a:hover, .download-box a:hover {
+    color: #ffcc00;
+}
+
+.contact-box {
+    margin-bottom: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar li {
+        margin-bottom: 10px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Centering the image */
+img {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    height: auto;
+}
+.rtn-back-button-container {
+    max-width: 800px;
+    margin: 10px auto 0;
+    padding-left: 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* Styling for the return button */
+.rtn-back-button {
+    background-color: #3D4D56;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rtn-back-button:hover {
+    background-color: #555;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: #ffcc00;
+}
