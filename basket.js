@@ -66,20 +66,20 @@ function updateBasketPage() {
         for (let item in basket) {
             if (basket.hasOwnProperty(item)) {
                 let li = document.createElement('li');
-                li.classList.add('basket-item'); // Add class for styling
                 li.innerHTML = `
                     <div class="basket-item-content">
                         <span class="item-name">${item}</span>
-                        <input 
-                            type="number" 
-                            id="quantity-${item}" 
-                            class="quantity-input"
-                            value="${basket[item]}" 
-                            min="1" 
-                            max="10" 
-                            onchange="changeQuantity('${item}', this.value)"
-                        >
-                        <button class="decrease" onclick="removeFromBasket('${item}')">Remove</button>
+                        <div class="quantity-controls">
+                            <input 
+                                type="number" 
+                                class="quantity-input"
+                                value="${basket[item]}" 
+                                min="1" 
+                                onchange="changeQuantity('${item}', this.value)"
+                            >
+                            <button class="increase" onclick="changeQuantity('${item}', ${basket[item]} + 1)">+</button>
+                            <button class="decrease" onclick="changeQuantity('${item}', ${basket[item]} - 1)">-</button>
+                        </div>
                     </div>
                 `;
                 basketItems.appendChild(li);
