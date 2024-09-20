@@ -58,6 +58,7 @@ header {
     justify-content: center;
     padding: 0;
     margin: 0;
+    margin-right: 0px;
 }
 
 .navbar li {
@@ -79,115 +80,86 @@ header {
     color: #ffcc00;
 }
 
-/* Basket icon styling */
-.basket-icon-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.basket-icon {
-    width: 32px;
-    height: 32px;
-}
-
-#basket-icon-count {
+/* Dropdown styling */
+.dropdown-content {
+    display: none;
     position: absolute;
-    top: -10px;
-    right: -10px;
-    background-color: #ffcc00;
-    color: #333;
-    border-radius: 50%;
-    padding: 5px;
-    font-size: 12px;
-    font-weight: bold;
-    min-width: 20px;
-    text-align: center;
-}
-
-/* Basket page styling */
-.rtn-basket {
     background-color: #333;
-    color: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-    max-width: 300px;
-    margin: 20px auto;
-    text-align: center;
-}
-
-.rtn-basket h3 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 22px;
-    margin-bottom: 20px;
-}
-
-#basket-items {
-    list-style-type: none;
+    min-width: 160px;
+    z-index: 1;
+    list-style: none;
     padding: 0;
-    margin-bottom: 20px;
+    margin: 0;
 }
 
-#basket-items li {
-    font-size: 18px;
-    padding: 10px 0;
-    border-bottom: 1px solid #555;
-}
-
-#basket-total {
-    font-size: 20px;
-    color: #ffcc00;
-}
-
-/* Submit Button Styling */
-.rtn-submit-button {
-    background-color: #333;
+.dropdown-content a {
+    padding: 12px 16px;
+    text-decoration: none;
     color: white;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #666;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* EQ-content grid settings */
+.eq-content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+    gap: 30px; 
+    padding: 45px 30px; 
+    max-width: 1200px; 
+    margin: 0 auto; 
+}
+
+.eq-nav-card {
+    background-color: #333; 
     border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    padding: 20px; 
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; 
+    text-align: center; 
+    width: 100%; 
+    height: auto; 
+    max-width: 250px; 
+    cursor: pointer; 
 }
 
-.rtn-submit-button:hover {
-    background-color: #555;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    color: #ffcc00;
+/* Hover effect for .eq-nav-card  */
+.eq-nav-card:hover {
+    background-color: #555; 
+    transform: scale(1.08); 
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7); 
 }
 
-/* Add to Basket Button Styling */
-.rtn-add-to-basket {
-    background-color: #333;
+
+.eq-nav-card a {
     color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
+    font-size: 22px;
     font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    margin-top: 20px;
+    text-decoration: none;
+    margin-top: 0; 
+	
 }
 
-.rtn-add-to-basket:hover {
-    background-color: #555;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    color: #ffcc00;
+.eq-nav-card a:hover {
+    color: #ffcc00; 
+	border-color: transparent;
 }
 
-/* Responsive Basket for Mobile Devices */
-@media (max-width: 768px) {
-    .rtn-basket {
-        max-width: 100%;
-        padding: 15px;
-    }
-}
 
-/* Content grid for product listing */
+/* Main Content Grid - Dynamic Layout */
 .content-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -229,7 +201,174 @@ header {
     color: #ffcc00;
 }
 
+/* Gradient edge for images */
+.nav-card img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    mask-image: radial-gradient(circle at center, white 70%, transparent 100%);
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    transition: box-shadow 0.3s ease;
+}
+
+.nav-card img:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* Footer Styling */
+footer {
+    text-align: center;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    position: relative;
+    bottom: 0;
+    font-family: 'Poppins', sans-serif;
+    max-width: 1200px; 
+    margin: 0 auto;
+}
+
+/* Equipment details */
+.equipment-detail {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 40px 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Image centering in equipment details */
+.equipment-detail img {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Contact and download box styling */
+.contact-box, .download-box {
+    background-color: #333;
+    border: 2px solid #232438;
+    border-radius: 10px;
+    padding: 15px 20px;
+    max-width: 300px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.contact-box a, .download-box a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.contact-box a:hover, .download-box a:hover {
+    color: #ffcc00;
+}
+
+.contact-box {
+    margin-bottom: 20px;
+}
+
+/* Slideshow Styles */
+.slideshow-container {
+    width: 100%;
+    max-width: 457px;
+    margin: 40px auto; 
+    position: relative;
+    overflow: hidden; 
+    border: 2px solid transparent; 
+    border-radius: 10px; 
+}
+
+.carousel {
+    display: flex;
+    transition: transform 1.5s ease;
+    will-change: transform;
+}
+
+.slide {
+    min-width: 100%;
+    transition: transform 1.5s ease;
+}
+
+.slideshow-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Dot indicators for slideshow */
+.dot-container {
+    text-align: center;
+    padding: 10px;
+}
+
+.dot {
+    height: 12px;
+    width: 12px;
+    margin: 0 5px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.active {
+    background-color: #ffcc00;
+}
+
+
+.img-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 20px; 
+    padding: 20px;
+    max-width: 1200px; 
+    margin: 0 auto; 
+}
+
+.img-grid a {
+    display: block;
+    text-decoration: none;
+}
+
+.img-grid img {
+    width: 100%; 
+    height: auto;
+    border-radius: 8px; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+
+.img-grid img:hover {
+    transform: scale(1.05); 
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); 
+}
+
 /* Responsive adjustments */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar li {
+        margin-bottom: 10px;
+    }
+
+    .content-grid, .eq-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
     header {
         flex-direction: column;
@@ -248,6 +387,42 @@ header {
     .content-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Centering the image */
+img {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    height: auto;
+}
+.rtn-back-button-container {
+    max-width: 800px;
+    margin: 10px auto 0;
+    padding-left: 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* Styling for the return button */
+.rtn-back-button {
+    background-color: #3D4D56;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rtn-back-button:hover {
+    background-color: #555;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: #ffcc00;
+}
 }
 .increase, .decrease {
     background-color: #555;
