@@ -123,3 +123,30 @@ input[type=number] {
     color: #333;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
+/* Empty cart button styling */
+.rtn-empty-button {
+    background-color: #681a1a; /* Red-ish hue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rtn-empty-button:hover {
+    background-color: #550b0b; /* Lighter red on hover */
+    color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Style for bin icon */
+.rtn-empty-button img {
+    margin-left: 10px;
+}

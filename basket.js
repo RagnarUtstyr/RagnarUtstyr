@@ -35,6 +35,14 @@ function removeFromBasket(itemName) {
     updateBasketPage(); // Re-render the basket page
 }
 
+// Empty the entire basket
+function emptyCart() {
+    // Clear the basket in LocalStorage
+    localStorage.setItem('basket', '{}');
+    updateBasketIcon();  // Update the basket icon count
+    updateBasketPage();  // Re-render the basket page to show it's empty
+}
+
 // Update the basket icon with the total item count using LocalStorage
 function updateBasketIcon() {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
@@ -162,5 +170,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let submitButton = document.getElementById('submit-inquiry');
     if (submitButton) {
         submitButton.addEventListener('click', downloadBasket);
+    }
+
+    // Attach the empty cart handler if the empty cart button is present
+    let emptyCartButton = document.getElementById('empty-cart');
+    if (emptyCartButton) {
+        emptyCartButton.addEventListener('click', emptyCart);
     }
 });
