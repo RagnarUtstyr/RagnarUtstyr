@@ -1,7 +1,7 @@
 // Add item to basket using LocalStorage and enforce maxQuantity
 function addToBasket(itemName, maxQuantity) {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
-    
+
     // Initialize item in the basket if it doesn't exist
     if (!basket[itemName]) {
         basket[itemName] = 1;  // Start with 1 item
@@ -13,7 +13,7 @@ function addToBasket(itemName, maxQuantity) {
             return;
         }
     }
-    
+
     // Save updated basket to LocalStorage
     localStorage.setItem('basket', JSON.stringify(basket));
     updateBasketIcon(); // Update basket icon with item count
@@ -23,7 +23,7 @@ function addToBasket(itemName, maxQuantity) {
 // Remove item from the basket
 function removeFromBasket(itemName) {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
-    
+
     // If the item exists in the basket, remove it
     if (basket[itemName]) {
         delete basket[itemName]; // Remove the item completely
@@ -58,7 +58,7 @@ function updateBasketIcon() {
 function updateBasketPage() {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
     let basketItems = document.getElementById('basket-items');
-    
+
     if (basketItems) {
         basketItems.innerHTML = ''; // Clear the current list of basket items
 
@@ -112,36 +112,42 @@ function changeQuantity(itemName, newQuantity) {
     updateBasketPage(); // Re-render the basket page with the new quantity
 }
 
-// Generate and download the basket contents as a .txt file
+// Generate and download the basket contents as a PDF file
 function downloadBasket() {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
-    
+
     // If the basket is empty, alert the user
     if (Object.keys(basket).length === 0) {
         alert("Your basket is empty.");
         return;
     }
 
-    // Generate the text content for the basket inquiry
-    let textContent = "Your Basket Inquiry:\n\n";
+    // Prepare the content of the basket as HTML
+    let basketContent = "<h1>Your Basket Inquiry:</h1><ul>";
     for (let item in basket) {
         if (basket.hasOwnProperty(item)) {
-            textContent += `${item}: ${basket[item]} units\n`;
+            basketContent += `<li>${item}: ${basket[item]} units</li>`;
         }
     }
+    basketContent += "</ul>";
 
-    // Create a blob and trigger the file download
-    let blob = new Blob([textContent], { type: "text/plain" });
-    let link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = "basket_inquiry.txt";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Create a container element for the PDF content
+    let pdfContainer = document.createElement('div');
+    pdfContainer.innerHTML = basketContent;
+    pdfContainer.style.background = "#333";  // Match background color from CSS
+    pdfContainer.style.color = "white";  // Match text color
+
+    // Use html2pdf to generate and download the PDF
+    html2pdf(pdfContainer, {
+        margin: 1,
+        filename: 'basket_inquiry.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    });
 
     // Optionally, clear the basket after download
     localStorage.setItem('basket', '{}');
-    updateBasketPage(); // Update the basket page after clearing
+    updateBasketPage();  // Update the basket page after clearing
 }
 
 // Ensure the basket icon and page are updated on page load
