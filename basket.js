@@ -145,21 +145,20 @@ function downloadBasket() {
                 </li>`;
         }
     }
-    
+
     basketContent += `</ul></div>`;
 
     // Create a container element for the PDF content
     let pdfContainer = document.createElement('div');
     pdfContainer.innerHTML = basketContent;
 
-    // Use html2pdf to generate and download the PDF with more detailed styling
-    html2pdf(pdfContainer, 
-        margin: 0,
+    // Use html2pdf to generate and download the PDF with no margins
+    html2pdf(pdfContainer, {
+        margin: 0,  // Full-page background
         filename: 'basket_inquiry.pdf',
-        html2canvas: { scale: 2 
-        backgroundColor: "#333" },
+        html2canvas: { scale: 2, backgroundColor: "#333" },  // Grey background
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    );
+    });
 }
 
 // Ensure the basket icon and page are updated on page load
