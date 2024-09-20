@@ -133,11 +133,11 @@ input[type=number] {
 
 /* Flex container for buttons */
 .basket-buttons-container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     display: flex;
-    justify-content: space-between; /* Ensure the buttons are spread apart */
+    justify-content: flex-end; /* Align buttons to the right */
     align-items: center;
 }
 
@@ -178,6 +178,7 @@ input[type=number] {
     justify-content: center;
 }
 
+/* Empty cart button hover effect */
 .rtn-empty-button:hover {
     background-color: #8a0b0b; /* Lighter red on hover */
     color: white;
