@@ -465,3 +465,21 @@ img {
     min-width: 20px;
     text-align: center;
 }
+.rtn-add-to-basket {
+    background-color: #3D4D56;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rtn-add-to-basket:hover {
+    background-color: #555;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: #ffcc00;
+}
