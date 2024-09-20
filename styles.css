@@ -143,21 +143,18 @@ header {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7); 
 }
 
-
 .eq-nav-card a {
     color: white;
     font-size: 22px;
     font-family: 'Poppins', sans-serif;
     text-decoration: none;
     margin-top: 0; 
-	
 }
 
 .eq-nav-card a:hover {
     color: #ffcc00; 
 	border-color: transparent;
 }
-
 
 /* Main Content Grid - Dynamic Layout */
 .content-grid {
@@ -183,7 +180,6 @@ header {
     justify-content: center;
     text-align: center;
 }
-
 
 .nav-card:hover {
     transform: scale(1.08);
@@ -321,7 +317,6 @@ footer {
     background-color: #ffcc00;
 }
 
-
 .img-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
@@ -397,6 +392,8 @@ img {
     max-width: 100%;
     height: auto;
 }
+
+/* Return button styling */
 .rtn-back-button-container {
     max-width: 800px;
     margin: 10px auto 0;
@@ -425,6 +422,7 @@ img {
     color: #ffcc00;
 }
 
+/* Styling for increase/decrease buttons */
 .increase, .decrease {
     background-color: #555;
     color: white;
@@ -446,27 +444,30 @@ img {
     position: relative;
     display: flex;
     align-items: center;
+    justify-content: flex-end; /* Align to the right if needed */
+    margin-right: 20px;
 }
 
 .basket-icon {
-    width: 32px;
-    height: 32px;
+    width: 24px;  /* Smaller width */
+    height: 24px; /* Smaller height */
 }
 
 #basket-icon-count {
     position: absolute;
-    top: -10px;
-    right: -10px;
+    top: -8px;
+    right: -8px;
     background-color: #ffcc00;
     color: #333;
     border-radius: 50%;
-    padding: 5px;
-    font-size: 12px;
+    padding: 4px;
+    font-size: 10px; /* Smaller font size */
     font-weight: bold;
-    min-width: 20px;
+    min-width: 16px; /* Ensure the bubble has a minimum width */
     text-align: center;
 }
 
+/* Basket items and total styling */
 #basket-items {
     list-style-type: none;
     padding: 0;
@@ -487,23 +488,7 @@ img {
     color: #ffcc00;
 }
 
-.increase, .decrease {
-    background-color: #555;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    margin: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.increase:hover, .decrease:hover {
-    background-color: #ffcc00;
-    color: #333;
-}
-
+/* Submit button styling */
 .rtn-submit-button {
     background-color: #333;
     color: white;
