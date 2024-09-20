@@ -124,9 +124,46 @@ input[type=number] {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* Basket Items Container */
+.basket-items-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Flex container for buttons */
+.basket-buttons-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between; /* Ensure the buttons are spread apart */
+    align-items: center;
+}
+
+/* Submit button styling */
+.rtn-submit-button {
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 20px;
+}
+
+.rtn-submit-button:hover {
+    background-color: #ffcc00;
+    color: #333;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
 /* Empty cart button styling */
 .rtn-empty-button {
-    background-color: #cc0000; /* Red-ish hue */
+    background-color: #521616; /* Red-ish hue */
     color: white;
     border: none;
     border-radius: 5px;
@@ -142,7 +179,7 @@ input[type=number] {
 }
 
 .rtn-empty-button:hover {
-    background-color: #521515; /* Lighter red on hover */
+    background-color: #8a0b0b; /* Lighter red on hover */
     color: white;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
