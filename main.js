@@ -22,7 +22,7 @@ function showSlides() {
     }
 
     // Apply the transform property to slide the images to the left
-    carousel.style.transform = translateX(${-slideIndex * 100}%);
+    carousel.style.transform = `translateX(${-slideIndex * 100}%)`;
 
     // Update the active class for the dots (pagination indicator)
     dots.forEach(dot => dot.classList.remove("active"));
@@ -40,7 +40,7 @@ function currentSlide(n) {
     slideIndex = n - 1;
 
     // Slide to the selected image
-    carousel.style.transform = translateX(${-slideIndex * 100}%);
+    carousel.style.transform = `translateX(${-slideIndex * 100}%)`;
 
     // Update the active class for the dots
     dots.forEach(dot => dot.classList.remove("active"));
