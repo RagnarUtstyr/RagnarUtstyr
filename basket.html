@@ -7,11 +7,11 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
 <header>
-    <!-- Logo on the left -->
     <div class="logo">
         <a href="index.html">
-            <img src="images/logo.png" alt="Ragnar Bøe Utstyrsleie Logo">
+            <img src="images/logo.png" alt="Logo">
         </a>
     </div>
 
@@ -19,33 +19,29 @@
     <div class="basket-icon-container">
         <a href="basket.html">
             <img src="images/basket-icon.png" alt="Basket" class="basket-icon"/>
-            <span id="basket-icon-count">0</span> <!-- This holds the basket item count -->
+            <span id="basket-icon-count">0</span> <!-- This will be dynamically updated -->
         </a>
     </div>
-
-    <nav>
-        <ul class="navbar">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="equipment.html">Equipment</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-    </nav>
 </header>
 
 <main>
     <h1>Your Basket</h1>
 
-    <!-- Basket Items List (with increase and decrease buttons) -->
-    <ul id="basket-items"></ul> <!-- Dynamically populated -->
+    <!-- Basket Items List (with input for quantity) -->
+    <ul id="basket-items"></ul> <!-- Dynamically populated with items from LocalStorage -->
 
     <p>Total items: <span id="basket-total">0</span></p>
+
+    <!-- Submit Inquiry Button -->
     <button id="submit-inquiry" class="rtn-submit-button">Download Inquiry</button>
 </main>
 
 <footer>
-    <p>© 2024 Ragnar Bøe Utstyrsleie</p>
+    <p>&copy; 2024 Your Company Name. All rights reserved.</p>
 </footer>
 
-<script src="basket.js"></script> <!-- Include the basket.js file -->
+<!-- Include basket.js -->
+<script src="basket.js"></script>
+
 </body>
 </html>
