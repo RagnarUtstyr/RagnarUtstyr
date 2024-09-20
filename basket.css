@@ -48,9 +48,22 @@
 }
 
 .quantity-input {
-    width: 50px; /* Fixed width for the input */
-    text-align: center; /* Center text in input */
-    margin: 0 5px; /* Add some space around the input */
+    width: 40px; /* Shorten the width */
+    height: 30px; /* Increase the height */
+    text-align: center; /* Keep text centered */
+    margin: 0 5px;
+    font-size: 20px; /* Adjust font size if needed */
+}
+
+/* Remove the default arrows in the number input */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield; /* Remove arrows in Firefox */
 }
 
 .decrease {
