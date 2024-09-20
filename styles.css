@@ -465,6 +465,15 @@ img {
     min-width: 20px;
     text-align: center;
 }
+
+.rtn-add-to-basket:container {
+    max-width: 800px;
+    margin: 10px auto 0;
+    padding-left: 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
 .rtn-add-to-basket {
     background-color: #3D4D56;
     color: white;
