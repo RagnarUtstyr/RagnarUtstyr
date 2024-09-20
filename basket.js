@@ -20,7 +20,7 @@ function addToBasket(itemName, maxQuantity) {
     updateBasketPage(); // Re-render basket items on the basket page
 }
 
-// Remove item or decrease quantity from the basket
+// Remove item from the basket
 function removeFromBasket(itemName) {
     let basket = JSON.parse(localStorage.getItem('basket') || '{}');
     
@@ -62,22 +62,25 @@ function updateBasketPage() {
     if (basketItems) {
         basketItems.innerHTML = ''; // Clear the current list of basket items
 
-        // Display each item in the basket with an input for quantity control
+        // Display each item in the basket with input for quantity control
         for (let item in basket) {
             if (basket.hasOwnProperty(item)) {
                 let li = document.createElement('li');
-                li.id = `item-${item}`;
+                li.classList.add('basket-item'); // Add class for styling
                 li.innerHTML = `
-                    ${item} 
-                    <input 
-                        type="number" 
-                        id="quantity-${item}" 
-                        value="${basket[item]}" 
-                        min="1" 
-                        max="10" 
-                        onchange="changeQuantity('${item}', this.value)"
-                    >
-                    <button class="decrease" onclick="removeFromBasket('${item}')">Remove</button>
+                    <div class="basket-item-content">
+                        <span class="item-name">${item}</span>
+                        <input 
+                            type="number" 
+                            id="quantity-${item}" 
+                            class="quantity-input"
+                            value="${basket[item]}" 
+                            min="1" 
+                            max="10" 
+                            onchange="changeQuantity('${item}', this.value)"
+                        >
+                        <button class="decrease" onclick="removeFromBasket('${item}')">Remove</button>
+                    </div>
                 `;
                 basketItems.appendChild(li);
             }
