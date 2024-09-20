@@ -422,6 +422,24 @@ img {
     color: #ffcc00;
 }
 
+.rtn-add-to-basket {
+    background-color: #2C3E50; /* Darker shade for better visibility */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px; /* Consistent padding */
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px; /* Match font size with other buttons */
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rtn-add-to-basket:hover {
+    background-color: #FFCC00; /* Bright hover color for visibility */
+    color: #333; /* Change text color on hover */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
+}
+
 /* Styling for increase/decrease buttons */
 .increase, .decrease {
     background-color: #555;
