@@ -153,12 +153,13 @@ function downloadBasket() {
     pdfContainer.innerHTML = basketContent;
 
     // Use html2pdf to generate and download the PDF with more detailed styling
-    html2pdf(pdfContainer, {
+    html2pdf(pdfContainer, 
         margin: 0,
         filename: 'basket_inquiry.pdf',
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 2 
+        backgroundColor: "#333" },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    });
+    );
 }
 
 // Ensure the basket icon and page are updated on page load
