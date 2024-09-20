@@ -116,24 +116,24 @@
     padding: 5px 10px; /* Padding around the button */
     cursor: pointer; /* Change cursor to pointer */
     border-radius: 5px; /* Rounded corners */
-    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effects */
+    transition: background-color 0.3s ease, transform 0.3s ease; 
 }
 
 /* Change background color and add a slight scale on hover */
 .remove:hover {
-    background-color: #ffcc00; /* Bright yellow background on hover */
-    transform: scale(1.1); /* Slightly enlarge the button */
+    background-color: #ffcc00;
+    transform: scale(1.1); 
 }
 
 /* Styling the bin icon inside the remove button */
 .remove img {
-    width: 20px; /* Control the size of the bin icon */
-    height: 20px; /* Same size for width and height */
-    vertical-align: middle; /* Align the icon vertically */
-    transition: transform 0.3s ease; /* Smooth transition for hover effects */
+    width: 20px; 
+    height: 20px; 
+    vertical-align: middle; 
+    transition: transform 0.3s ease;
 }
 
 /* Optional hover effect for the icon (if you want the icon to rotate slightly) */
 .remove:hover img {
-    transform: rotate(-15deg); /* Slight rotation on hover */
+    transform: rotate(-15deg); 
 }
