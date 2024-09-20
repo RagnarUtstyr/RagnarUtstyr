@@ -467,6 +467,11 @@ img {
     text-align: center;
 }
 
+.basket-items-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+
 /* Basket items and total styling */
 #basket-items {
     list-style-type: none;
