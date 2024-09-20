@@ -144,10 +144,6 @@ function downloadBasket() {
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     });
-
-    // Optionally, clear the basket after download
-    localStorage.setItem('basket', '{}');
-    updateBasketPage();  // Update the basket page after clearing
 }
 
 // Ensure the basket icon and page are updated on page load
