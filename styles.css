@@ -171,7 +171,7 @@ header {
 
 /* Styling the navigation cards */
 .nav-card {
-    background-color: rgba(34, 33, 33, 0.3);
+    background-color: rgba(34, 33, 33, 0.7);
     border: none;
     border-radius: 10px;
     padding: 40px;
