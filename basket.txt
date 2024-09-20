@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Basket</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <a href="index.html">
+            <img src="images/logo.png" alt="Logo">
+        </a>
+    </div>
+
+    <!-- Basket Icon Section -->
+    <div class="basket-icon-container">
+        <a href="basket.html">
+            <img src="images/basket-icon.png" alt="Basket" class="basket-icon"/>
+            <span id="basket-icon-count">0</span> <!-- This will be dynamically updated -->
+        </a>
+    </div>
+</header>
+
+<main>
+    <h1>Your Basket</h1>
+
+    <!-- Basket Items List -->
+    <div class="basket-items-container">
+        <ul id="basket-items"></ul> <!-- Dynamically populated with items from LocalStorage -->
+    </div>
+
+    <p>Total items: <span id="basket-total">0</span></p>
+
+    <!-- Submit Inquiry Button -->
+    <button id="submit-inquiry" class="rtn-submit-button">Download Inquiry</button>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Company Name. All rights reserved.</p>
+</footer>
+
+<!-- Include basket.js -->
+<script src="basket.js"></script>
+
+</body>
+</html>
