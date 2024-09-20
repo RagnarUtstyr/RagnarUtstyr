@@ -130,22 +130,29 @@ function downloadBasket() {
         return;
     }
 
-    // Prepare the content of the basket as HTML
-    let basketContent = "<h1>Your Basket Inquiry:</h1><ul>";
+    // Prepare the content of the basket as styled HTML
+    let basketContent = `
+        <div style="font-family: 'Poppins', sans-serif; color: white; background-color: #333; padding: 20px; border-radius: 10px;">
+            <h1 style="color: #ffcc00; text-align: center;">Your Basket Inquiry</h1>
+            <ul style="list-style-type: none; padding: 0; font-size: 16px; background-color: #333;">`;
+
     for (let item in basket) {
         if (basket.hasOwnProperty(item)) {
-            basketContent += `<li>${item}: ${basket[item]} units</li>`;
+            basketContent += `
+                <li style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ffcc00;">
+                    <span style="flex-grow: 1; text-align: left;">${item}</span>
+                    <span style="text-align: right;">${basket[item]} units</span>
+                </li>`;
         }
     }
-    basketContent += "</ul>";
+    
+    basketContent += `</ul></div>`;
 
     // Create a container element for the PDF content
     let pdfContainer = document.createElement('div');
     pdfContainer.innerHTML = basketContent;
-    pdfContainer.style.background = "#333";  // Match background color from CSS
-    pdfContainer.style.color = "white";  // Match text color
 
-    // Use html2pdf to generate and download the PDF
+    // Use html2pdf to generate and download the PDF with more detailed styling
     html2pdf(pdfContainer, {
         margin: 1,
         filename: 'basket_inquiry.pdf',
