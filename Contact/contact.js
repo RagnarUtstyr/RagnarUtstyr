@@ -17,16 +17,12 @@
     const to = document.getElementById('to-date').value;
     const message = document.getElementById('message').value;
 
-    // Send form data to EmailJS
     emailjs.send('service_2gyl3vr', 'template_ijqjjne', {
-emailjs.send('service_2gyl3vr', 'template_ijqjjne', {
-  name: name,
-  email: email,
-  from_date: from,
-  to_date: to,
-  message: message,
-});
-
+      name: name,
+      email: email,
+      from_date: from,
+      to_date: to,
+      message: message
     }).then(function(response) {
       console.log('SUCCESS!', response.status, response.text);
       alert('Your message has been sent successfully!');
