@@ -1,0 +1,58 @@
+/* Styling for the contact form */
+.contact-form {
+    max-width: 600px;
+    margin: 40px auto;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+}
+
+.contact-form label {
+    font-weight: 700;
+    margin-bottom: 5px;
+    display: inline-block;
+    color: #333;
+}
+
+.contact-form .form-input, 
+.contact-form .form-textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+
+.contact-form .form-input:focus,
+.contact-form .form-textarea:focus {
+    border-color: #4CAF50; /* Matches the color scheme */
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.contact-form .form-textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+.contact-form .form-submit-button {
+    background-color: #4CAF50; /* Matches button color */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.contact-form .form-submit-button:hover {
+    background-color: #45a049; /* Slightly darker shade on hover */
+}
