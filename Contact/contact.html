@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="images/favicon-64x64.png">
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+    <!-- Logo on the left -->
+    <div class="logo">
+        <a href="index.html">
+            <img src="../images/logo.png" alt="Ragnar Bøe Utstyrsleie Logo">
+        </a>
+    </div>
+
+<div class="basket-icon-container">
+        <a href="../basket.html">
+            <img src="../images/basket-icon.png" alt="Basket" class="basket-icon"/>
+            <span id="basket-icon-count">0</span> <!-- Item count -->
+        </a>
+    </div>
+        
+        <nav>
+            <ul class="navbar">
+                <li><a href="../index.html">Home</a></li>
+                
+                <!-- Dropdown for Camera -->
+                <li class="dropdown">
+                    <a href="../equipment.html" class="dropbtn">Equipment</a>
+                    <ul class="dropdown-content">
+                    	<li><a href="../camera.html">Camera</a></li>
+                        <li><a href="../camacc.html">Camera Accesories</a></li>
+                        <li><a href="../optikk.html">Optikk</a></li>
+                        <li><a href="../monitor.html">Monitor</a></li>
+                        <li><a href="../fokus.html">Focus</a></li>
+			<li><a href="../video.html">Wireless</a></li>
+			<li><a href="../batteri.html">Battery</a></li>
+			<li><a href="../lys.html">Lights</a></li>
+			<li><a href="../grip.html">Grip</a></li>
+			<li><a href="../lyd.html">Sound</a></li>
+			<li><a href="../filter.html">Filter</a></li>
+			<li><a href="../tralle.html">Carts</a></li>
+            <li><a href="../power.html">Power and EL</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Dropdown for Contact -->
+                <li class="dropdown">
+                    <a href="../Contact.html" class="dropbtn">Contact</a>
+                    <ul class="dropdown-content">
+                        <li><a href="../About.html">About</a></li>
+                        <li><a href="../Contact.html">Contact</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="rtn-back-button-container">
+        <a href="Contact.html" class="rtn-back-button">Go Back</a>
+    </div>
+    
+    <main>
+	
+	 <main>
+        <div class="equipment-detail">
+        <h1>Contact me</h1>
+        <br><br>
+       <div class="contact-box">
+        <a href="mailto:ragnarboe88@gmail.com">ragnarboe88@gmail.com</a>
+    </div>
+        <br><br>
+        <div class="download-box">
+        <a href="ragnarutstyr.xlsx" download="The Excel Sheet">Download The Excel Sheet</a>
+    </div>
+        <br><br>
+        <div class="equipment-detail">
+        <p><strong>For now, just send an email to the mail address above. For inquiries, download the Excel sheet, fill out and return to me by email. In the meanwhile, enjoy this image of a lion I took while on travels in South Africa</strong></p>
+    
+    <!-- HTML Contact Form -->
+<form id="contactForm">
+  <label for="name">Name:</label><br>
+  <input type="text" id="name" name="name" required><br>
+  
+  <label for="email">Email:</label><br>
+  <input type="email" id="email" name="email" required><br>
+  
+  <label for="date">From Date:</label><br>
+  <input type="date" id="from-date" name="from-date" required><br>
+  
+    <label for="date">To Date:</label><br>
+  <input type="date" id="to-date" name="to-date" required><br>
+  
+  <label for="message">Message:</label><br>
+  <textarea id="message" name="message" required></textarea><br>
+  
+  <input type="submit" value="Submit">
+</form>
+
+	</main>
+
+    <footer>
+        <p>© 2024 Ragnar Bøe Utstyrsleie</p>
+    </footer>
+
+ <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    // Initialize EmailJS with your User ID (this is provided by EmailJS)
+    (function() {
+      emailjs.init("jEPsmc03XiqQMqiy5"); // Replace with your EmailJS User ID
+    })();
+  </script>
+
+  <script>
+    document.getElementById('contactForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent default form submission behavior
+      
+      // Collect form data
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+	  const from = document.getElementById('from-date').value;
+	  const to = document.getElementById('to-date').value;
+      const message = document.getElementById('message').value;
+
+      // Send form data to EmailJS
+    emailjs.send('service_2gyl3vr', 'template_ijqjjne', {
+  name: name,
+  email: email,
+  message: message,
+  from_date: from,
+  to_date: to,
+}).then(function(response) {
+  console.log('SUCCESS!', response.status, response.text);
+  alert('Your message has been sent successfully!');
+}, function(error) {
+  console.log('FAILED...', error);
+  alert('Failed to send message. Please try again later.');
+});
+    });
+  </script>
+
+    <script src="../main.js"></script>
+	<script src="../basket.js"></script>
+	<script src="contact.js"></script>
+</body>
+</html>
