@@ -133,17 +133,16 @@ header {
     width: 100%; 
     height: auto; 
     max-width: 250px; 
-    cursor: pointer; 
+    cursor: pointer; /* Makes the entire card clickable */
 }
 
-/* Hover effect for .eq-nav-card  */
 .eq-nav-card:hover {
     background-color: #555; 
     transform: scale(1.08); 
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7); 
 }
 
-.eq-nav-card a {
+.eq-nav-card span {
     color: white;
     font-size: 22px;
     font-family: 'Poppins', sans-serif;
@@ -151,9 +150,30 @@ header {
     margin-top: 0; 
 }
 
-.eq-nav-card a:hover {
+.eq-nav-card span:hover {
     color: #ffcc00; 
-	border-color: transparent;
+}
+
+
+.eq-nav-card button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 22px;
+    font-family: 'Poppins', sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.eq-nav-card button:hover {
+    color: #ffcc00; /* Hover effect */
+    border-color: transparent;
+}
+
+/* Optional: To remove the default focus outline when clicked */
+.eq-nav-card button:focus {
+    outline: none;
 }
 
 /* Main Content Grid - Dynamic Layout */
