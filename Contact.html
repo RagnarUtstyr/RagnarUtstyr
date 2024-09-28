@@ -89,14 +89,16 @@
         <!-- Include your footer code here -->
     </footer>
     
-    <!-- Include EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+    <!-- Initialize EmailJS -->
     <script type="text/javascript">
-       (function(){
-          emailjs.init("jEPsmc03XiqQMqiy5"); // Replace 'YOUR_USER_ID' with your actual user ID from EmailJS
-       })();
+        (function(){
+            emailjs.init("jEPsmc03XiqQMqiy5"); // Replace with your actual User ID from EmailJS
+        })();
     </script>
     
+    <!-- Include your custom JavaScript files -->
     <script src="contact.js"></script>
     <script src="basket.js"></script> <!-- Include if you need basket functions -->
     </body>
