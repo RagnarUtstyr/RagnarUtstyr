@@ -643,3 +643,29 @@ input, textarea {
   margin-bottom: 10px;
   border: 1px solid #ccc;
 }
+
+/* Search Bar Styling */
+#search-field {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    border: 2px solid #333; /* Matches other elements' styling */
+    border-radius: 30px; /* Rounded edges for a modern look */
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+    color: white;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    outline: none;
+}
+
+#search-field::placeholder {
+    color: #bbb; /* Light grey placeholder for better readability */
+    font-style: italic;
+}
+
+#search-field:focus {
+    border-color: #ffcc00; /* Highlight border on focus */
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.5); /* Add subtle glow effect */
+}
