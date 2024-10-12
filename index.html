@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
     <title>Submit Your Name and Number</title>
-    <script type="module" src="server.js" defer></script>
-    <script type="module" src="login.js" defer></script> <!-- Updated login JS -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js"></script>
+    <script type="module" src="login.js" defer></script> <!-- Updated JS -->
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
-<button id="logout-btn">Log Out</button>
 
 <body>
     <!-- Popup for sign-in and invite key submission -->
@@ -33,22 +32,29 @@
         </div>
     </div>
 
-    <!-- Main content, hidden initially until login or invite key is valid -->
-    <div class="container" id="main-content" style="display: none;">
-        <h1>Enter Name and Initiative</h1>
-        <label for="name">Name:</label>
-        <input type="text" id="name" required>
+    <!-- Logout button -->
+    <button id="logout-btn">Log Out</button>
 
-        <label for="initiative">Initiative:</label>
-        <input type="number" id="initiative" required>
-        <br><br>
-        <button id="submit-button">Submit</button>
-
-        <!-- Audio element to play sound -->
-        <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
-    </div>
-
+    <!-- Styling the logout button to appear in the top-right corner -->
     <style>
+        #logout-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #f44336; /* Red background */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 1000; /* Ensure it's above other content */
+        }
+
+        #logout-btn:hover {
+            background-color: #d32f2f; /* Darker red on hover */
+        }
+
         /* Popup styles */
         .auth-popup {
             display: flex; /* Display the popup initially */
@@ -98,6 +104,6 @@
             background-color: #0056b3;
         }
     </style>
-</body>
 
+</body>
 </html>
