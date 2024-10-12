@@ -1,6 +1,7 @@
 // Import Firebase modules for authentication and database operations
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -28,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hide the main content until the user logs in or submits a valid invite key
     mainContent.style.display = 'none';
 
-    // If the user signs in successfully, redirect to the group page
+    // If the user signs in successfully, redirect to the appropriate page based on role
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            window.location.href = 'group.html';
+            checkUserRole(user.uid);  // Check the role of the user
         } else {
             authPopup.style.display = 'block';
         }
@@ -66,10 +67,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (email && password) {
             try {
+                // Debugging output
+                console.log("Attempting to create user with email: ", email);
+
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 console.log("User created successfully:", userCredential.user);
-                window.location.href = 'group.html';  // Redirect to group page upon successful sign-up
+
+                // Assign role to user in Firebase Realtime Database
+                await set(ref(db, 'roles/' + userCredential.user.uid), {
+                    role: 'user'  // Default role is 'user'
+                });
+
+                // Redirect to group.html after sign-up
+                window.location.href = 'group.html';
+
             } catch (error) {
+                console.error("Error creating user: ", error);
                 showErrorMessage(error.message);
             }
         } else {
@@ -84,16 +97,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (email && password) {
             try {
+                console.log("Attempting to log in with email: ", email);
+
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 console.log("Logged in successfully:", userCredential.user);
-                window.location.href = 'group.html';  // Redirect to group page upon successful login
+
+                checkUserRole(userCredential.user.uid);  // Check user role and redirect accordingly
+
             } catch (error) {
+                console.error("Error during login: ", error);
                 showErrorMessage(error.message);
             }
         } else {
             showErrorMessage("Please enter both email and password.");
         }
     });
+
+    // Function to check the user's role
+    function checkUserRole(uid) {
+        const roleRef = ref(db, 'roles/' + uid);
+        onValue(roleRef, (snapshot) => {
+            const roleData = snapshot.val();
+            if (roleData && roleData.role === 'admin') {
+                window.location.href = 'admin.html';  // Redirect admin to admin page
+            } else {
+                window.location.href = 'group.html';  // Redirect regular users to group page
+            }
+        });
+    }
 
     // Function to display error messages in the popup
     function showErrorMessage(message) {
