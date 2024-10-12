@@ -29,14 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hide the main content until the user logs in or submits a valid invite key
     mainContent.style.display = 'none';
 
-    // If the user signs in successfully, generate and save invite key if necessary
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            generateInviteKeyIfMissing(user.uid);  // Generate and save invite key if needed
-            checkUserRole(user.uid);  // Check the role of the user
-        } else {
-            authPopup.style.display = 'block';
-        }
+    // Add event listener to validate invite key before login or sign-up
+    document.getElementById('access-group-btn').addEventListener('click', async () => {
+        const inviteKeyInput = document.getElementById('invite-key-input').value;
+
+        // Validate invite key
+        validateInviteKey(inviteKeyInput).then((isValid) => {
+            if (isValid) {
+                console.log('Valid invite key. Proceed to login or sign up.');
+                authPopup.style.display = 'block';
+                document.getElementById('invite-key-input').disabled = true;  // Disable further changes to the invite key input
+            } else {
+                showErrorMessage("Invalid invite key.");
+            }
+        }).catch((error) => {
+            console.error("Error validating invite key: ", error);
+            showErrorMessage("Error validating invite key.");
+        });
     });
 
     // Function to sign up a new user
@@ -93,16 +102,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Function to check the user's role
-    function checkUserRole(uid) {
-        const roleRef = ref(db, 'roles/' + uid);
-        onValue(roleRef, (snapshot) => {
-            const roleData = snapshot.val();
-            if (roleData && roleData.role === 'admin') {
-                window.location.href = 'admin.html';  // Redirect admin to admin page
-            } else {
-                window.location.href = 'group.html';  // Redirect regular users to group page
-            }
+    // Function to validate invite key
+    async function validateInviteKey(inputKey) {
+        const inviteKeyRef = ref(db, 'inviteKeys/');
+        return new Promise((resolve, reject) => {
+            onValue(inviteKeyRef, (snapshot) => {
+                const keysData = snapshot.val();
+                for (let uid in keysData) {
+                    if (keysData[uid].inviteKey === inputKey) {
+                        resolve(true);  // Valid key found
+                        return;
+                    }
+                }
+                resolve(false);  // No matching invite key found
+            }, (error) => {
+                reject(error);  // Error accessing database
+            });
         });
     }
 
@@ -120,6 +135,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 await set(inviteKeyRef, {
                     inviteKey: newInviteKey
                 });
+            }
+        });
+    }
+
+    // Function to check the user's role
+    function checkUserRole(uid) {
+        const roleRef = ref(db, 'roles/' + uid);
+        onValue(roleRef, (snapshot) => {
+            const roleData = snapshot.val();
+            if (roleData && roleData.role === 'admin') {
+                window.location.href = 'admin.html';  // Redirect admin to admin page
+            } else {
+                window.location.href = 'group.html';  // Redirect regular users to group page
             }
         });
     }
