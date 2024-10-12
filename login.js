@@ -1,5 +1,5 @@
 // Import Firebase modules for authentication and database operations
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 
@@ -29,35 +29,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hide the main content until the user logs in or submits a valid invite key
     mainContent.style.display = 'none';
 
-    // If the user signs in successfully, redirect to the appropriate page based on role
+    // If the user signs in successfully, generate and save invite key if necessary
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            generateInviteKeyIfMissing(user.uid);  // Generate and save invite key if needed
             checkUserRole(user.uid);  // Check the role of the user
         } else {
             authPopup.style.display = 'block';
         }
-    });
-
-    // If an invite key is submitted, validate and redirect to the index page
-    document.getElementById('access-group-btn').addEventListener('click', async () => {
-        const inviteKeyInput = document.getElementById('invite-key-input').value;
-        const reference = ref(db, 'inviteKeys/');
-        onValue(reference, (snapshot) => {
-            const data = snapshot.val();
-            let validKey = false;
-            for (let userId in data) {
-                if (data[userId].inviteKey === inviteKeyInput) {
-                    validKey = true;
-                    break;
-                }
-            }
-            if (validKey) {
-                authPopup.style.display = 'none';
-                mainContent.style.display = 'block'; // Show main content once the invite key is valid
-            } else {
-                showErrorMessage("Invalid invite key!");
-            }
-        });
     });
 
     // Function to sign up a new user
@@ -67,9 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (email && password) {
             try {
-                // Debugging output
-                console.log("Attempting to create user with email: ", email);
-
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 console.log("User created successfully:", userCredential.user);
 
@@ -77,6 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 await set(ref(db, 'roles/' + userCredential.user.uid), {
                     role: 'user'  // Default role is 'user'
                 });
+
+                // Generate an invite key for the new user
+                await generateInviteKeyIfMissing(userCredential.user.uid);
 
                 // Redirect to group.html after sign-up
                 window.location.href = 'group.html';
@@ -97,10 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (email && password) {
             try {
-                console.log("Attempting to log in with email: ", email);
-
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 console.log("Logged in successfully:", userCredential.user);
+
+                // Generate an invite key for the user if missing
+                await generateInviteKeyIfMissing(userCredential.user.uid);
 
                 checkUserRole(userCredential.user.uid);  // Check user role and redirect accordingly
 
@@ -122,6 +102,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'admin.html';  // Redirect admin to admin page
             } else {
                 window.location.href = 'group.html';  // Redirect regular users to group page
+            }
+        });
+    }
+
+    // Function to generate an invite key if it is missing
+    async function generateInviteKeyIfMissing(uid) {
+        const inviteKeyRef = ref(db, 'inviteKeys/' + uid);
+
+        onValue(inviteKeyRef, async (snapshot) => {
+            if (!snapshot.exists()) {
+                // Generate a new random invite key
+                const newInviteKey = Math.random().toString(36).substring(2, 10);  // Example key generator
+                console.log("Generated new invite key: ", newInviteKey);
+
+                // Save the generated invite key in Firebase
+                await set(inviteKeyRef, {
+                    inviteKey: newInviteKey
+                });
             }
         });
     }
