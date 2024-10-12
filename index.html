@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
+    <title>Submit Your Name and Number</title>
+    <script type="module" src="server.js" defer></script>
+    <script type="module" src="login_updated.js" defer></script> <!-- Updated login JS -->
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Popup for sign-in and invite key submission -->
+    <div id="auth-popup" class="auth-popup">
+        <div class="auth-popup-content">
+            <h2>Log in or Sign up</h2>
+            <input type="email" id="email" placeholder="Enter email" required>
+            <input type="password" id="password" placeholder="Enter password" required>
+            <button id="login-btn">Login</button>
+            <button id="signup-btn">Sign Up</button>
+            <br>
+            <h3>Or Enter an Invite Key</h3>
+            <input type="text" id="invite-key-input" placeholder="Enter invite key">
+            <button id="access-group-btn">Submit Key</button>
+        </div>
+    </div>
+
+    <!-- Main content, hidden initially until login or invite key is valid -->
+    <div class="container" id="main-content" style="display: none;">
+        <h1>Enter Name and Initiative</h1>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+
+        <label for="initiative">Initiative:</label>
+        <input type="number" id="initiative" required>
+        <br><br>
+        <button id="submit-button">Submit</button>
+
+        <!-- Audio element to play sound -->
+        <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
+    </div>
+
+    <style>
+        /* Popup styles */
+        .auth-popup {
+            display: none; /* Hidden initially */
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Dark transparent background */
+        }
+
+        .auth-popup-content {
+            position: relative;
+            margin: 10% auto;
+            padding: 20px;
+            width: 300px;
+            background-color: white;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-popup-content h2, h3 {
+            margin: 0 0 20px;
+        }
+    </style>
+</body>
+
+</html>

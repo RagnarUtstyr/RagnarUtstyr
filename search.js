@@ -1,39 +1,37 @@
-// search.js
+document.addEventListener('DOMContentLoaded', function () {
+    // Get the search input and the list of entries
+    const searchInput = document.getElementById('search');
+    const entries = document.querySelectorAll('.table-entry');
 
-document.addEventListener("DOMContentLoaded", function() {
-    // Attach event listener to the search input field
-    const searchField = document.getElementById("search-field");
-    if (searchField) {
-        searchField.addEventListener("keyup", filterItems);
-    }
-});
+    // Add an event listener to the search box
+    searchInput.addEventListener('input', function () {
+        const query = searchInput.value.toLowerCase().trim(); // Get the search query in lowercase
+        const queryWords = query.split(/\s+/); // Split the query into individual words
 
-function filterItems() {
-    // Get the search input value and split it into individual words
-    let searchValue = document.getElementById("search-field").value.toLowerCase().trim();
-    let searchWords = searchValue.split(/\s+/); // Split by whitespace
+        // Loop through all entries to check if they match the search query
+        entries.forEach(function (entry) {
+            // Get the content inside the relevant fields (Name, CR, Type)
+            const nameElement = entry.querySelectorAll('.content')[1]; // Name is the 2nd .content
+            const crElement = entry.querySelectorAll('.content')[2];   // CR is the 3rd .content
+            const typeElement = entry.querySelectorAll('.content')[3]; // Type is the 4th .content
 
-    // Get all equipment cards
-    let equipmentCards = document.querySelectorAll(".content-grid .nav-card");
+            // Get the text content and convert to lowercase
+            const nameText = nameElement ? nameElement.textContent.toLowerCase() : ''; 
+            const crText = crElement ? crElement.textContent.toLowerCase() : '';
+            const typeText = typeElement ? typeElement.textContent.toLowerCase() : '';
 
-    // Loop through all cards and hide those that don't match all search words
-    equipmentCards.forEach(function(card) {
-        let itemName = card.querySelector("h2").textContent.toLowerCase();
-        let keywords = card.getAttribute("data-keywords");
-        keywords = keywords ? keywords.toLowerCase() : ""; // Default to empty string if null
+            // Combine all fields' text for easier comparison
+            const combinedText = `${nameText} ${crText} ${typeText}`;
 
-        // Combine the item name and keywords for the search
-        let searchableText = itemName + " " + keywords;
+            // Check if all query words are found in the combined text
+            const isMatch = queryWords.every(word => combinedText.includes(word));
 
-        // Check if every word in the search matches part of the combined text
-        let matches = searchWords.every(function(word) {
-            return searchableText.includes(word);
+            // Show or hide the entry based on the match
+            if (isMatch) {
+                entry.style.display = 'block'; // Show entry if all words match
+            } else {
+                entry.style.display = 'none'; // Hide entry if any word doesn't match
+            }
         });
-
-        if (matches) {
-            card.style.display = "flex"; // Show matching items (using 'flex' to match existing styling)
-        } else {
-            card.style.display = "none"; // Hide non-matching items
-        }
     });
-}
+});
