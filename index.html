@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
-    <title>Submit Your Name and Number</title>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js"></script>
-    <script type="module" src="login.js" defer></script> <!-- Updated JS -->
+    <title>Login Page</title>
+    <script type="module" src="login.js" defer></script> <!-- Link to the JavaScript -->
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
-
 <body>
-    <!-- Popup for sign-in and invite key submission -->
+    <!-- Popup for signing in or using an invite key -->
     <div id="auth-popup" class="auth-popup">
         <div class="auth-popup-content">
             <h2>Log in or Sign up</h2>
             <input type="email" id="email" placeholder="Enter email" required>
             <input type="password" id="password" placeholder="Enter password" required>
-            
+
             <!-- Error message display -->
             <div id="error-message" style="color: red; margin-top: 10px;"></div>
-            
+
             <button id="login-btn">Login</button>
             <button id="signup-btn">Sign Up</button>
-            <br>
+
             <h3>Or Enter an Invite Key</h3>
             <input type="text" id="invite-key-input" placeholder="Enter invite key">
             <button id="access-group-btn">Submit Key</button>
@@ -35,24 +30,25 @@
     <!-- Logout button -->
     <button id="logout-btn">Log Out</button>
 
-    <!-- Styling the logout button to appear in the top-right corner -->
     <style>
+        /* Styling the logout button to appear in the top-right corner */
         #logout-btn {
             position: fixed;
             top: 10px;
             right: 10px;
-            background-color: #f44336; /* Red background */
+            background-color: #f44336;
             color: white;
             border: none;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            z-index: 1000; /* Ensure it's above other content */
+            z-index: 1000;
+            display: none; /* Initially hidden */
         }
 
         #logout-btn:hover {
-            background-color: #d32f2f; /* Darker red on hover */
+            background-color: #d32f2f;
         }
 
         /* Popup styles */
@@ -104,6 +100,5 @@
             background-color: #0056b3;
         }
     </style>
-
 </body>
 </html>

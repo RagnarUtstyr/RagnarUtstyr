@@ -1,62 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
-    <title>Initiative</title>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js"></script>
-    <script type="module" src="group_menu.js" defer></script> <!-- JS for displaying invite key and logout -->
+    <title>Group Page</title>
+    <script type="module" src="group_menu.js" defer></script> <!-- Link to the JavaScript -->
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="turn.css">
-    <link rel="stylesheet" href="save.css">
-    <script src="turn.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
-
 <body>
-    <!-- Top Menu to display the invite key -->
+    <!-- Display Invite Key -->
     <div id="top-menu" class="menu">
         <p>Your Invite Key: <span id="invite-key"></span></p>
+    </div>
+
+    <!-- Form to submit name and initiative -->
+    <div class="container">
+        <h2>Submit a New Entry</h2>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+
+        <label for="initiative">Initiative:</label>
+        <input type="number" id="initiative" required>
+
+        <button id="submit-btn">Submit</button>
     </div>
 
     <!-- Logout button -->
     <button id="logout-btn">Log Out</button>
 
-    <div class="container">
-        <h1>Initiative</h1>
-        
-        <ul id="rankingList"></ul>
-
-        <div class="button-container">
-            <button id="apply-damage-button">Apply Damage</button>
-            <button id="next-button">Next</button>
-        </div>
-        
-        <br>
-        <button id="clear-list-button">Clear List</button>
-        <br><br>
-        
-        <h2>Submit a New Entry</h2>
-        <label for="name">Name:</label>
-        <input type="text" id="name" required>
-        
-        <label for="initiative">Initiative:</label>
-        <input type="number" id="initiative" required>
-        
-        <label for="health">Health:</label>
-        <input type="number" id="health">
-
-        <button id="submit-button">Submit</button>
-        
-        <br><br>
-        <a href="save.html" class="button-link">Go to Lists</a>
-        <a href="monster.html" class="button-link">Go to Monster List</a>
-    </div>
-
     <style>
-        /* Style for the fixed menu */
         .menu {
             position: fixed;
             top: 0;
@@ -68,12 +40,6 @@
             z-index: 1000;
         }
 
-        .menu p {
-            margin: 0;
-            font-size: 1.2em;
-        }
-
-        /* Style for logout button */
         #logout-btn {
             position: fixed;
             top: 10px;
@@ -92,7 +58,5 @@
             background-color: #d32f2f;
         }
     </style>
-
 </body>
-
 </html>
