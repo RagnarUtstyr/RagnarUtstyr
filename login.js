@@ -10,6 +10,7 @@ const db = getDatabase();
 document.addEventListener('DOMContentLoaded', () => {
     const authPopup = document.getElementById('auth-popup');
     const mainContent = document.getElementById('main-content');
+    const errorMessageDiv = document.getElementById('error-message'); // Error message element
 
     // Hide the main content until the user logs in or submits a valid invite key
     mainContent.style.display = 'none';
@@ -40,48 +41,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 authPopup.style.display = 'none';
                 mainContent.style.display = 'block'; // Show main content once the invite key is valid
             } else {
-                alert('Invalid invite key!');
+                showErrorMessage("Invalid invite key!");
             }
         });
     });
-});
 
-// Function to sign up a new user
-document.getElementById('signup-btn').addEventListener('click', async () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    if (email && password) {
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            console.log("User created successfully:", userCredential.user);
-            alert("Account created successfully. Redirecting to the group page...");
-            window.location.href = 'group.html';  // Redirect to group page upon successful sign-up
-        } catch (error) {
-            console.error("Error during sign-up:", error.message);
-            alert("Error: " + error.message);
+    // Function to sign up a new user
+    document.getElementById('signup-btn').addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (email && password) {
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                console.log("User created successfully:", userCredential.user);
+                window.location.href = 'group.html';  // Redirect to group page upon successful sign-up
+            } catch (error) {
+                showErrorMessage(error.message);
+            }
+        } else {
+            showErrorMessage("Please fill in both email and password.");
         }
-    } else {
-        alert("Please fill in both email and password.");
-    }
-});
+    });
 
-// Function to log in an existing user
-document.getElementById('login-btn').addEventListener('click', async () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    // Function to log in an existing user
+    document.getElementById('login-btn').addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-    if (email && password) {
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log("Logged in successfully:", userCredential.user);
-            alert("Logged in successfully. Redirecting to the group page...");
-            window.location.href = 'group.html';  // Redirect to group page upon successful login
-        } catch (error) {
-            console.error("Login failed:", error.message);
-            alert("Error: " + error.message);
+        if (email && password) {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                console.log("Logged in successfully:", userCredential.user);
+                window.location.href = 'group.html';  // Redirect to group page upon successful login
+            } catch (error) {
+                showErrorMessage(error.message);
+            }
+        } else {
+            showErrorMessage("Please enter both email and password.");
         }
-    } else {
-        alert("Please enter both email and password.");
+    });
+
+    // Function to display error messages in the popup
+    function showErrorMessage(message) {
+        errorMessageDiv.textContent = message;
     }
 });
