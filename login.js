@@ -1,6 +1,6 @@
 // Import Firebase modules for authentication and database operations
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 
 // Firebase Configuration
@@ -23,32 +23,44 @@ const db = getDatabase(app);
 // Automatically display the sign-in popup on page load
 document.addEventListener('DOMContentLoaded', () => {
     const authPopup = document.getElementById('auth-popup');
-    const mainContent = document.getElementById('main-content');
     const errorMessageDiv = document.getElementById('error-message'); // Error message element
 
-    // Hide the main content until the user logs in or submits a valid invite key
-    mainContent.style.display = 'none';
+    // Check if user is logged in and show/hide content accordingly
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("User is logged in");
+            generateInviteKeyIfMissing(user.uid);  // Generate invite key if missing
+        } else {
+            console.log("User is not logged in");
+        }
+    });
 
-    // Add event listener to validate invite key before login or sign-up
+    // Invite key validation when clicking 'Submit Key'
     document.getElementById('access-group-btn').addEventListener('click', async () => {
-        const inviteKeyInput = document.getElementById('invite-key-input').value;
+        const inviteKeyInput = document.getElementById('invite-key-input').value.trim();
 
-        // Validate invite key
-        validateInviteKey(inviteKeyInput).then((isValid) => {
+        if (!inviteKeyInput) {
+            showErrorMessage("Please enter an invite key.");
+            return;
+        }
+
+        // Validate the invite key
+        try {
+            const isValid = await validateInviteKey(inviteKeyInput);
             if (isValid) {
                 console.log('Valid invite key. Proceed to login or sign up.');
-                authPopup.style.display = 'block';
-                document.getElementById('invite-key-input').disabled = true;  // Disable further changes to the invite key input
+                authPopup.style.display = 'block';  // Show the login form
+                document.getElementById('invite-key-input').disabled = true;  // Disable further changes to the invite key
             } else {
                 showErrorMessage("Invalid invite key.");
             }
-        }).catch((error) => {
+        } catch (error) {
             console.error("Error validating invite key: ", error);
             showErrorMessage("Error validating invite key.");
-        });
+        }
     });
 
-    // Function to sign up a new user
+    // Sign up function
     document.getElementById('signup-btn').addEventListener('click', async () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -58,16 +70,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 console.log("User created successfully:", userCredential.user);
 
-                // Assign role to user in Firebase Realtime Database
+                // Assign role and invite key
                 await set(ref(db, 'roles/' + userCredential.user.uid), {
                     role: 'user'  // Default role is 'user'
                 });
-
-                // Generate an invite key for the new user
                 await generateInviteKeyIfMissing(userCredential.user.uid);
 
-                // Redirect to group.html after sign-up
-                window.location.href = 'group.html';
+                window.location.href = 'group.html';  // Redirect after sign-up
 
             } catch (error) {
                 console.error("Error creating user: ", error);
@@ -78,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Function to log in an existing user
+    // Log in function
     document.getElementById('login-btn').addEventListener('click', async () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -88,10 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 console.log("Logged in successfully:", userCredential.user);
 
-                // Generate an invite key for the user if missing
                 await generateInviteKeyIfMissing(userCredential.user.uid);
-
-                checkUserRole(userCredential.user.uid);  // Check user role and redirect accordingly
+                window.location.href = 'group.html';  // Redirect after login
 
             } catch (error) {
                 console.error("Error during login: ", error);
@@ -102,57 +109,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Function to validate invite key
+    // Validate invite key function
     async function validateInviteKey(inputKey) {
         const inviteKeyRef = ref(db, 'inviteKeys/');
-        return new Promise((resolve, reject) => {
-            onValue(inviteKeyRef, (snapshot) => {
-                const keysData = snapshot.val();
-                for (let uid in keysData) {
-                    if (keysData[uid].inviteKey === inputKey) {
-                        resolve(true);  // Valid key found
-                        return;
-                    }
-                }
-                resolve(false);  // No matching invite key found
-            }, (error) => {
-                reject(error);  // Error accessing database
-            });
-        });
+        const snapshot = await get(inviteKeyRef);
+        const keysData = snapshot.val();
+
+        // Loop through the keys and check if the invite key exists
+        for (let uid in keysData) {
+            if (keysData[uid].inviteKey === inputKey) {
+                return true;  // Valid key found
+            }
+        }
+        return false;  // No matching invite key found
     }
 
-    // Function to generate an invite key if it is missing
+    // Generate invite key if missing
     async function generateInviteKeyIfMissing(uid) {
         const inviteKeyRef = ref(db, 'inviteKeys/' + uid);
+        const snapshot = await get(inviteKeyRef);
 
-        onValue(inviteKeyRef, async (snapshot) => {
-            if (!snapshot.exists()) {
-                // Generate a new random invite key
-                const newInviteKey = Math.random().toString(36).substring(2, 10);  // Example key generator
-                console.log("Generated new invite key: ", newInviteKey);
+        if (!snapshot.exists()) {
+            const newInviteKey = Math.random().toString(36).substring(2, 10);
+            console.log("Generated new invite key: ", newInviteKey);
 
-                // Save the generated invite key in Firebase
-                await set(inviteKeyRef, {
-                    inviteKey: newInviteKey
-                });
-            }
-        });
+            await set(inviteKeyRef, {
+                inviteKey: newInviteKey
+            });
+        }
     }
 
-    // Function to check the user's role
-    function checkUserRole(uid) {
-        const roleRef = ref(db, 'roles/' + uid);
-        onValue(roleRef, (snapshot) => {
-            const roleData = snapshot.val();
-            if (roleData && roleData.role === 'admin') {
-                window.location.href = 'admin.html';  // Redirect admin to admin page
-            } else {
-                window.location.href = 'group.html';  // Redirect regular users to group page
-            }
-        });
-    }
+    // Logout button handler
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+            window.location.href = 'index.html';  // Redirect to login page after logout
+        } catch (error) {
+            console.error("Error during logout: ", error);
+        }
+    });
 
-    // Function to display error messages in the popup
+    // Function to display error messages
     function showErrorMessage(message) {
         errorMessageDiv.textContent = message;
     }
