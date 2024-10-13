@@ -21,11 +21,11 @@ const db = getDatabase(app);
 // Function to submit data to Firebase
 async function submitData() {
     const name = document.getElementById('name').value;
-    const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
-    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
-    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
-    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null; // Handle empty AC as null if present
+    const number = parseInt(document.getElementById('initiative').value);
+    const healthInput = document.getElementById('health').value;
+    const health = healthInput !== '' ? parseInt(healthInput) : null;
+    const acInput = document.getElementById('ac').value;
+    const ac = acInput !== '' ? parseInt(acInput) : null;
 
     // Ensure name and number are valid, health and ac can be null
     if (name && !isNaN(number)) {
@@ -33,23 +33,16 @@ async function submitData() {
             const reference = ref(db, 'rankings/');
             await push(reference, { name, number, health, ac });
             console.log('Data submitted successfully:', { name, number, health, ac });
-
-            // Clear input fields after successful submission
+            // Clear input fields
             document.getElementById('name').value = '';
-            document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
-            if (document.getElementById('health')) document.getElementById('health').value = '';
-            if (document.getElementById('ac')) document.getElementById('ac').value = '';
-
-            // Play sword sound after submission
-            const swordSound = document.getElementById('sword-sound');
-            if (swordSound) {
-                swordSound.play();
-            }
+            document.getElementById('initiative').value = '';
+            document.getElementById('health').value = '';
+            document.getElementById('ac').value = '';
         } catch (error) {
             console.error('Error submitting data:', error);
         }
     } else {
-        console.log('Please enter valid name and initiative values.');
+        alert('Please enter valid name and initiative values.');
     }
 }
 
