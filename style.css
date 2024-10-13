@@ -100,7 +100,7 @@ li {
 }
 
 /* Flex properties for the name, number, and health elements */
-li .name, li .ac, li .number, li .health {
+li .name, li .number, li .health, li .ac {
     padding: 0 5px; /* Add a little padding to the left and right */
     flex: 2; /* Make these elements take up more space */
     white-space: nowrap; /* Prevent text from breaking into multiple lines */
@@ -199,7 +199,7 @@ a.button-link:hover {
         font-size: 0.9em; /* Slightly smaller font size */
     }
 
-    li .name, li .ac, li .number, li .health {
+    li .name, li .number, li .health, li .ac {
         flex: 1; /* Ensure better distribution of space on smaller screens */
         text-align: center; /* Center the text for smaller screens */
     }
