@@ -61,6 +61,7 @@ function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
+        console.log('Data fetched from Firebase:', data);
         const rankingList = document.getElementById('rankingList');
         rankingList.innerHTML = '';
 
