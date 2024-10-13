@@ -265,3 +265,30 @@ li {
 li button {
     flex: 0 0 auto;
 }
+li .name, li .health {
+    padding: 0 5px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+/* Adjust flex properties to center the elements */
+li {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the items horizontally */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #8C5A4A;
+    border-radius: 5px;
+    background-color: rgba(165, 123, 91, 0.8);
+    width: 100%;
+    gap: 10px;
+}
+
+/* Ensure buttons don't stretch */
+li button {
+    flex: 0 0 auto;
+}

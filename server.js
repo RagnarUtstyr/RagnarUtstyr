@@ -65,54 +65,40 @@ function fetchRankings() {
         rankingList.innerHTML = '';
 
         if (data) {
+            // Convert the data into an array and include the 'number' field for sorting
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
             rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
             rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
-                // Create separate containers for name and AC
+                // Name and AC combined
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
-                nameDiv.textContent = name;
-
-                const acDiv = document.createElement('div');
-                acDiv.className = 'ac';
-                acDiv.textContent = ac !== null && ac !== undefined ? `AC: ${ac}` : '';
-
-                // Create a container to hold name and AC together
-                const nameAcContainer = document.createElement('div');
-                nameAcContainer.className = 'name-ac-container';
-                nameAcContainer.appendChild(nameDiv);
-                if (acDiv.textContent !== '') {
-                    nameAcContainer.appendChild(acDiv);
+                if (ac !== null && ac !== undefined) {
+                    nameDiv.textContent = `${name} (AC: ${ac})`;
+                } else {
+                    nameDiv.textContent = name;
                 }
 
-                const numberDiv = document.createElement('div');
-                numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`;
-
+                // Health
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`;
-                } else {
-                    healthDiv.textContent = '';
-                }
+                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
 
+                // Remove Button
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
-                // Append the containers to the list item
-                listItem.appendChild(nameAcContainer);
-                listItem.appendChild(numberDiv);
+                // Append elements to listItem
+                listItem.appendChild(nameDiv);
                 if (healthDiv.textContent !== '') {
                     listItem.appendChild(healthDiv);
                 }
                 listItem.appendChild(removeButton);
 
-                // Append the list item to the ranking list
+                // Append the listItem to the rankingList
                 rankingList.appendChild(listItem);
             });
         } else {
