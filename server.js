@@ -22,12 +22,10 @@ const db = getDatabase(app);
 async function submitData() {
     const name = document.getElementById('name').value;
     const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null;
-    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null;
-
-    // For AC
-    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null;
-    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
+    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
+    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
+    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
+    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null; // Handle empty AC as null if present
 
     // Ensure name and number are valid, health and ac can be null
     if (name && !isNaN(number)) {
@@ -70,29 +68,29 @@ function fetchRankings() {
             rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
-                // Create separate containers for name, initiative, health, AC, and button
+                // Create separate containers for name, initiative (now Int), health (now HP), AC, and button
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`;
+                numberDiv.textContent = `Int: ${number}`; // Initiative as Int
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
                 if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`;
+                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
                 } else {
-                    healthDiv.textContent = '';
+                    healthDiv.textContent = ''; // Empty if no health value
                 }
 
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
                 if (ac !== null && ac !== undefined) {
-                    acDiv.textContent = `AC: ${ac}`;
+                    acDiv.textContent = `AC: ${ac}`; // Add AC prefix if AC is defined
                 } else {
-                    acDiv.textContent = '';
+                    acDiv.textContent = ''; // Empty if no AC value
                 }
 
                 const removeButton = document.createElement('button');
@@ -103,10 +101,10 @@ function fetchRankings() {
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
                 if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv);
+                    listItem.appendChild(healthDiv); // Only append HP if there is a value
                 }
                 if (acDiv.textContent !== '') {
-                    listItem.appendChild(acDiv);
+                    listItem.appendChild(acDiv); // Only append AC if there is a value
                 }
                 listItem.appendChild(removeButton);
 
@@ -136,11 +134,12 @@ function removeEntry(id) {
 // Function to clear all entries from Firebase
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null)
+    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
         .then(() => {
             console.log('All entries removed successfully');
+            // Clear the displayed list immediately
             const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = '';
+            rankingList.innerHTML = ''; // Explicitly clear the UI
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);
