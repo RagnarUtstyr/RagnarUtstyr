@@ -28,6 +28,8 @@ async function submitData() {
     const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
     const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
 
+    console.log('AC Input Value:', ac);
+
     // Ensure name and number are valid, health and ac can be null
     if (name && !isNaN(number)) {
         try {
