@@ -29,19 +29,26 @@ function addToList(name, health, url, ac) {
     }
 }
 
+// Function to handle adding a monster to the list
+function addToList(name, health, url, ac) {
+    console.log(`Adding monster: ${name} with HP: ${health}, AC: ${ac} and URL: ${url}`);
+    const initiative = prompt(`Enter initiative for ${name}:`);
+    if (initiative !== null && !isNaN(initiative)) {
+        submitMonsterToFirebase(name, parseInt(initiative), health, url, ac);
+    } else {
+        alert('Please enter a valid initiative number.');
+    }
+}
+
 // Function to submit data to Firebase
 async function submitMonsterToFirebase(name, initiative, health, url, ac) {
     try {
         console.log('Attempting to push data to Firebase...');
         const reference = ref(db, 'rankings/');
-        const newEntryRef = await push(reference, { name, number: initiative, health, url, ac });
+        await push(reference, { name, number: initiative, health, url, ac });
         console.log('Data pushed to Firebase successfully.');
-
-        // If push is successful, add to the UI
-        // Note: The UI will update via fetchRankings in server.js
     } catch (error) {
-        console.error('Error (possibly network-related) submitting monster, but continuing:', error);
-        // No alert, silent logging instead
+        console.error('Error submitting monster:', error);
     }
 }
 
