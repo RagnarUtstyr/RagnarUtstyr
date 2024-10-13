@@ -64,14 +64,14 @@ function fetchRankings() {
 
             rankings.forEach(({ id, name, number, health }) => {
                 const listItem = document.createElement('li');
+                listItem.className = 'list-item';
 
-                // Create separate containers for name, initiative (now Int), health (now HP), and button
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
-                numberDiv.className = 'number';
+                numberDiv.className = 'initiative';
                 numberDiv.textContent = `Int: ${number}`; // Changed Initiative to Int
 
                 const healthDiv = document.createElement('div');
@@ -86,15 +86,19 @@ function fetchRankings() {
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
-                // Append all parts to the list item
+                const damageInput = document.createElement('input');
+                damageInput.type = 'number';
+                damageInput.placeholder = 'Damage';
+                damageInput.className = 'damage-input';
+                damageInput.dataset.entryId = id;
+                damageInput.dataset.currentHealth = health;
+
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
-                if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv); // Only append HP if there is a value
-                }
+                listItem.appendChild(healthDiv);
+                listItem.appendChild(damageInput);
                 listItem.appendChild(removeButton);
 
-                // Append the list item to the ranking list
                 rankingList.appendChild(listItem);
             });
         } else {
@@ -104,6 +108,35 @@ function fetchRankings() {
         console.error('Error fetching data:', error);
     });
 }
+
+// Function to apply damage to all entries
+function applyDamageToAll() {
+    const damageInputs = document.querySelectorAll('.damage-input');  // Select all damage inputs
+    damageInputs.forEach(input => {
+        const entryId = input.dataset.entryId;  // Get the entry ID from the data attribute
+        const currentHealth = parseInt(input.dataset.currentHealth);  // Get the current health
+        const damage = parseInt(input.value);  // Get the entered damage
+
+        // Ensure damage is a valid number
+        if (!isNaN(damage)) {
+            const updatedHealth = currentHealth - damage;  // Negative damage will increase health
+            updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0);  // Update health and ensure it doesn't go below 0
+        }
+    });
+}
+
+// Function to update health in Firebase
+function updateHealth(id, newHealth) {
+    const reference = ref(db, `rankings/${id}`);
+    update(reference, { health: newHealth })
+        .then(() => {
+            console.log(`Health updated to ${newHealth}`);
+        })
+        .catch((error) => {
+            console.error('Error updating health:', error);
+        });
+}
+
 // Function to remove an entry from Firebase
 function removeEntry(id) {
     const reference = ref(db, `rankings/${id}`);
@@ -116,30 +149,6 @@ function removeEntry(id) {
         });
 }
 
-// Function to clear all entries from Firebase
-function clearAllEntries() {
-    const reference = ref(db, 'rankings/');
-    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
-        .then(() => {
-            console.log('All entries removed successfully');
-            // Clear the displayed list immediately
-            const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = ''; // Explicitly clear the UI
-        })
-        .catch((error) => {
-            console.error('Error clearing all entries:', error);
-        });
-}
-
-// Event listeners for page-specific actions
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('submit-button')) {
-        document.getElementById('submit-button').addEventListener('click', submitData);
-    }
-    if (document.getElementById('rankingList')) {
-        fetchRankings();
-    }
-    if (document.getElementById('clear-list-button')) {
-        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
-    }
-});
+// Event listeners for buttons
+document.getElementById('submit-button').addEventListener('click', submitData);
+document.getElementById('apply-damage-button').addEventListener('click', applyDamageToAll);
