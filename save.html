@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
+    <title>Manage Saved Lists</title>
+
+    <!-- Link to the various scripts and stylesheets -->
+    <script type="module" src="server.js" defer></script>
+    <script type="module" src="health.js" defer></script>
+    <script type="module" src="save.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="turn.css">
+    <link rel="stylesheet" href="save.css">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Manage Saved Lists</h1>
+
+        <!-- Input for list name above the buttons -->
+        <div class="input-controls">
+            <input type="text" id="list-name" placeholder="Enter list name" required>
+        </div>
+
+        <!-- Buttons for Save, Load, and Delete actions -->
+        <div class="button-controls">
+            <button id="save-list-button">Save List</button>
+            <button id="load-list-button">Load List</button>
+            <button id="delete-list-button">Delete List</button>
+        </div>
+
+        <!-- Display all saved lists -->
+        <h2>Saved Lists</h2>
+        <ul id="savedLists">
+            <!-- List of saved lists will be dynamically populated here -->
+        </ul>
+
+        <!-- Link to group.html to view the rankings -->
+        <a href="group.html" class="button-link">View Rankings</a>
+    </div>
+</body>
+
+</html>
