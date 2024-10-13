@@ -57,17 +57,21 @@ function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
-        console.log('Fetched data:', data); // Add this line
+        console.log('Fetched data:', data);
+
         const rankingList = document.getElementById('rankingList');
         rankingList.innerHTML = '';
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            console.log('Processed rankings:', rankings); // Add this line
+            console.log('Processed rankings:', rankings);
             rankings.sort((a, b) => b.number - a.number);
 
             rankings.forEach(({ id, name, number, health, ac }) => {
                 console.log('Entry data:', { id, name, number, health, ac });
+
+                // Declare listItem
+                const listItem = document.createElement('li');
 
                 // Name
                 const nameDiv = document.createElement('div');
@@ -77,7 +81,7 @@ function fetchRankings() {
                 // Initiative
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = `Ini: ${number}`;
+                numberDiv.textContent = `Int: ${number}`;
 
                 // Health
                 const healthDiv = document.createElement('div');
@@ -94,14 +98,14 @@ function fetchRankings() {
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
-                // Append to listItem
+                // Append child elements to listItem
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
                 if (healthDiv.textContent !== '') listItem.appendChild(healthDiv);
                 if (acDiv.textContent !== '') listItem.appendChild(acDiv);
                 listItem.appendChild(removeButton);
 
-                // Append to rankingList
+                // Append listItem to rankingList
                 rankingList.appendChild(listItem);
             });
         } else {
