@@ -70,6 +70,10 @@ function fetchRankings() {
                 numberDiv.className = 'initiative';
                 numberDiv.textContent = `Int: ${number}`;
 
+                const acDiv = document.createElement('div'); 
+                acDiv.className = 'ac';
+                acDiv.textContent = `AC: ${ac}`;
+
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'hp';
                 healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
