@@ -39,7 +39,7 @@ function fetchRankings() {
                 listItem.appendChild(healthDiv);
 
                 // Damage input field (only if health exists)
-                if (health !== null && health !== undefined) {
+                if (health !== null && health !== undefined && health > 0) {
                     const healthInput = document.createElement('input');
                     healthInput.type = 'number';
                     healthInput.placeholder = 'Damage';
@@ -50,14 +50,16 @@ function fetchRankings() {
                     listItem.appendChild(healthInput);
                 }
 
-                // Remove button
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.className = 'remove-button';
-                removeButton.addEventListener('click', () => {
-                    removeEntry(id, listItem); // Pass listItem to remove it from DOM
-                });
-                listItem.appendChild(removeButton);
+                // Add the remove button only if health is 0 or below
+                if (health === 0) {
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.className = 'remove-button';
+                    removeButton.addEventListener('click', () => {
+                        removeEntry(id, listItem); // Pass listItem to remove it from DOM
+                    });
+                    listItem.appendChild(removeButton);
+                }
 
                 // Add defeated class if health is 0
                 if (health === 0) {
@@ -102,9 +104,17 @@ function updateHealth(id, newHealth, healthInput) {
             if (newHealth <= 0) {
                 healthInput.remove();  // Remove input field
                 listItem.classList.add('defeated');  // Add defeated class
-                const removeButton = healthInput.parentElement.querySelector('.remove-button');
-                if (removeButton) {
-                    removeButton.style.display = 'inline';  // Show remove button
+
+                // Add remove button when health reaches 0
+                let removeButton = listItem.querySelector('.remove-button');
+                if (!removeButton) {  // Only add if it doesn't exist
+                    removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.className = 'remove-button';
+                    removeButton.addEventListener('click', () => {
+                        removeEntry(id, listItem);
+                    });
+                    listItem.appendChild(removeButton);
                 }
             } else {
                 healthInput.dataset.currentHealth = newHealth;  // Update current health
