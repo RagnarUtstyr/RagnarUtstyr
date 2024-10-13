@@ -51,6 +51,7 @@ function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
+        console.log('Data fetched from Firebase:', data); // Add this line
         const rankingList = document.getElementById('rankingList');
         rankingList.innerHTML = '';
 
@@ -59,7 +60,7 @@ function fetchRankings() {
             rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
             rankings.forEach(({ id, name, number, health, ac }) => {
-                const listItem = document.createElement('li');
+                console.log(`Entry ID: ${id}, Name: ${name}, AC: ${ac}`);
 
                 // Create separate containers for name, initiative (now Int), health (now HP), AC, and button
                 const nameDiv = document.createElement('div');
