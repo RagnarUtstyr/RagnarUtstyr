@@ -4,7 +4,14 @@ import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstati
 
 // Firebase Configuration
 const firebaseConfig = {
-    // ... your firebase configuration ...
+    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+    authDomain: "roll202-c0b0d.firebaseapp.com",
+    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "roll202-c0b0d",
+    storageBucket: "roll202-c0b0d.appspot.com",
+    messagingSenderId: "607661730400",
+    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+    measurementId: "G-6X5L39W56C"
 };
 
 // Initialize Firebase
@@ -15,12 +22,12 @@ const db = getDatabase(app);
 async function submitData() {
     const name = document.getElementById('name').value;
     const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null;
-    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null;
+    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
+    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
 
     // For AC
-    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null;
-    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
+    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
+    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null; // Handle empty AC as null if present
 
     // Ensure name and number are valid, health and ac can be null
     if (name && !isNaN(number)) {
@@ -70,12 +77,12 @@ function fetchRankings() {
 
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`;
+                numberDiv.textContent = `Int: ${number}`; // Initiative
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
                 if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`;
+                    healthDiv.textContent = `HP: ${health}`; // Health
                 } else {
                     healthDiv.textContent = '';
                 }
@@ -83,7 +90,7 @@ function fetchRankings() {
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
                 if (ac !== null && ac !== undefined) {
-                    acDiv.textContent = `AC: ${ac}`;
+                    acDiv.textContent = `AC: ${ac}`; // Armour Class
                 } else {
                     acDiv.textContent = '';
                 }
@@ -129,11 +136,12 @@ function removeEntry(id) {
 // Function to clear all entries from Firebase
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null)
+    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
         .then(() => {
             console.log('All entries removed successfully');
+            // Clear the displayed list immediately
             const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = '';
+            rankingList.innerHTML = ''; // Explicitly clear the UI
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);
