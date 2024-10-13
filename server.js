@@ -53,7 +53,6 @@ async function submitData() {
     }
 }
 
-// Function to fetch and display rankings
 function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
@@ -63,52 +62,44 @@ function fetchRankings() {
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
+            rankings.sort((a, b) => b.number - a.number);
 
             rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
-                // Create separate containers for name, initiative (now Int), health (now HP), AC, and button
+                // Name
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
 
+                // Initiative
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`; // Changed Initiative to Int
+                numberDiv.textContent = `Int: ${number}`;
 
+                // Health
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
-                } else {
-                    healthDiv.textContent = ''; // Empty if no health value
-                }
+                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
 
+                // AC
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
-                if (ac !== null && ac !== undefined) {
-                    acDiv.textContent = `AC: ${ac}`; // Add AC prefix if AC is defined
-                } else {
-                    acDiv.textContent = ''; // Empty if no AC value
-                }
+                acDiv.textContent = ac !== null && ac !== undefined ? `AC: ${ac}` : '';
 
+                // Remove Button
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
-                // Append all parts to the list item
+                // Append to listItem
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
-                if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv); // Only append HP if there is a value
-                }
-                if (acDiv.textContent !== '') {
-                    listItem.appendChild(acDiv); // Only append AC if there is a value
-                }
+                if (healthDiv.textContent !== '') listItem.appendChild(healthDiv);
+                if (acDiv.textContent !== '') listItem.appendChild(acDiv);
                 listItem.appendChild(removeButton);
 
-                // Append the list item to the ranking list
+                // Append to rankingList
                 rankingList.appendChild(listItem);
             });
         } else {
@@ -118,7 +109,6 @@ function fetchRankings() {
         console.error('Error fetching data:', error);
     });
 }
-
 // Function to remove an entry from Firebase
 function removeEntry(id) {
     const reference = ref(db, `rankings/${id}`);
