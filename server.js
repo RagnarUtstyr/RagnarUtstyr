@@ -85,7 +85,11 @@ function fetchRankings() {
 
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
-                acDiv.textContent = ac !== null && ac !== undefined ? `AC: ${ac}` : '';
+                if (ac !== null && ac !== undefined) {
+                    acDiv.textContent = `AC: ${ac}`;
+                } else {
+                    acDiv.textContent = '';
+                }
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
