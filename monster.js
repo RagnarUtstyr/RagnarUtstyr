@@ -37,7 +37,7 @@ async function submitMonsterToFirebase(name, initiative, health, url, ac) {
         await push(reference, { name, number: initiative, health, url, ac });
         console.log('Data pushed to Firebase successfully.');
     } catch (error) {
-        console.error('Error (possibly network-related) submitting monster, but continuing:', error);
+        console.error('Error submitting monster:', error);
     }
 }
 
