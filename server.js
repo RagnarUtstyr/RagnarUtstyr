@@ -22,12 +22,12 @@ const db = getDatabase(app);
 async function submitData() {
     const name = document.getElementById('name').value;
     const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
-    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
+    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null;
+    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null;
 
     // For AC
-    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
-    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null; // Handle empty AC as null if present
+    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null;
+    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
 
     // Ensure name and number are valid, health and ac can be null
     if (name && !isNaN(number)) {
@@ -67,12 +67,7 @@ function fetchRankings() {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
             rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
-            rankings.forEach((entry) => {
-                const { id, name, number, health, ac } = entry;
-
-                // Debugging: Log each entry to check if 'ac' is present
-                console.log('Entry:', entry);
-
+            rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
                 // Create separate containers for name, initiative, health, AC, and button
@@ -82,12 +77,12 @@ function fetchRankings() {
 
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`; // Initiative
+                numberDiv.textContent = `Int: ${number}`;
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
                 if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`; // Health
+                    healthDiv.textContent = `HP: ${health}`;
                 } else {
                     healthDiv.textContent = '';
                 }
@@ -95,7 +90,7 @@ function fetchRankings() {
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
                 if (ac !== null && ac !== undefined) {
-                    acDiv.textContent = `AC: ${ac}`; // Armour Class
+                    acDiv.textContent = `AC: ${ac}`;
                 } else {
                     acDiv.textContent = '';
                 }
@@ -141,12 +136,11 @@ function removeEntry(id) {
 // Function to clear all entries from Firebase
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
+    set(reference, null)
         .then(() => {
             console.log('All entries removed successfully');
-            // Clear the displayed list immediately
             const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = ''; // Explicitly clear the UI
+            rankingList.innerHTML = '';
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);
