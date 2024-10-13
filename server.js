@@ -91,12 +91,7 @@ function fetchRankings() {
                 // AC
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
-
-                if (ac !== null && ac !== undefined) {
-                     acDiv.textContent = `AC: ${ac}`;
-                } else {
-                  acDiv.textContent = '';
-                }
+                acDiv.textContent = `AC: ${ac}`; // Assume ac is always present
 
                 // Append acDiv to listItem if it has content
                 if (acDiv.textContent !== '') {
@@ -114,6 +109,9 @@ function fetchRankings() {
                 if (healthDiv.textContent !== '') listItem.appendChild(healthDiv);
                 if (acDiv.textContent !== '') listItem.appendChild(acDiv);
                 listItem.appendChild(removeButton);
+
+                // Append acDiv to listItem
+                listItem.appendChild(acDiv);
 
                 // Append listItem to rankingList
                 rankingList.appendChild(listItem);
