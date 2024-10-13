@@ -71,16 +71,21 @@ function fetchRankings() {
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
-                numberDiv.className = 'initiative';  // Changed to 'initiative'
+                numberDiv.className = 'initiative';  
                 numberDiv.textContent = `Int: ${number}`; 
 
                 const healthDiv = document.createElement('div');
-                healthDiv.className = 'hp';  // Changed to 'hp'
+                healthDiv.className = 'hp';  
                 if (health !== null && health !== undefined) {
                     healthDiv.textContent = `HP: ${health}`;
                 } else {
                     healthDiv.textContent = ''; 
                 }
+
+                const damageInput = document.createElement('input');
+                damageInput.className = 'damage-input';
+                damageInput.type = 'number';
+                damageInput.placeholder = 'Damage'; // Placeholder for damage input
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
@@ -89,9 +94,8 @@ function fetchRankings() {
                 // Append all parts to the list item
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
-                if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv); 
-                }
+                listItem.appendChild(healthDiv);
+                listItem.appendChild(damageInput); // Add damage input to the list item
                 listItem.appendChild(removeButton);
 
                 // Append the list item to the ranking list
