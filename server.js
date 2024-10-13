@@ -75,7 +75,7 @@ function fetchRankings() {
                 // Initiative
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`;
+                numberDiv.textContent = `Ini: ${number}`;
 
                 // Health
                 const healthDiv = document.createElement('div');
