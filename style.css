@@ -237,3 +237,31 @@ li {
     width: 100%; /* Take full width of the container */
     gap: 10px; /* Space between child elements */
 }
+/* Style for the name and AC container */
+.name-ac-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 2; /* Adjust as needed */
+    gap: 5px;
+}
+
+/* Flex properties for the name, ac, number, and health elements */
+.name-ac-container .name, .name-ac-container .ac, li .number, li .health {
+    padding: 0 5px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+/* Optionally adjust the flex for name and AC */
+.name-ac-container .name, .name-ac-container .ac {
+    flex: 1; /* Together they take up the space assigned to name-ac-container */
+}
+
+/* Ensure buttons don't stretch */
+li button {
+    flex: 0 0 auto;
+}
