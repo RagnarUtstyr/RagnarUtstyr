@@ -22,6 +22,11 @@ function fetchRankings() {
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
 
+                const acDiv = document.createElement('div');
+                acDiv.className = 'ac';
+                acDiv.textContent = `AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}`;
+                listItem.appendChild(acDiv);
+
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
                 numberDiv.textContent = `Int: ${number}`;
