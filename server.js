@@ -71,13 +71,45 @@ function fetchRankings() {
             rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
-                // Display all values in a simple string
-                listItem.textContent = `${name} | Int: ${number} | AC: ${ac !== null && ac !== undefined ? ac : 'N/A'} | HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
+                // Create separate containers for name and AC
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'name';
+                nameDiv.textContent = name;
+
+                const acDiv = document.createElement('div');
+                acDiv.className = 'ac';
+                acDiv.textContent = ac !== null && ac !== undefined ? `AC: ${ac}` : '';
+
+                // Create a container to hold name and AC together
+                const nameAcContainer = document.createElement('div');
+                nameAcContainer.className = 'name-ac-container';
+                nameAcContainer.appendChild(nameDiv);
+                if (acDiv.textContent !== '') {
+                    nameAcContainer.appendChild(acDiv);
+                }
+
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'number';
+                numberDiv.textContent = `Int: ${number}`;
+
+                const healthDiv = document.createElement('div');
+                healthDiv.className = 'health';
+                if (health !== null && health !== undefined) {
+                    healthDiv.textContent = `HP: ${health}`;
+                } else {
+                    healthDiv.textContent = '';
+                }
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
+                // Append the containers to the list item
+                listItem.appendChild(nameAcContainer);
+                listItem.appendChild(numberDiv);
+                if (healthDiv.textContent !== '') {
+                    listItem.appendChild(healthDiv);
+                }
                 listItem.appendChild(removeButton);
 
                 // Append the list item to the ranking list
