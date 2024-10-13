@@ -71,15 +71,15 @@ function fetchRankings() {
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
-                numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`; // Changed Initiative to Int
+                numberDiv.className = 'initiative';  // Changed to 'initiative'
+                numberDiv.textContent = `Int: ${number}`; 
 
                 const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
+                healthDiv.className = 'hp';  // Changed to 'hp'
                 if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
+                    healthDiv.textContent = `HP: ${health}`;
                 } else {
-                    healthDiv.textContent = ''; // Empty if no health value
+                    healthDiv.textContent = ''; 
                 }
 
                 const removeButton = document.createElement('button');
@@ -90,7 +90,7 @@ function fetchRankings() {
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
                 if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv); // Only append HP if there is a value
+                    listItem.appendChild(healthDiv); 
                 }
                 listItem.appendChild(removeButton);
 
@@ -119,12 +119,11 @@ function removeEntry(id) {
 // Function to clear all entries from Firebase
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
+    set(reference, null) 
         .then(() => {
             console.log('All entries removed successfully');
-            // Clear the displayed list immediately
             const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = ''; // Explicitly clear the UI
+            rankingList.innerHTML = ''; 
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);
