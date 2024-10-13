@@ -18,35 +18,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Function to submit data to Firebase
-async function submitData() {
-    const name = document.getElementById('name').value;
-    const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Optional Health
-    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Optional AC
-    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null;
-    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
-
-    // Ensure name and number are valid
-    if (name && !isNaN(number)) {
-        try {
-            const reference = ref(db, 'rankings/');
-            await push(reference, { name, number, health, ac });
-            console.log('Data submitted successfully:', { name, number, health, ac });
-
-            // Clear input fields after submission
-            document.getElementById('name').value = '';
-            document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
-            if (document.getElementById('health')) document.getElementById('health').value = '';
-            if (document.getElementById('ac')) document.getElementById('ac').value = '';
-        } catch (error) {
-            console.error('Error submitting data:', error);
-        }
-    } else {
-        console.log('Please enter valid name and initiative values.');
-    }
-}
-
 // Function to fetch and display rankings
 function fetchRankings() {
     const reference = ref(db, 'rankings/');
@@ -57,9 +28,9 @@ function fetchRankings() {
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number);
+            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
-            rankings.forEach(({ id, name, number, health }) => {
+            rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
                 const nameDiv = document.createElement('div');
@@ -67,21 +38,16 @@ function fetchRankings() {
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
-                numberDiv.className = 'initiative';
+                numberDiv.className = 'number';
                 numberDiv.textContent = `Int: ${number}`;
 
-                const acDiv = document.createElement('div'); 
+                const healthDiv = document.createElement('div');
+                healthDiv.className = 'health';
+                healthDiv.textContent = `HP: ${health}`;
+
+                const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
                 acDiv.textContent = `AC: ${ac}`;
-
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'hp';
-                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
-
-                const damageInput = document.createElement('input');
-                damageInput.className = 'damage-input';
-                damageInput.type = 'number';
-                damageInput.placeholder = 'Damage';
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
@@ -90,7 +56,7 @@ function fetchRankings() {
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
                 listItem.appendChild(healthDiv);
-                listItem.appendChild(damageInput);
+                listItem.appendChild(acDiv);
                 listItem.appendChild(removeButton);
 
                 rankingList.appendChild(listItem);
@@ -122,13 +88,14 @@ function clearAllEntries() {
         .then(() => {
             console.log('All entries removed successfully');
             const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = '';
+            rankingList.innerHTML = ''; // Explicitly clear the UI
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);
         });
 }
 
+// Event listeners for page-specific actions
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('submit-button')) {
         document.getElementById('submit-button').addEventListener('click', submitData);
