@@ -100,7 +100,7 @@ li {
 }
 
 /* Flex properties for the name, number, and health elements */
-li .name, li .number, li .health {
+li .name, li .ac, li .number, li .health {
     padding: 0 5px; /* Add a little padding to the left and right */
     flex: 2; /* Make these elements take up more space */
     white-space: nowrap; /* Prevent text from breaking into multiple lines */
