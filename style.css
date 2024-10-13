@@ -227,3 +227,8 @@ li {
     width: 100%; /* Take full width of the container */
     gap: 10px; /* Space between child elements */
 }
+.ac {
+    display: inline-block;
+    color: inherit;
+    font-size: inherit;
+}
