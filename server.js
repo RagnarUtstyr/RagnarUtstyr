@@ -22,23 +22,23 @@ const db = getDatabase(app);
 async function submitData() {
     const name = document.getElementById('name').value;
     const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null;
+    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Optional Health
+    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Optional AC
     const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null;
+    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
 
+    // Ensure name and number are valid
     if (name && !isNaN(number)) {
         try {
             const reference = ref(db, 'rankings/');
-            await push(reference, { name, number, health });
-            console.log('Data submitted successfully:', { name, number, health });
+            await push(reference, { name, number, health, ac });
+            console.log('Data submitted successfully:', { name, number, health, ac });
 
+            // Clear input fields after submission
             document.getElementById('name').value = '';
             document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
             if (document.getElementById('health')) document.getElementById('health').value = '';
-
-            const swordSound = document.getElementById('sword-sound');
-            if (swordSound) {
-                swordSound.play();
-            }
+            if (document.getElementById('ac')) document.getElementById('ac').value = '';
         } catch (error) {
             console.error('Error submitting data:', error);
         }
