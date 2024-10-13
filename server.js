@@ -62,49 +62,44 @@ function fetchRankings() {
             rankings.forEach(({ id, name, number, health, ac }) => {
                 console.log(`Entry ID: ${id}, Name: ${name}, AC: ${ac}`);
 
-                // Create separate containers for name, initiative (now Int), health (now HP), AC, and button
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
-                nameDiv.textContent = name;
-
-                const numberDiv = document.createElement('div');
-                numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`; // Initiative as Int
-
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
-                } else {
-                    healthDiv.textContent = ''; // Empty if no health value
-                }
-
-                const acDiv = document.createElement('div');
-                acDiv.className = 'ac';
-                if (ac !== null && ac !== undefined) {
-                    acDiv.textContent = `AC: ${ac}`; // Add AC prefix if AC is defined
-                } else {
-                    acDiv.textContent = ''; // Empty if no AC value
-                }
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.addEventListener('click', () => removeEntry(id));
-
-                // Append all parts to the list item
-                listItem.appendChild(nameDiv);
-                listItem.appendChild(numberDiv);
-                if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv); // Only append HP if there is a value
-                }
-                if (acDiv.textContent !== '') {
-                    listItem.appendChild(acDiv); // Only append AC if there is a value
-                }
-                listItem.appendChild(removeButton);
-
-                // Append the list item to the ranking list
-                rankingList.appendChild(listItem);
-            });
+                rankings.forEach(({ id, name, number, health, ac }) => {
+                    const listItem = document.createElement('li');
+            
+                    // Name
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'name';
+                    nameDiv.textContent = name;
+            
+                    // Initiative
+                    const numberDiv = document.createElement('div');
+                    numberDiv.className = 'number';
+                    numberDiv.textContent = `Int: ${number}`;
+            
+                    // Health
+                    const healthDiv = document.createElement('div');
+                    healthDiv.className = 'health';
+                    healthDiv.textContent = health !== null ? `HP: ${health}` : '';
+            
+                    // AC
+                    const acDiv = document.createElement('div');
+                    acDiv.className = 'ac';
+                    acDiv.textContent = ac !== null ? `AC: ${ac}` : '';
+            
+                    // Remove Button
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.addEventListener('click', () => removeEntry(id));
+            
+                    // Append elements to listItem
+                    listItem.appendChild(nameDiv);
+                    listItem.appendChild(numberDiv);
+                    if (healthDiv.textContent) listItem.appendChild(healthDiv);
+                    if (acDiv.textContent) listItem.appendChild(acDiv);
+                    listItem.appendChild(removeButton);
+            
+                    // Append listItem to rankingList
+                    rankingList.appendChild(listItem);
+                });
         } else {
             console.log('No data available');
         }
