@@ -14,7 +14,7 @@ function fetchRankings() {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
             rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
-            rankings.forEach(({ id, name, number, health }) => {
+            rankings.forEach(({ id, name, ac, number, health }) => {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item';
 
