@@ -18,13 +18,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Function to fetch and display rankings
+// Function to fetch and display rankings (with AC)
 function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = '';
+        rankingList.innerHTML = ''; // Clear the list first
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
@@ -81,14 +81,14 @@ function removeEntry(id) {
         });
 }
 
-// Function to clear all entries from Firebase
+// Function to clear all entries from Firebase and update the UI
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null)
+    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
         .then(() => {
             console.log('All entries removed successfully');
             const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = ''; // Explicitly clear the UI
+            rankingList.innerHTML = ''; // Explicitly clear the UI list after clearing Firebase
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);

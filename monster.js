@@ -20,7 +20,7 @@ const db = getDatabase(app);
 
 // Function to handle adding a monster to the list
 function addToList(name, health, url, ac) {
-    console.log(`Adding monster: ${name} with HP: ${health}, AC: ${ac} and URL: ${url}`);
+    console.log(`Adding monster: ${name} with HP: ${health}, AC: ${ac}, and URL: ${url}`);
     const initiative = prompt(`Enter initiative for ${name}:`);
     if (initiative !== null && !isNaN(initiative)) {
         submitMonsterToFirebase(name, parseInt(initiative), health, ac, url);
