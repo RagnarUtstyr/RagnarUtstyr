@@ -199,7 +199,7 @@ a.button-link:hover {
         font-size: 0.9em; /* Slightly smaller font size */
     }
 
-    li .name, li .number, li .health {
+    li .name, li .ac, li .number, li .health {
         flex: 1; /* Ensure better distribution of space on smaller screens */
         text-align: center; /* Center the text for smaller screens */
     }
