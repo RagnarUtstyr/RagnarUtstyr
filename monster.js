@@ -20,18 +20,7 @@ const db = getDatabase(app);
 
 // Function to handle adding a monster to the list
 function addToList(name, health, url, ac) {
-    console.log(`Adding monster: ${name} with HP: ${health}, AC: ${ac} and URL: ${url}`);
-    const initiative = prompt(`Enter initiative for ${name}:`);
-    if (initiative !== null && !isNaN(initiative)) {
-        submitMonsterToFirebase(name, parseInt(initiative), health, url, ac);
-    } else {
-        alert('Please enter a valid initiative number.');
-    }
-}
-
-// Function to handle adding a monster to the list
-function addToList(name, health, url, ac) {
-    console.log(`Adding monster: ${name} with HP: ${health}, AC: ${ac} and URL: ${url}`);
+    console.log(`Adding monster: ${name} with HP: ${health}, AC: ${ac}, and URL: ${url}`);
     const initiative = prompt(`Enter initiative for ${name}:`);
     if (initiative !== null && !isNaN(initiative)) {
         submitMonsterToFirebase(name, parseInt(initiative), health, url, ac);
@@ -48,7 +37,7 @@ async function submitMonsterToFirebase(name, initiative, health, url, ac) {
         await push(reference, { name, number: initiative, health, url, ac });
         console.log('Data pushed to Firebase successfully.');
     } catch (error) {
-        console.error('Error submitting monster:', error);
+        console.error('Error (possibly network-related) submitting monster, but continuing:', error);
     }
 }
 
