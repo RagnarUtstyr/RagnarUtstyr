@@ -38,29 +38,11 @@ async function submitMonsterToFirebase(name, initiative, health, url, ac) {
         console.log('Data pushed to Firebase successfully.');
 
         // If push is successful, add to the UI
-        addMonsterToListUI(newEntryRef.key, name, initiative, health, url, ac);
+        // Note: Since we're using Firebase to render the list, we don't need to add it to the UI manually here.
     } catch (error) {
         console.error('Error (possibly network-related) submitting monster, but continuing:', error);
         // No alert, silent logging instead
     }
-}
-
-// Function to add monster to the list UI
-function addMonsterToListUI(id, name, initiative, health, url, ac) {
-    const rankingList = document.getElementById('rankingList');
-    if (!rankingList) {
-        console.error("Ranking list element not found in the DOM. Cannot add monster.");
-        return;
-    }
-
-    const listItem = document.createElement('li');
-    listItem.textContent = `${name} (Int: ${initiative}, HP: ${health}, AC: ${ac})`;
-    listItem.className = 'list-item';
-    listItem.dataset.url = url;
-    listItem.onclick = function() {
-        window.open(this.dataset.url, '_blank');
-    };
-    rankingList.appendChild(listItem);
 }
 
 // Attach addToList function to the global window object to be accessible from the HTML

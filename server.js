@@ -67,7 +67,12 @@ function fetchRankings() {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
             rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
-            rankings.forEach(({ id, name, number, health, ac }) => {
+            rankings.forEach((entry) => {
+                const { id, name, number, health, ac } = entry;
+
+                // Debugging: Log each entry to check if 'ac' is present
+                console.log('Entry:', entry);
+
                 const listItem = document.createElement('li');
 
                 // Create separate containers for name, initiative, health, AC, and button
