@@ -18,47 +18,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Function to fetch and display rankings (with AC)
+// Function to fetch and display rankings
 function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = ''; // Clear the list first
+        rankingList.innerHTML = ''; // Clear the list before repopulating
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
+            rankings.sort((a, b) => b.number - a.number); // Sort by initiative
 
             rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
-
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
-                nameDiv.textContent = name;
-
-                const numberDiv = document.createElement('div');
-                numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`;
-
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                healthDiv.textContent = `HP: ${health}`;
-
-                const acDiv = document.createElement('div');
-                acDiv.className = 'ac';
-                acDiv.textContent = `AC: ${ac}`;
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.addEventListener('click', () => removeEntry(id));
-
-                listItem.appendChild(nameDiv);
-                listItem.appendChild(numberDiv);
-                listItem.appendChild(healthDiv);
-                listItem.appendChild(acDiv);
-                listItem.appendChild(removeButton);
-
+                listItem.textContent = `${name} (Int: ${number}, HP: ${health}, AC: ${ac})`;
                 rankingList.appendChild(listItem);
             });
         } else {
@@ -72,38 +46,31 @@ function fetchRankings() {
 // Function to remove an entry from Firebase
 function removeEntry(id) {
     const reference = ref(db, `rankings/${id}`);
-    remove(reference)
-        .then(() => {
-            console.log(`Entry with id ${id} removed successfully`);
-        })
-        .catch((error) => {
-            console.error('Error removing entry:', error);
-        });
+    remove(reference).then(() => {
+        console.log(`Entry with id ${id} removed successfully`);
+    }).catch((error) => {
+        console.error('Error removing entry:', error);
+    });
 }
 
 // Function to clear all entries from Firebase and update the UI
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
-        .then(() => {
-            console.log('All entries removed successfully');
-            const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = ''; // Explicitly clear the UI list after clearing Firebase
-        })
-        .catch((error) => {
-            console.error('Error clearing all entries:', error);
-        });
+    set(reference, null).then(() => {
+        const rankingList = document.getElementById('rankingList');
+        rankingList.innerHTML = ''; // Clear the UI after clearing Firebase
+        console.log('All entries removed successfully');
+    }).catch((error) => {
+        console.error('Error clearing all entries:', error);
+    });
 }
 
 // Event listeners for page-specific actions
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('submit-button')) {
-        document.getElementById('submit-button').addEventListener('click', submitData);
+    if (document.getElementById('clear-list-button')) {
+        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
     }
     if (document.getElementById('rankingList')) {
         fetchRankings();
-    }
-    if (document.getElementById('clear-list-button')) {
-        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
     }
 });
