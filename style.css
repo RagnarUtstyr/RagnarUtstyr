@@ -144,22 +144,29 @@ button:hover {
 }
 
 /* Flex properties for name, initiative, health, and damage elements */
+li {
+    display: flex; /* Flexbox layout */
+    justify-content: space-between; /* Space between elements */
+    align-items: center; /* Vertically center the content */
+}
+
 li .name {
     flex: 1;
-    text-align: left; /* Align to the left */
+    text-align: left; /* Align the name to the far left */
 }
 
 li .initiative {
     flex: 1;
-    text-align: center; /* Align to the center left */
+    text-align: center; /* Align the initiative to the center left */
 }
 
 li .hp {
     flex: 1;
-    text-align: center; /* Align to the center right */
+    text-align: center; /* Align HP to the center right */
 }
 
-input.damage-input {
+li .damage-input {
     flex: 1;
-    text-align: right; /* Align to the right */
+    text-align: right; /* Align the damage input to the far right */
+    max-width: 80px; /* Ensure the damage input doesn't take too much space */
 }
