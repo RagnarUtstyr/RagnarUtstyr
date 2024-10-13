@@ -57,15 +57,17 @@ function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
+        console.log('Fetched data:', data); // Add this line
         const rankingList = document.getElementById('rankingList');
         rankingList.innerHTML = '';
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
+            console.log('Processed rankings:', rankings); // Add this line
             rankings.sort((a, b) => b.number - a.number);
 
             rankings.forEach(({ id, name, number, health, ac }) => {
-                const listItem = document.createElement('li');
+                console.log('Entry data:', { id, name, number, health, ac });
 
                 // Name
                 const nameDiv = document.createElement('div');
