@@ -64,52 +64,39 @@ function fetchRankings() {
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
+            rankings.sort((a, b) => b.number - a.number);
 
             rankings.forEach(({ id, name, number, health, ac }) => {
+                console.log(`Name: ${name}, AC: ${ac}`); // Debugging line
+
                 const listItem = document.createElement('li');
 
-                // Create separate containers for name, initiative (now Int), health (now HP), AC, and button
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`; // Changed Initiative to Int
+                numberDiv.textContent = `Int: ${number}`;
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
-                } else {
-                    healthDiv.textContent = ''; // Empty if no health value
-                }
+                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
 
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
-                if (ac !== null && ac !== undefined) {
-                    acDiv.textContent = `AC: ${ac}`;
-                } else {
-                    acDiv.textContent = '';
-                }
+                acDiv.textContent = ac !== null && ac !== undefined ? `AC: ${ac}` : '';
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
-                // Append all parts to the list item
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
-                if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv); // Only append HP if there is a value
-                }
-                if (acDiv.textContent !== '') {
-                    listItem.appendChild(acDiv); // Only append AC if there is a value
-                }
+                if (healthDiv.textContent !== '') listItem.appendChild(healthDiv);
+                if (acDiv.textContent !== '') listItem.appendChild(acDiv);
                 listItem.appendChild(removeButton);
 
-                // Append the list item to the ranking list
                 rankingList.appendChild(listItem);
             });
         } else {
