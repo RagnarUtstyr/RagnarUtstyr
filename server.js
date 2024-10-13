@@ -4,14 +4,7 @@ import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstati
 
 // Firebase Configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-    authDomain: "roll202-c0b0d.firebaseapp.com",
-    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "roll202-c0b0d",
-    storageBucket: "roll202-c0b0d.appspot.com",
-    messagingSenderId: "607661730400",
-    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-    measurementId: "G-6X5L39W56C"
+    // ... your firebase configuration ...
 };
 
 // Initialize Firebase
@@ -22,20 +15,25 @@ const db = getDatabase(app);
 async function submitData() {
     const name = document.getElementById('name').value;
     const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
-    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
+    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null;
+    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null;
 
-    // Ensure name and number are valid, health can be null
+    // For AC
+    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null;
+    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
+
+    // Ensure name and number are valid, health and ac can be null
     if (name && !isNaN(number)) {
         try {
             const reference = ref(db, 'rankings/');
-            await push(reference, { name, number, health });
-            console.log('Data submitted successfully:', { name, number, health });
+            await push(reference, { name, number, health, ac });
+            console.log('Data submitted successfully:', { name, number, health, ac });
 
             // Clear input fields after successful submission
             document.getElementById('name').value = '';
             document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
             if (document.getElementById('health')) document.getElementById('health').value = '';
+            if (document.getElementById('ac')) document.getElementById('ac').value = '';
 
             // Play sword sound after submission
             const swordSound = document.getElementById('sword-sound');
@@ -56,7 +54,7 @@ function fetchRankings() {
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = ''; // Clear the list before repopulating
+        rankingList.innerHTML = '';
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
@@ -65,29 +63,29 @@ function fetchRankings() {
             rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
-                // Create separate containers for name, initiative (now Int), health (now HP), AC, and button
+                // Create separate containers for name, initiative, health, AC, and button
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`; // Changed Initiative to Int
+                numberDiv.textContent = `Int: ${number}`;
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
                 if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
+                    healthDiv.textContent = `HP: ${health}`;
                 } else {
-                    healthDiv.textContent = ''; // Empty if no health value
+                    healthDiv.textContent = '';
                 }
 
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
                 if (ac !== null && ac !== undefined) {
-                    acDiv.textContent = `AC: ${ac}`; // Add AC prefix if ac is defined
+                    acDiv.textContent = `AC: ${ac}`;
                 } else {
-                    acDiv.textContent = ''; // Empty if no ac value
+                    acDiv.textContent = '';
                 }
 
                 const removeButton = document.createElement('button');
@@ -98,10 +96,10 @@ function fetchRankings() {
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
                 if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv); // Only append HP if there is a value
+                    listItem.appendChild(healthDiv);
                 }
                 if (acDiv.textContent !== '') {
-                    listItem.appendChild(acDiv); // Only append AC if there is a value
+                    listItem.appendChild(acDiv);
                 }
                 listItem.appendChild(removeButton);
 
@@ -131,12 +129,11 @@ function removeEntry(id) {
 // Function to clear all entries from Firebase
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
+    set(reference, null)
         .then(() => {
             console.log('All entries removed successfully');
-            // Clear the displayed list immediately
             const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = ''; // Explicitly clear the UI
+            rankingList.innerHTML = '';
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);

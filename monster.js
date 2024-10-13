@@ -4,14 +4,7 @@ import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.14
 
 // Firebase Configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-    authDomain: "roll202-c0b0d.firebaseapp.com",
-    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "roll202-c0b0d",
-    storageBucket: "roll202-c0b0d.appspot.com",
-    messagingSenderId: "607661730400",
-    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-    measurementId: "G-6X5L39W56C"
+    // ... your firebase configuration ...
 };
 
 // Initialize Firebase
@@ -23,31 +16,30 @@ function addToList(name, health, url, ac) {
     console.log(`Adding monster: ${name} with HP: ${health}, AC: ${ac}, and URL: ${url}`);
     const initiative = prompt(`Enter initiative for ${name}:`);
     if (initiative !== null && !isNaN(initiative)) {
-        // Pass AC along with name, initiative, health, and url
-        submitMonsterToFirebase(name, parseInt(initiative), health, ac, url);
+        submitMonsterToFirebase(name, parseInt(initiative), health, url, ac);
     } else {
         alert('Please enter a valid initiative number.');
     }
 }
 
 // Function to submit data to Firebase
-async function submitMonsterToFirebase(name, initiative, health, ac, url) {
+async function submitMonsterToFirebase(name, initiative, health, url, ac) {
     try {
         console.log('Attempting to push data to Firebase...');
         const reference = ref(db, 'rankings/');
-        // AC is now being pushed to Firebase along with other data
-        const newEntryRef = await push(reference, { name, number: initiative, health, ac, url });
+        const newEntryRef = await push(reference, { name, number: initiative, health, url, ac });
         console.log('Data pushed to Firebase successfully.');
 
         // If push is successful, add to the UI
-        addMonsterToListUI(newEntryRef.key, name, initiative, health, ac, url);
+        addMonsterToListUI(newEntryRef.key, name, initiative, health, url, ac);
     } catch (error) {
         console.error('Error (possibly network-related) submitting monster, but continuing:', error);
+        // No alert, silent logging instead
     }
 }
 
 // Function to add monster to the list UI
-function addMonsterToListUI(id, name, initiative, health, ac, url) {
+function addMonsterToListUI(id, name, initiative, health, url, ac) {
     const rankingList = document.getElementById('rankingList');
     if (!rankingList) {
         console.error("Ranking list element not found in the DOM. Cannot add monster.");
