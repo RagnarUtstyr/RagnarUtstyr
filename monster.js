@@ -20,9 +20,10 @@ const db = getDatabase(app);
 
 // Function to handle adding a monster to the list
 function addToList(name, health, url, ac) {
-    console.log(`Adding monster: ${name} with HP: ${health} and URL: ${url} and AC: ${ac}`);
+    console.log(`Adding monster: ${name} with HP: ${health}, AC: ${ac}, and URL: ${url}`);
     const initiative = prompt(`Enter initiative for ${name}:`);
     if (initiative !== null && !isNaN(initiative)) {
+        // Pass AC along with name, initiative, health, and url
         submitMonsterToFirebase(name, parseInt(initiative), health, ac, url);
     } else {
         alert('Please enter a valid initiative number.');
@@ -34,6 +35,7 @@ async function submitMonsterToFirebase(name, initiative, health, ac, url) {
     try {
         console.log('Attempting to push data to Firebase...');
         const reference = ref(db, 'rankings/');
+        // AC is now being pushed to Firebase along with other data
         const newEntryRef = await push(reference, { name, number: initiative, health, ac, url });
         console.log('Data pushed to Firebase successfully.');
 
