@@ -91,7 +91,17 @@ function fetchRankings() {
                 // AC
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
-                acDiv.textContent = ac !== null && ac !== undefined ? `AC: ${ac}` : '';
+
+                if (ac !== null && ac !== undefined) {
+                     acDiv.textContent = `AC: ${ac}`;
+                } else {
+                  acDiv.textContent = '';
+                }
+
+                // Append acDiv to listItem if it has content
+                if (acDiv.textContent !== '') {
+                  listItem.appendChild(acDiv);
+                }
 
                 // Remove Button
                 const removeButton = document.createElement('button');
