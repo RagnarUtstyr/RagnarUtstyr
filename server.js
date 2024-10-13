@@ -64,35 +64,37 @@ function fetchRankings() {
 
             rankings.forEach(({ id, name, number, health }) => {
                 const listItem = document.createElement('li');
-                listItem.className = 'list-item';
+                listItem.className = 'list-item';  // Updated class for styling
 
                 const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
+                nameDiv.className = 'name';  // Updated class for styling
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
-                numberDiv.className = 'initiative';
-                numberDiv.textContent = `Int: ${number}`; // Changed Initiative to Int
+                numberDiv.className = 'initiative';  // Updated class for styling
+                numberDiv.textContent = `Int: ${number}`;
 
                 const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
+                healthDiv.className = 'health';  // Updated class for styling
                 if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
+                    healthDiv.textContent = `HP: ${health}`;
                 } else {
-                    healthDiv.textContent = ''; // Empty if no health value
+                    healthDiv.textContent = 'HP: N/A';
                 }
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.addEventListener('click', () => removeEntry(id));
 
                 const damageInput = document.createElement('input');
                 damageInput.type = 'number';
                 damageInput.placeholder = 'Damage';
-                damageInput.className = 'damage-input';
-                damageInput.dataset.entryId = id;
-                damageInput.dataset.currentHealth = health;
+                damageInput.className = 'damage-input';  // Updated class for styling
+                damageInput.dataset.entryId = id;  // Store the entry ID in a custom data attribute
+                damageInput.dataset.currentHealth = health;  // Store the current health
 
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.className = 'remove-button';  // Ensure button maintains its styles
+                removeButton.addEventListener('click', () => removeEntry(id));
+
+                // Append all parts to the list item
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
                 listItem.appendChild(healthDiv);
@@ -119,8 +121,8 @@ function applyDamageToAll() {
 
         // Ensure damage is a valid number
         if (!isNaN(damage)) {
-            const updatedHealth = currentHealth - damage;  // Negative damage will increase health
-            updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0);  // Update health and ensure it doesn't go below 0
+            const updatedHealth = currentHealth - damage;  // Calculate new health
+            updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0);  // Ensure health doesn't go below 0
         }
     });
 }
@@ -149,6 +151,22 @@ function removeEntry(id) {
         });
 }
 
+// Function to clear all entries from Firebase
+function clearAllEntries() {
+    const reference = ref(db, 'rankings/');
+    set(reference, null) // Sets the entire 'rankings' node to null, deleting all entries
+        .then(() => {
+            console.log('All entries cleared');
+        })
+        .catch((error) => {
+            console.error('Error clearing entries:', error);
+        });
+}
+
 // Event listeners for buttons
 document.getElementById('submit-button').addEventListener('click', submitData);
 document.getElementById('apply-damage-button').addEventListener('click', applyDamageToAll);
+document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
+
+// Fetch rankings on page load
+fetchRankings();
