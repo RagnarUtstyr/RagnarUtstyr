@@ -69,63 +69,91 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-/* List Styling */
-ul#rankingList {
-    list-style-type: none;
-    padding: 0;
-    margin: 0 auto;
-    width: 100%; /* Ensures list takes up full width */
+/* Focused Input Fields */
+input[type="text"]:focus, input[type="number"]:focus {
+    border: 2px solid #8C5A4A; /* Darker reddish-brown border on focus */
+    background-color: rgba(255, 255, 255, 0.25); /* Slightly brighter background on focus */
 }
 
-.list-item {
-    display: flex;
-    justify-content: space-between; /* Space out the elements */
-    align-items: center;
+/* Headings */
+h1, h2 {
+    color: #D4AF37; /* Gold color for headings */
+    font-weight: bold;
+    font-family: 'MedievalSharp', serif;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* List Items */
+li {
+    display: flex; /* Make the list item a flex container */
+    align-items: center; /* Vertically align elements in the center */
+    justify-content: space-between; /* Distribute elements evenly */
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #8C5A4A;
     border-radius: 5px;
     background-color: rgba(165, 123, 91, 0.8);
-    width: 100%; /* Full width list item */
-    max-width: 800px; /* Ensure list doesn't exceed container */
-    margin: 0 auto;
-    gap: 10px; /* Space between columns */
+    max-width: 600px; /* Limit the total width */
+    margin: 0 auto 10px auto; /* Center the list item */
+    gap: 10px; /* Adds spacing between elements */
 }
 
-/* Flex properties for name, initiative, and health */
-.list-item .name, 
-.list-item .initiative, 
-.list-item .health {
-    flex: 1; /* Distribute space evenly */
-    text-align: center; /* Center the text */
-    white-space: nowrap; /* Prevent text wrapping */
+/* Flex properties for name, initiative, health, and damage elements */
+li .name {
+    flex: 1;
+    text-align: left; /* Align the name to the far left */
+    padding-right: 10px; /* Add some space on the right */
 }
 
-/* Ensure the damage input stays a fixed size */
-.list-item .damage-input {
-    flex: 0 0 80px; /* Fixed width for the input */
-    height: 30px;
-    text-align: center;
+li .initiative {
+    flex: 1;
+    text-align: left; /* Align the initiative to the center-left */
+    padding-left: 10px;
+}
+
+li .hp {
+    flex: 1;
+    text-align: right; /* Align HP to the center-right */
+    padding-right: 10px;
+}
+
+li .damage-input {
+    flex: 1;
+    text-align: right; /* Align the damage input to the far right */
+    max-width: 80px; /* Limit the width */
+    padding-left: 10px;
+}
+
+/* Input fields inside list items */
+input.damage-input {
+    flex: 0 0 auto; /* Do not let the input box grow unnecessarily */
+    width: 60px; /* Limit the width for mobile */
+    height: 30px; /* Set a consistent height */
     padding: 5px;
     border: 2px solid #D4AF37; /* Gold border */
     border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
-    color: #726c4b; /* Text color */
+    color: #726c4b; /* Parchment-like text color */
     font-family: 'MedievalSharp', serif;
     font-size: 1em;
     outline: none;
-    box-sizing: border-box;
+    text-align: center; /* Center the number inside the input */
+    vertical-align: middle; /* Align it vertically */
+    margin: 0; /* Remove extra margins to better align it with other elements */
+    box-sizing: border-box; /* Ensure padding doesn't affect overall width */
 }
 
 /* Defeated class for list items with 0 HP */
 .defeated {
     background-color: #8B0000; /* Dark red background */
     color: white; /* White text for better contrast */
-    border: 2px solid #FF0000; /* Red border to emphasize the defeated state */
+    border: 2px solid #FF0000; /* Optional: Red border to emphasize the defeated state */
+    transition: background-color 0.3s ease; /* Smooth transition when the item becomes defeated */
 }
 
 /* Submit and Clear List Buttons */
-button {
+#submit-button, #clear-list-button, #apply-damage-button {
     background-color: #2E1B18;
     color: #E0D8B0;
     border: 2px solid #D4AF37;
@@ -135,38 +163,84 @@ button {
     margin-top: 10px;
     font-size: 1em;
     width: fit-content;
-    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
 }
 
-button:hover {
+/* Apply Damage button styling */
+#apply-damage-button {
+    background-color: #2E1B18; /* Dark brown background */
+    color: #E0D8B0; /* Parchment-like text color */
+    border: 2px solid #D4AF37; /* Gold border */
+    padding: 10px 20px; /* Larger padding for the button */
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners */
+    font-family: 'MedievalSharp', serif; /* Use the same font */
+    font-size: 1em;
+    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+    width: fit-content; /* Adjust the width to the content */
+    margin: 20px auto; /* Center the button */
+    display: block; /* Make sure the button is a block element */
+}
+
+#apply-damage-button:hover {
+    background-color: #8C5A4A; /* Rich reddish-brown hover background */
+    color: #2E1B18; /* Dark text on hover */
+}
+
+/* Link Styled as Button */
+a.button-link {
+    display: block;
+    background-color: #2E1B18;
+    color: #E0D8B0;
+    border: 2px solid #D4AF37;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 20px;
+    transition: background-color 0.3s, color 0.3s;
+    text-align: center;
+    width: fit-content;
+    align-self: center; /* Ensure it's centered within the flex container */
+}
+
+a.button-link:hover {
     background-color: #8C5A4A;
     color: #2E1B18;
 }
 
-/* Flex properties for name, initiative, health, and damage elements */
+/* Media Queries for Mobile Devices */
+@media (max-width: 768px) {
+    input.damage-input {
+        width: 50px; /* Reduce width even further on mobile */
+        height: 25px; /* Adjust height for smaller screens */
+        font-size: 0.9em; /* Slightly smaller font size */
+    }
+
+    li .name, li .initiative, li .hp {
+        flex: 1; /* Ensure better distribution of space on smaller screens */
+        text-align: center; /* Center the text for smaller screens */
+    }
+}
+
+/* Style for the gathered list */
+#rankingList {
+    max-width: 800px; /* Increase max-width to make the list wider */
+    width: 100%; /* Ensure it takes full width up to max-width */
+    margin: 0 auto; /* Center the list */
+    padding: 0;
+    list-style-type: none; /* Remove default bullet points */
+}
+
+/* Individual List Items (li) */
 li {
     display: flex; /* Flexbox layout */
+    align-items: center; /* Vertically align elements */
     justify-content: space-between; /* Space between elements */
-    align-items: center; /* Vertically center the content */
-}
-
-li .name {
-    flex: 1;
-    text-align: left; /* Align the name to the far left */
-}
-
-li .initiative {
-    flex: 1;
-    text-align: center; /* Align the initiative to the center left */
-}
-
-li .hp {
-    flex: 1;
-    text-align: center; /* Align HP to the center right */
-}
-
-li .damage-input {
-    flex: 1;
-    text-align: right; /* Align the damage input to the far right */
-    max-width: 80px; /* Ensure the damage input doesn't take too much space */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #8C5A4A;
+    border-radius: 5px;
+    background-color: rgba(165, 123, 91, 0.8);
+    width: 100%; /* Take full width of the container */
+    gap: 10px; /* Space between child elements */
 }
