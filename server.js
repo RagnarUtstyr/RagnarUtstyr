@@ -21,8 +21,8 @@ const db = getDatabase(app);
 // Function to submit data to Firebase
 async function submitData() {
     const name = document.getElementById('name').value;
-    const number = parseInt(document.getElementById('initiative').value);
-    const healthInput = document.getElementById('health').value;
+    const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
+    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
     const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
 
     // Ensure name and number are valid, health can be null
@@ -34,8 +34,14 @@ async function submitData() {
 
             // Clear input fields after successful submission
             document.getElementById('name').value = '';
-            document.getElementById('initiative').value = '';
-            document.getElementById('health').value = '';
+            document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
+            if (document.getElementById('health')) document.getElementById('health').value = '';
+
+            // Play sword sound after submission
+            const swordSound = document.getElementById('sword-sound');
+            if (swordSound) {
+                swordSound.play();
+            }
         } catch (error) {
             console.error('Error submitting data:', error);
         }
@@ -54,92 +60,86 @@ function fetchRankings() {
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number);
+            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
             rankings.forEach(({ id, name, number, health }) => {
                 const listItem = document.createElement('li');
-                listItem.className = 'list-item';  // Updated class for styling
 
+                // Create separate containers for name, initiative (now Int), health (now HP), and button
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
-                numberDiv.className = 'initiative';
-                numberDiv.textContent = `Int: ${number}`;
+                numberDiv.className = 'number';
+                numberDiv.textContent = `Int: ${number}`; // Changed Initiative to Int
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                healthDiv.textContent = `HP: ${health !== null ? health : 'N/A'}`;
-
-                const damageInput = document.createElement('input');
-                damageInput.type = 'number';
-                damageInput.placeholder = 'Damage';
-                damageInput.className = 'damage-input';
-                damageInput.dataset.entryId = id;
-                damageInput.dataset.currentHealth = health;
+                if (health !== null && health !== undefined) {
+                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
+                } else {
+                    healthDiv.textContent = ''; // Empty if no health value
+                }
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
-                removeButton.className = 'remove-button';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
+                // Append all parts to the list item
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
-                listItem.appendChild(healthDiv);
-                listItem.appendChild(damageInput);
+                if (healthDiv.textContent !== '') {
+                    listItem.appendChild(healthDiv); // Only append HP if there is a value
+                }
                 listItem.appendChild(removeButton);
 
+                // Append the list item to the ranking list
                 rankingList.appendChild(listItem);
             });
         } else {
             console.log('No data available');
         }
+    }, (error) => {
+        console.error('Error fetching data:', error);
     });
 }
-
-// Function to apply damage to all entries
-function applyDamageToAll() {
-    const damageInputs = document.querySelectorAll('.damage-input');
-    damageInputs.forEach(input => {
-        const entryId = input.dataset.entryId;
-        const currentHealth = parseInt(input.dataset.currentHealth);
-        const damage = parseInt(input.value);
-
-        if (!isNaN(damage)) {
-            const updatedHealth = currentHealth - damage;
-            updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0);
-        }
-    });
-}
-
-// Function to update health in Firebase
-function updateHealth(id, newHealth) {
-    const reference = ref(db, `rankings/${id}`);
-    update(reference, { health: newHealth }).then(() => {
-        console.log(`Health updated to ${newHealth}`);
-    });
-}
-
 // Function to remove an entry from Firebase
 function removeEntry(id) {
     const reference = ref(db, `rankings/${id}`);
-    remove(reference).then(() => {
-        console.log(`Entry with id ${id} removed successfully`);
-    });
+    remove(reference)
+        .then(() => {
+            console.log(`Entry with id ${id} removed successfully`);
+        })
+        .catch((error) => {
+            console.error('Error removing entry:', error);
+        });
 }
 
 // Function to clear all entries from Firebase
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null).then(() => {
-        console.log('All entries cleared');
-        const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = ''; // Clear the UI
-    });
+    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
+        .then(() => {
+            console.log('All entries removed successfully');
+            // Clear the displayed list immediately
+            const rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = ''; // Explicitly clear the UI
+        })
+        .catch((error) => {
+            console.error('Error clearing all entries:', error);
+        });
 }
 
-// Event listeners for buttons
-document.getElementById('submit-button').addEventListener('click', submitData);
-document.getElementById('apply-damage-button').addEventListener('click', applyDamageToAll);
-document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
+// Event listeners for page-specific actions
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('submit-button')) {
+        document.getElementById('submit-button').addEventListener('click', submitData);
+    }
+    if (document.getElementById('rankingList')) {
+        fetchRankings();
+    }
+    if (document.getElementById('clear-list-button')) {
+        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
+    }
+});
