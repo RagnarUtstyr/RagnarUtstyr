@@ -86,9 +86,8 @@ h1, h2 {
 
 /* List Items */
 li {
-    display: flex; /* Make the list item a flex container */
-    align-items: center; /* Vertically align elements in the center */
-    justify-content: space-between; /* Distribute elements evenly */
+    display: flex; /* Flexbox layout */
+    align-items: center; /* Vertically align elements */
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #8C5A4A;
@@ -99,13 +98,25 @@ li {
     gap: 10px; /* Adds spacing between elements */
 }
 
-/* Flex properties for the name, number, and health elements */
+/* Flex properties for the name, number, health, and ac elements */
 li .name, li .number, li .health, li .ac {
     padding: 0 5px; /* Add a little padding to the left and right */
-    flex: 2; /* Make these elements take up more space */
+    flex: 1; /* Distribute space equally */
     white-space: nowrap; /* Prevent text from breaking into multiple lines */
     overflow: hidden;
     text-overflow: ellipsis; /* Add ellipsis (...) if content overflows */
+    text-align: center; /* Center the text */
+}
+
+/* Optionally make the name field wider */
+li .name {
+    flex: 2; /* Make the name field take up more space */
+}
+
+/* Specific styling for .ac class */
+li .ac {
+    color: #E0D8B0; /* Parchment-like text color */
+    font-size: 1em;
 }
 
 /* Input fields inside list items */
@@ -218,7 +229,6 @@ a.button-link:hover {
 li {
     display: flex; /* Flexbox layout */
     align-items: center; /* Vertically align elements */
-    justify-content: space-between; /* Space between elements */
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #8C5A4A;
@@ -226,9 +236,4 @@ li {
     background-color: rgba(165, 123, 91, 0.8);
     width: 100%; /* Take full width of the container */
     gap: 10px; /* Space between child elements */
-}
-.ac {
-    display: inline-block;
-    color: inherit;
-    font-size: inherit;
 }
