@@ -101,28 +101,24 @@ li {
 
 /* Flex properties for name, initiative, health, and damage elements */
 li .name {
-    flex: 1;
+    flex: 2;
     text-align: left; /* Align the name to the far left */
-    padding-right: 10px; /* Add some space on the right */
 }
 
 li .initiative {
     flex: 1;
-    text-align: left; /* Align the initiative to the center-left */
-    padding-left: 10px;
+    text-align: center; /* Align the initiative to the center-left */
 }
 
 li .hp {
     flex: 1;
-    text-align: right; /* Align HP to the center-right */
-    padding-right: 10px;
+    text-align: center; /* Align HP to the center-right */
 }
 
 li .damage-input {
     flex: 1;
     text-align: right; /* Align the damage input to the far right */
     max-width: 80px; /* Limit the width */
-    padding-left: 10px;
 }
 
 /* Input fields inside list items */
