@@ -62,6 +62,28 @@ function addMonsterToListUI(id, name, initiative, health, url, ac) {
     rankingList.appendChild(listItem);
 }
 
+// Function to handle adding a monster to the list
+function addToList(name, health, url, ac) { // Add 'ac' parameter
+    console.log(`Adding monster: ${name} with HP: ${health}, AC: ${ac}, URL: ${url}`);
+    const initiative = prompt(`Enter initiative for ${name}:`);
+    if (initiative !== null && !isNaN(initiative)) {
+        submitMonsterToFirebase(name, parseInt(initiative), health, url, ac); // Pass AC to Firebase
+    } else {
+        alert('Please enter a valid initiative number.');
+    }
+}
+
+// Function to submit data to Firebase (ensure it includes AC)
+async function submitMonsterToFirebase(name, initiative, health, url, ac) {
+    try {
+        const reference = ref(db, 'rankings/');
+        await push(reference, { name, initiative, health, url, ac }); // Include AC in the data submission
+        console.log('Monster data pushed to Firebase successfully.');
+    } catch (error) {
+        console.error('Error submitting monster to Firebase:', error);
+    }
+}
+
 // Attach addToList function to the global window object to be accessible from the HTML
 document.addEventListener('DOMContentLoaded', () => {
     window.addToList = addToList;
