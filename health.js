@@ -122,7 +122,7 @@ function updateHealth(id, newHealth, healthInput) {
                 listItem.classList.add('defeated');  // Add defeated class
 
                 // Ensure the damage input stays visible
-                healthInput.style.visibility = 'visible';  // Explicitly keep the input visible
+                healthInput.style.visibility = 'visible';  // Make sure input is visible
 
                 // Check if remove button exists; if not, create it
                 let removeButton = listItem.querySelector('.remove-button');
@@ -136,12 +136,15 @@ function updateHealth(id, newHealth, healthInput) {
                     listItem.appendChild(removeButton);
                 }
 
+                // Keep the input field active even at 0 HP
+                healthInput.disabled = false; // Ensure input is not disabled
+                healthInput.style.display = 'inline-block';  // Ensure it's visible
+                healthInput.dataset.currentHealth = newHealth;  // Update current health dataset
             } else {
                 // If health is greater than 0, just update the health
                 healthInput.dataset.currentHealth = newHealth;  // Update current health
                 listItem.classList.remove('defeated');  // Remove defeated class if health is restored
             }
-
         })
         .catch((error) => {
             console.error('Error updating health:', error);
