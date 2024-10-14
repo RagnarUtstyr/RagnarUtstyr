@@ -24,10 +24,18 @@ function fetchRankings() {
                 const nameAcContainer = document.createElement('div');
                 nameAcContainer.className = 'name-ac-container';
 
-                // Name div
+                // Name div (only this will function as a button if URL exists)
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
+                
+                // Add click event to the name only if a URL exists
+                if (url) {
+                    nameDiv.style.cursor = 'pointer';
+                    nameDiv.addEventListener('click', () => {
+                        window.open(url, '_blank');
+                    });
+                }
                 nameAcContainer.appendChild(nameDiv);
 
                 // AC div
@@ -71,14 +79,6 @@ function fetchRankings() {
                 // Add defeated class if health is 0
                 if (health === 0) {
                     listItem.classList.add('defeated');
-                }
-
-                // If URL exists, make the entire list item clickable
-                if (url) {
-                    listItem.style.cursor = 'pointer';
-                    listItem.addEventListener('click', () => {
-                        window.open(url, '_blank');
-                    });
                 }
 
                 // Append the list item to ranking list
