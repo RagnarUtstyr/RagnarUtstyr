@@ -24,7 +24,7 @@ function fetchRankings() {
                 const nameAcContainer = document.createElement('div');
                 nameAcContainer.className = 'name-ac-container';
 
-                // Name div (only this will function as a button if URL exists)
+                // Name div
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
@@ -38,7 +38,7 @@ function fetchRankings() {
                 }
                 nameAcContainer.appendChild(nameDiv);
 
-                // AC div
+                // AC div (ensure AC is retrieved and displayed)
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
                 acDiv.textContent = `AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}`;
@@ -89,6 +89,7 @@ function fetchRankings() {
         }
     });
 }
+
 
 // Function to apply damage to all entries
 function applyDamageToAll() {
