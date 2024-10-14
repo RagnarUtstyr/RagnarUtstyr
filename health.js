@@ -16,55 +16,24 @@ function fetchRankings() {
             rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
             // Display rankings
-            rankings.forEach(({ id, name, ac, health }) => {
+            rankings.forEach(({ id, name, ac, health, url }) => {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item';
 
-                // Name div
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
-                nameDiv.textContent = name;
-                listItem.appendChild(nameDiv);
+                // Create a button for each list item
+                const monsterButton = document.createElement('button');
+                monsterButton.className = 'monster-button';
+                monsterButton.textContent = `${name} (AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}, HP: ${health !== null && health !== undefined ? health : 'N/A'})`;
 
-                // AC div (show AC instead of initiative)
-                const acDiv = document.createElement('div');
-                acDiv.className = 'ac';
-                acDiv.textContent = `AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}`;
-                listItem.appendChild(acDiv);
-
-                // Health div
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
-                listItem.appendChild(healthDiv);
-
-                // Damage input field (only if health exists)
-                if (health !== null && health !== undefined && health > 0) {
-                    const healthInput = document.createElement('input');
-                    healthInput.type = 'number';
-                    healthInput.placeholder = 'Damage';
-                    healthInput.className = 'damage-input';
-                    healthInput.style.width = '50px';  // Small input field
-                    healthInput.dataset.entryId = id;  // Store entry ID
-                    healthInput.dataset.currentHealth = health;  // Store current health
-                    listItem.appendChild(healthInput);
+                // Add click event to redirect to the URL
+                if (url) {
+                    monsterButton.onclick = () => {
+                        window.open(url, '_blank');
+                    };
                 }
 
-                // Add the remove button only if health is 0 or below
-                if (health === 0) {
-                    const removeButton = document.createElement('button');
-                    removeButton.textContent = 'Remove';
-                    removeButton.className = 'remove-button';
-                    removeButton.addEventListener('click', () => {
-                        removeEntry(id, listItem); // Pass listItem to remove it from DOM
-                    });
-                    listItem.appendChild(removeButton);
-                }
-
-                // Add defeated class if health is 0
-                if (health === 0) {
-                    listItem.classList.add('defeated');
-                }
+                // Append the button to the list item
+                listItem.appendChild(monsterButton);
 
                 // Append list item to ranking list
                 rankingList.appendChild(listItem);
