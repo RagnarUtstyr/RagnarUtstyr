@@ -6869,6 +6869,21 @@
   </div>
 </div>
 
+<script type="module">
+    import { addToLobby } from './server.js';
+
+    // Example function to add a monster to the active lobby
+    function addToLobby(name, health, ac) {
+        const monsterData = {
+            name: name,
+            health: health,
+            ac: ac,
+            initiative: Math.floor(Math.random() * 20) + 1  // Random initiative for the monster
+        };
+        addToLobby(monsterData);  // Use server.js function to add to the active lobby
+    }
+</script>
+
 </body>
 </html>
 
