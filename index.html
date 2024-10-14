@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
     <title>Submit Your Name and Number</title>
     <script type="module" src="server.js" defer></script>
+    <script type="module" src="auth.js" defer></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
@@ -27,6 +28,24 @@
         <!-- Audio element to play sound -->
         <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
     </div>
+
+    <script type="module">
+        import { login, register } from './auth.js';
+
+        document.getElementById('login-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            login(email, password);
+        });
+
+        document.getElementById('register-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            register(email, password);
+        });
+    </script>
 </body>
 
 </html>

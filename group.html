@@ -8,6 +8,7 @@
     <title>Initiative</title>
     <script type="module" src="server.js" defer></script>
     <script type="module" src="health.js" defer></script> 
+    <script type="module" src="auth.js" defer></script>
     <link rel="stylesheet" href="style.css"> 
     <link rel="stylesheet" href="turn.css"> 
     <link rel="stylesheet" href="save.css"> 
@@ -50,5 +51,11 @@
         <a href="save.html" class="button-link">Go to Lists</a>
         <a href="monster.html" class="button-link">Go to Monster List</a>
     </div>
+
+    <script type="module">
+        import { createLobby, logout } from './auth.js';
+
+        document.getElementById('create-lobby-button').addEventListener('click', createLobby);
+    </script>
 </body>
 </html>
