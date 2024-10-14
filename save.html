@@ -42,23 +42,6 @@
         <!-- Link to group.html to view the rankings -->
         <a href="group.html" class="button-link">View Rankings</a>
     </div>
-
-    <script type="module">
-        import { saveList, loadList, deleteList, fetchSavedLists } from './save.js';
-
-        // Event listeners for the buttons
-        document.getElementById('save-list-button').addEventListener('click', () => {
-            const listName = document.getElementById('list-name').value;
-            saveList(listName);
-        });
-
-        document.getElementById('load-list-button').addEventListener('click', loadList);
-        document.getElementById('delete-list-button').addEventListener('click', deleteList);
-
-        // Fetch and display saved lists for the GM's active lobby
-        fetchSavedLists();
-    </script>
-    
 </body>
 
 </html>

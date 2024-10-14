@@ -5,25 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
-    <title>Game Master Dashboard</title>
-    
-    <!-- External Scripts and Styles -->
-    <script type="module" src="auth.js" defer></script>
+    <title>Initiative</title>
     <script type="module" src="server.js" defer></script>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <script type="module" src="health.js" defer></script> 
+    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="turn.css"> 
+    <link rel="stylesheet" href="save.css"> 
+    <script src="turn.js" defer></script> 
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> 
 </head>
 
 <body>
     <div class="container">
-        <h1>Game Master Dashboard</h1>
-        
-        <!-- Display invite key -->
-        <div id="lobbyKey">Invite Key: (none yet)</div>
-        <button id="create-lobby-button">Create New Lobby</button>
+        <h1>Initiative</h1>
         
         <ul id="rankingList"></ul>
 
+        <div class="button-container">
+            <button id="apply-damage-button">Apply Damage</button>
+            <button id="next-button">Next</button>
+        </div>
+
+        <br>
+        <button id="clear-list-button">Clear List</button>
+        <br><br>
+       
+        <br><br>
         <h2>Submit a New Entry</h2>
         <label for="name">Name:</label>
         <input type="text" id="name" required>
@@ -39,24 +46,9 @@
 
         <button id="submit-button">Submit</button>
 
-        <!-- Logout button -->
-        <button id="logout-button">Logout</button>
+        <br><br>
+        <a href="save.html" class="button-link">Go to Lists</a>
+        <a href="monster.html" class="button-link">Go to Monster List</a>
     </div>
-
-    <!-- Firebase, Authentication, and Lobby Creation Script -->
-    <script type="module">
-        import { logout } from './auth.js';  // Logout functionality
-        import { createLobby, submitData } from './server.js'; // Create lobby and submit data functions
-
-        // Bind the create lobby function to the button
-        document.getElementById('create-lobby-button').addEventListener('click', createLobby);
-
-        // Bind the submit data function to the submit button
-        document.getElementById('submit-button').addEventListener('click', submitData);
-
-        // Bind logout functionality
-        document.getElementById('logout-button').addEventListener('click', logout);
-    </script>
 </body>
-
 </html>
