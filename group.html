@@ -55,17 +55,18 @@
     </div>
 
     <script type="module">
-        import { logout } from './auth.js';  // Ensure the GM can log out
-        import { createLobby, submitData } from './server.js';
+        import { logout } from './auth.js';  // Logout functionality
+        import { createLobby, submitData } from './server.js'; // Create lobby and submit data functions
 
-        // Bind the create lobby function
+        // Bind the create lobby function to the button
         document.getElementById('create-lobby-button').addEventListener('click', createLobby);
 
-        // Bind the submit data function
+        // Bind the submit data function to the submit button
         document.getElementById('submit-button').addEventListener('click', submitData);
 
-        // Logout functionality
+        // Bind logout functionality
         document.getElementById('logout-button').addEventListener('click', logout);
     </script>
 </body>
+
 </html>
