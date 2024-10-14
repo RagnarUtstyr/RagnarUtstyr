@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,12 +10,8 @@
     <!-- External Scripts and Styles -->
     <script type="module" src="auth.js" defer></script>
     <script type="module" src="server.js" defer></script>
-    <script type="module" src="health.js" defer></script>
-    <script type="module" src="turn.js" defer></script>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="turn.css">
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
-
 </head>
 
 <body>
@@ -26,13 +23,6 @@
         <button id="create-lobby-button">Create New Lobby</button>
         
         <ul id="rankingList"></ul>
-
-        <div class="button-container">
-            <button id="apply-damage-button">Apply Damage</button>
-            <button id="next-button">Next</button>
-        </div>
-
-        <button id="clear-list-button">Clear List</button>
 
         <h2>Submit a New Entry</h2>
         <label for="name">Name:</label>
@@ -49,11 +39,11 @@
 
         <button id="submit-button">Submit</button>
 
-        <a href="save.html" class="button-link">Go to Lists</a>
-        <a href="monster.html" class="button-link">Go to Monster List</a>
+        <!-- Logout button -->
         <button id="logout-button">Logout</button>
     </div>
 
+    <!-- Firebase, Authentication, and Lobby Creation Script -->
     <script type="module">
         import { logout } from './auth.js';  // Logout functionality
         import { createLobby, submitData } from './server.js'; // Create lobby and submit data functions

@@ -1,8 +1,10 @@
+// server.js
+
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, set, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-// Firebase configuration
+// Firebase configuration (replace with your actual config)
 const firebaseConfig = {
     apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
     authDomain: "roll202-c0b0d.firebaseapp.com",
@@ -14,7 +16,7 @@ const firebaseConfig = {
     measurementId: "G-L3JB5YC43M"
   };
 
-// Initialize Firebase App only if it hasn’t been initialized yet
+// Initialize Firebase only if it hasn't been initialized already
 let app;
 if (!getApps().length) {
     app = initializeApp(firebaseConfig);
