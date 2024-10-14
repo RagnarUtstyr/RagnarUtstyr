@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monster List</title>
+    
+    <!-- External Scripts and Styles -->
     <link rel="stylesheet" href="list.css">
     <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js"></script>
     <script type="module" src="monster.js" defer></script>
     <script type="module" src="server.js" defer></script>
-    <script src="search.js"></script>
+    <script type="module" src="auth.js" defer></script>
+    <script type="module" src="search.js"></script>
 </head>
 <body>
     <a href="group.html" class="button-link">View Initiative</a>
@@ -6883,7 +6885,6 @@
         addToLobby(monsterData);  // Use server.js function to add to the active lobby
     }
 </script>
-
 </body>
-</html>
 
+</html>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,13 +54,15 @@
         <button id="logout-button">Logout</button>
     </div>
 
-    <!-- Firebase, Authentication, and Lobby Creation Script -->
     <script type="module">
         import { logout } from './auth.js';  // Ensure the GM can log out
-        import { createLobby } from './server.js';
+        import { createLobby, submitData } from './server.js';
 
         // Bind the create lobby function
         document.getElementById('create-lobby-button').addEventListener('click', createLobby);
+
+        // Bind the submit data function
+        document.getElementById('submit-button').addEventListener('click', submitData);
 
         // Logout functionality
         document.getElementById('logout-button').addEventListener('click', logout);
