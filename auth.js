@@ -3,7 +3,14 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, on
 import { getDatabase, ref, set, push, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 const firebaseConfig = {
-    // your Firebase config
+    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+    authDomain: "roll202-c0b0d.firebaseapp.com",
+    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "roll202-c0b0d",
+    storageBucket: "roll202-c0b0d.appspot.com",
+    messagingSenderId: "607661730400",
+    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+    measurementId: "G-L3JB5YC43M" 
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
