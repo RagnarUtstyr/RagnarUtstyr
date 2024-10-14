@@ -1,10 +1,8 @@
-// Import necessary Firebase modules
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getDatabase, ref, push, set, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-
-// Firebase Configuration
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
     authDomain: "roll202-c0b0d.firebaseapp.com",
@@ -13,11 +11,17 @@ const firebaseConfig = {
     storageBucket: "roll202-c0b0d.appspot.com",
     messagingSenderId: "607661730400",
     appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-    measurementId: "G-6X5L39W56C"
-};
+    measurementId: "G-L3JB5YC43M"
+  };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase App only if it hasn’t been initialized yet
+let app;
+if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+} else {
+    app = getApps()[0]; // Use the already initialized app
+}
+
 const db = getDatabase(app);
 const auth = getAuth(app);
 
@@ -63,40 +67,25 @@ export function fetchRankings(lobbyKey) {
     const rankingListRef = ref(db, `lobbies/${lobbyKey}/rankings`);
     onValue(rankingListRef, (snapshot) => {
         const data = snapshot.val();
-        // Update the DOM with the latest rankings
-        displayRankings(data);
+        displayRankings(data);  // Update the UI with the rankings
     });
 }
 
-// Function to submit data to Firebase (characters/monsters)
-export async function submitData() {
-    const name = document.getElementById('name').value;
-    const initiative = parseInt(document.getElementById('initiative').value);
-    const health = parseInt(document.getElementById('health').value);
-    const ac = parseInt(document.getElementById('ac').value);
-
-    const auth = getAuth();
+// Add a new entry (monster or character) to the active lobby
+export async function addToLobby(monsterData) {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            const lobbyKey = await getActiveLobbyKey(user.uid); // Retrieve the active lobby key for this user
-            if (lobbyKey && name && !isNaN(initiative)) {
+            const lobbyKey = await getActiveLobbyKey(user.uid);
+            if (lobbyKey) {
                 const rankingRef = ref(db, `lobbies/${lobbyKey}/rankings`);
-                await push(rankingRef, { name, initiative, health, ac });
-                console.log('Data submitted successfully:', { name, initiative, health, ac });
-
-                // Clear input fields after successful submission
-                document.getElementById('name').value = '';
-                document.getElementById('initiative').value = '';
-                document.getElementById('health').value = '';
-                document.getElementById('ac').value = '';
-            } else {
-                console.log('Please enter valid values.');
+                await push(rankingRef, monsterData);
+                console.log('Monster added to lobby:', monsterData);
             }
         }
     });
 }
 
-// Function to get the active lobby key for the logged-in user (GM or player)
+// Utility function to get the current active lobby key for the user
 async function getActiveLobbyKey(uid) {
     const lobbiesRef = ref(db, `lobbies`);
     const snapshot = await get(lobbiesRef);
@@ -109,45 +98,6 @@ async function getActiveLobbyKey(uid) {
     }
 
     return null;  // No active lobby found
-}
-
-// Function to fetch and display rankings for the GM
-export function fetchRankingsForGM() {
-    const auth = getAuth();
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const lobbyKey = await getActiveLobbyKey(user.uid);
-            fetchRankings(lobbyKey);
-        }
-    });
-}
-
-// Function to remove an entry from Firebase
-export function removeEntry(id) {
-    const auth = getAuth();
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const lobbyKey = await getActiveLobbyKey(user.uid);
-            const entryRef = ref(db, `lobbies/${lobbyKey}/rankings/${id}`);
-            await remove(entryRef);
-            console.log(`Entry with id ${id} removed successfully`);
-        }
-    });
-}
-
-// Function to clear all entries from Firebase
-export function clearAllEntries() {
-    const auth = getAuth();
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const lobbyKey = await getActiveLobbyKey(user.uid);
-            const rankingsRef = ref(db, `lobbies/${lobbyKey}/rankings`);
-            await set(rankingsRef, null); // Deletes all data in 'rankings'
-            console.log('All entries removed successfully');
-            // Clear the displayed list immediately
-            document.getElementById('rankingList').innerHTML = ''; // Clear the UI
-        }
-    });
 }
 
 // Function to display rankings on the UI
