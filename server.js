@@ -42,9 +42,39 @@ export async function createLobby() {
     });
 }
 
-// Generate a random lobby key
+// Generate a random lobby key (ensure it's unique)
 function generateLobbyKey() {
-    return 'lobby-' + Math.random().toString(36).substr(2, 9);
+    return 'lobby-' + Math.random().toString(36).substr(2, 9); // Example: 'lobby-x5zgkfg'
+}
+
+// Function to create a new lobby
+export async function createLobby() {
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const gmId = user.uid; // Get the Game Master's user ID
+            const lobbyKey = generateLobbyKey(); // Generate a unique lobby key
+            
+            // Reference to the lobby in Firebase under "lobbies"
+            const lobbyRef = ref(db, `lobbies/${lobbyKey}`);
+            
+            // Set the initial lobby data (with the GM ID and empty players and rankings)
+            await set(lobbyRef, {
+                gmId: gmId,
+                players: {}, // Empty object for players to join
+                rankings: {} // Empty object for rankings or initiatives
+            });
+
+            // Display the lobby key on the GM's dashboard (in group.html)
+            const lobbyKeyElement = document.getElementById('lobbyKey');
+            if (lobbyKeyElement) {
+                lobbyKeyElement.textContent = `Invite Key: ${lobbyKey}`;
+            }
+
+            console.log(`Lobby created with key: ${lobbyKey}`);
+        } else {
+            console.log('No user is logged in.');
+        }
+    });
 }
 
 // Function for players to join a lobby using an invite key
