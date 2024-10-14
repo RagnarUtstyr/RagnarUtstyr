@@ -1,21 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Initiative</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
+    <title>Game Master Dashboard</title>
+    
+    <!-- External Scripts and Styles -->
+    <script type="module" src="auth.js" defer></script>
     <script type="module" src="server.js" defer></script>
     <script type="module" src="health.js" defer></script>
+    <script type="module" src="turn.js" defer></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="turn.css">
-    <link rel="stylesheet" href="save.css">
-    <script src="turn.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
     <div class="container">
-        <h1>Initiative</h1>
+        <h1>Game Master Dashboard</h1>
+        
+        <!-- Display invite key -->
+        <div id="lobbyKey">Invite Key: (none yet)</div>
+        <button id="create-lobby-button">Create New Lobby</button>
         
         <ul id="rankingList"></ul>
 
@@ -24,11 +33,8 @@
             <button id="next-button">Next</button>
         </div>
 
-        <br>
         <button id="clear-list-button">Clear List</button>
-        <br><br>
-       
-        <br><br>
+
         <h2>Submit a New Entry</h2>
         <label for="name">Name:</label>
         <input type="text" id="name" required>
@@ -44,9 +50,21 @@
 
         <button id="submit-button">Submit</button>
 
-        <br><br>
         <a href="save.html" class="button-link">Go to Lists</a>
         <a href="monster.html" class="button-link">Go to Monster List</a>
+        <button id="logout-button">Logout</button>
     </div>
+
+    <!-- Firebase, Authentication, and Lobby Creation Script -->
+    <script type="module">
+        import { logout } from './auth.js';  // Ensure the GM can log out
+        import { createLobby } from './server.js';
+
+        // Bind the create lobby function
+        document.getElementById('create-lobby-button').addEventListener('click', createLobby);
+
+        // Logout functionality
+        document.getElementById('logout-button').addEventListener('click', logout);
+    </script>
 </body>
 </html>
