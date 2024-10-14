@@ -117,7 +117,7 @@ function updateHealth(id, newHealth, healthInput) {
 
             const listItem = healthInput.parentElement;
 
-            // Add the defeated class if health is 0
+            // If the health is 0 or below, mark as defeated
             if (newHealth <= 0) {
                 listItem.classList.add('defeated');  // Add defeated class
 
@@ -133,10 +133,12 @@ function updateHealth(id, newHealth, healthInput) {
                     listItem.appendChild(removeButton);
                 }
 
-                // Keep the damage input field visible even when health is 0
-                healthInput.dataset.currentHealth = newHealth;  // Update current health dataset
+                // Ensure the damage input stays visible
+                healthInput.style.display = 'inline-block';  // Keep input visible even if health is 0
+                healthInput.dataset.currentHealth = newHealth;  // Update current health
             } else {
-                healthInput.dataset.currentHealth = newHealth;  // Update current health dataset
+                // If health is greater than 0, just update the health
+                healthInput.dataset.currentHealth = newHealth;  // Update current health
                 listItem.classList.remove('defeated');  // Remove defeated class if health is restored
             }
         })
