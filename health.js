@@ -20,22 +20,68 @@ function fetchRankings() {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item';
 
-                // Create a button for each list item
-                const monsterButton = document.createElement('button');
-                monsterButton.className = 'monster-button';
-                monsterButton.textContent = `${name} (AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}, HP: ${health !== null && health !== undefined ? health : 'N/A'})`;
+                // Create container for name and AC
+                const nameAcContainer = document.createElement('div');
+                nameAcContainer.className = 'name-ac-container';
 
-                // Add click event to redirect to the URL
-                if (url) {
-                    monsterButton.onclick = () => {
-                        window.open(url, '_blank');
-                    };
+                // Name div
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'name';
+                nameDiv.textContent = name;
+                nameAcContainer.appendChild(nameDiv);
+
+                // AC div
+                const acDiv = document.createElement('div');
+                acDiv.className = 'ac';
+                acDiv.textContent = `AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}`;
+                nameAcContainer.appendChild(acDiv);
+
+                // Append name and AC container to the list item
+                listItem.appendChild(nameAcContainer);
+
+                // Health div
+                const healthDiv = document.createElement('div');
+                healthDiv.className = 'health';
+                healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
+                listItem.appendChild(healthDiv);
+
+                // Damage input field (only if health exists)
+                if (health !== null && health !== undefined && health > 0) {
+                    const healthInput = document.createElement('input');
+                    healthInput.type = 'number';
+                    healthInput.placeholder = 'Damage';
+                    healthInput.className = 'damage-input';
+                    healthInput.style.width = '50px';  // Small input field
+                    healthInput.dataset.entryId = id;  // Store entry ID
+                    healthInput.dataset.currentHealth = health;  // Store current health
+                    listItem.appendChild(healthInput);
                 }
 
-                // Append the button to the list item
-                listItem.appendChild(monsterButton);
+                // Add the remove button only if health is 0 or below
+                if (health === 0) {
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.className = 'remove-button';
+                    removeButton.addEventListener('click', () => {
+                        removeEntry(id, listItem); // Pass listItem to remove it from DOM
+                    });
+                    listItem.appendChild(removeButton);
+                }
 
-                // Append list item to ranking list
+                // Add defeated class if health is 0
+                if (health === 0) {
+                    listItem.classList.add('defeated');
+                }
+
+                // If URL exists, make the entire list item clickable
+                if (url) {
+                    listItem.style.cursor = 'pointer';
+                    listItem.addEventListener('click', () => {
+                        window.open(url, '_blank');
+                    });
+                }
+
+                // Append the list item to ranking list
                 rankingList.appendChild(listItem);
             });
         } else {
