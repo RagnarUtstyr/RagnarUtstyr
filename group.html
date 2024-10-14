@@ -55,7 +55,15 @@
     <script type="module">
         import { createLobby, logout } from './auth.js';
 
-        document.getElementById('create-lobby-button').addEventListener('click', createLobby);
+        // Wait until the DOM is fully loaded before running the script
+        document.addEventListener('DOMContentLoaded', () => {
+            const createLobbyButton = document.getElementById('create-lobby-button');
+            if (createLobbyButton) {
+                createLobbyButton.addEventListener('click', createLobby);
+            } else {
+                console.error('Create Lobby button not found');
+            }
+        });
     </script>
 </body>
 </html>
