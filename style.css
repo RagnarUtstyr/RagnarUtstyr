@@ -292,3 +292,16 @@ li {
 li button {
     flex: 0 0 auto;
 }
+
+ul.bottom {
+    list-style: none;  
+    padding: 0;      
+    margin: 0;         
+    display: flex;     
+    gap: 10px;         
+}
+
+ul.bottom li {
+    margin: 0;       
+}
+
