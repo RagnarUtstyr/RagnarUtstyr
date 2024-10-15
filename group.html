@@ -18,48 +18,59 @@
 
 <body>
 
-        <!-- Lobby Key Display -->
-        <div id="lobbyKey">Invite Key: (none yet)</div>
+    <!-- Lobby Key Display -->
+    <div id="lobbyKey" class="lobby-key">Invite Key: (none yet)</div>
+
+    <!-- Main Container -->
+    <div class="container">
 
         <!-- Create Lobby Button -->
-        <button id="create-lobby-button">Create New Lobby</button>
+        <div class="button-group">
+            <button id="create-lobby-button">Create New Lobby</button>
+        </div>
 
-        
-    <div class="container">
-        <h1>Initiative</h1>
-        
-        <ul id="rankingList"></ul>
+        <h1>Initiative Tracker</h1>
 
-        <div class="button-container">
+        <!-- Ranking List -->
+        <ul id="rankingList" class="ranking-list"></ul>
+
+        <!-- Control Buttons -->
+        <div class="button-group">
             <button id="apply-damage-button">Apply Damage</button>
             <button id="next-button">Next</button>
         </div>
 
-        <br>
-        <button id="clear-list-button">Clear List</button>
-        <br><br>
-       
-        <br><br>
-        <h2>Submit a New Entry</h2>
-        <label for="name">Name:</label>
-        <input type="text" id="name" required>
-        
-        <label for="initiative">Initiative:</label>
-        <input type="number" id="initiative" required>
-        
-        <label for="health">Health:</label>
-        <input type="number" id="health">
+        <!-- Clear List Button -->
+        <div class="button-group">
+            <button id="clear-list-button">Clear List</button>
+        </div>
 
-        <label for="ac">AC:</label>
-        <input type="number" id="ac">
+        <!-- Form for New Entry -->
+        <div class="form-section">
+            <h2>Submit a New Entry</h2>
+            <form id="entry-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
 
-        <button id="submit-button">Submit</button>
-    
-        <br><br>
-        <ul class="bottom">
-        <li><a href="save.html" class="button-link">Go to Lists</a></li>
-        <li><a href="monster.html" class="button-link">Go to Monster List</a></li>
-        </ul>
+                <label for="initiative">Initiative:</label>
+                <input type="number" id="initiative" required>
+
+                <label for="health">Health:</label>
+                <input type="number" id="health">
+
+                <label for="ac">AC:</label>
+                <input type="number" id="ac">
+
+                <button id="submit-button">Submit</button>
+            </form>
+        </div>
+
+        <!-- Links to Other Pages -->
+        <div class="button-group">
+            <a href="save.html" class="button-link">Go to Lists</a>
+            <a href="monster.html" class="button-link">Go to Monster List</a>
+        </div>
+
     </div>
 
     <script type="module">

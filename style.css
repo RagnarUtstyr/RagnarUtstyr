@@ -4,7 +4,7 @@ body {
     background-size: cover;
     position: relative;
     color: #E0D8B0;
-    font-family: 'Georgia', serif; /* Use more readable serif font for body text */
+    font-family: 'MedievalSharp', serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -14,7 +14,7 @@ body {
     min-height: 100vh;
 }
 
-/* Opaque Overlay to darken the background */
+/* Dark Overlay for Background */
 body::before {
     content: '';
     position: fixed;
@@ -22,18 +22,18 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(46, 27, 24, 0.7); /* Dark brown overlay with less opacity */
+    background-color: rgba(46, 27, 24, 0.9); /* Dark brown overlay */
     z-index: -1;
 }
 
-/* Main Container */
+/* Main Container Styling */
 .container {
     max-width: 800px;
     width: 100%;
-    margin: 0 auto;
-    padding: 30px; /* Increased padding */
-    background-color: rgba(46, 27, 24, 0.85); /* Less opacity */
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7); /* Stronger shadow */
+    margin: 20px;
+    padding: 30px;
+    background-color: rgba(46, 27, 24, 0.9); /* Darker brown */
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
     border-radius: 10px;
     box-sizing: border-box;
     text-align: center;
@@ -42,186 +42,94 @@ body::before {
     align-items: center;
 }
 
+/* Form Section */
+.form-section {
+    width: 100%;
+    margin: 20px 0;
+    background-color: rgba(165, 123, 91, 0.8); /* Darker background for form */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
 /* Input Fields */
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], input[type="submit"], button {
     padding: 10px;
-    border: 2px solid #D4AF37; /* Gold border for input fields */
+    border: 2px solid #D4AF37; /* Gold border */
     border-radius: 5px;
-    width: calc(100% - 20px);
+    width: 100%;
     margin-bottom: 15px;
-    box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
+    background-color: rgba(255, 255, 255, 0.15);
     color: #E0D8B0;
-    font-family: 'Georgia', serif;
+    font-family: 'MedievalSharp', serif;
     font-size: 1em;
     outline: none;
 }
 
-/* Remove arrows from input[type="number"] in Chrome, Safari, Edge, and Opera */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+/* Control Buttons */
+.button-group {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin: 15px 0;
 }
 
-/* Remove arrows from input[type="number"] in Firefox */
-input[type="number"] {
-    -moz-appearance: textfield;
+#submit-button {
+    width: auto;
 }
 
-/* Focused Input Fields */
-input[type="text"]:focus, input[type="number"]:focus {
-    border: 2px solid #D4AF37; /* Gold border */
-    box-shadow: 0 0 8px rgba(212, 175, 55, 0.7); /* Glow effect */
-    background-color: rgba(255, 255, 255, 0.3); /* Slightly brighter */
+/* List Styling */
+#rankingList {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
 }
 
-/* Headings */
-h1, h2 {
-    color: #D4AF37;
-    font-weight: bold;
-    font-family: 'MedievalSharp', serif; /* Use the medieval font only for headings */
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-/* List Items */
 li {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px; /* More padding */
-    margin-bottom: 10px;
-    border: 1px solid #8C5A4A;
-    border-radius: 5px;
+    justify-content: space-between;
+    padding: 10px;
     background-color: rgba(165, 123, 91, 0.8);
-    width: 100%;
-    gap: 10px;
-    font-size: 1.1em; /* Larger font size */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
-}
-
-li:hover {
-    background-color: rgba(165, 123, 91, 0.9); /* Brighter on hover */
-    transform: translateY(-2px); /* Lift effect */
-}
-
-/* Flex properties for the name, number, health, and ac elements */
-li .name, li .number, li .health, li .ac {
-    padding: 0 5px;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
-}
-
-/* Optionally make the name field wider */
-li .name {
-    flex: 2; /* Name takes more space */
-}
-
-/* Input fields inside list items */
-input.damage-input {
-    flex: 0 0 auto;
-    width: 60px;
-    height: 30px;
-    padding: 5px;
-    border: 2px solid #D4AF37;
+    margin-bottom: 10px;
     border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.15);
-    color: #726c4b;
-    font-family: 'Georgia', serif;
-    font-size: 1em;
-    outline: none;
-    text-align: center;
-    vertical-align: middle;
-    margin: 0;
-    box-sizing: border-box;
+    border: 1px solid #8C5A4A;
 }
 
-/* Defeated class for list items with 0 HP */
-.defeated {
-    background-color: #8B0000;
-    color: white;
-    border: 2px solid #FF0000;
-    transition: background-color 0.3s ease;
+/* Lobby Key Display */
+.lobby-key {
+    padding: 10px;
+    background-color: #8C5A4A;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 1.2em;
 }
 
-/* Submit and Clear List Buttons */
-#submit-button, #clear-list-button, #apply-damage-button {
-    background: linear-gradient(135deg, #2E1B18, #8C5A4A); /* Gradient for modern look */
-    color: #E0D8B0;
-    border: none;
-    padding: 12px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 10px;
-    font-size: 1.1em; /* Larger font size */
-    width: fit-content;
-    transition: transform 0.2s ease, background 0.3s ease;
-}
-
-#submit-button:hover, #clear-list-button:hover, #apply-damage-button:hover {
-    transform: scale(1.05); /* Slight zoom */
-    background: linear-gradient(135deg, #8C5A4A, #D4AF37); /* Change gradient on hover */
-}
-
-/* Link Styled as Button */
+/* Button Link Styling */
 a.button-link {
-    display: block;
+    display: inline-block;
     background-color: #2E1B18;
     color: #E0D8B0;
     border: 2px solid #D4AF37;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
+    padding: 10px 20px;
     text-decoration: none;
-    margin-top: 20px;
-    transition: background-color 0.3s, color 0.3s;
-    text-align: center;
-    width: fit-content;
-    align-self: center;
+    border-radius: 5px;
+    transition: background-color 0.3s;
 }
 
 a.button-link:hover {
     background-color: #8C5A4A;
-    color: #2E1B18;
-    transform: scale(1.05);
 }
 
-/* Media Queries for Mobile Devices */
+/* Media Queries for Responsiveness */
 @media (max-width: 768px) {
-    .container {
-        padding: 20px; /* Less padding for smaller screens */
-    }
-
-    ul.bottom {
-        flex-direction: column; /* Stack buttons on mobile */
-        align-items: center;
-    }
-
-    input.damage-input {
-        width: 45px;
-        height: 25px;
-    }
-
-    #submit-button, #clear-list-button, #apply-damage-button {
-        width: 100%; /* Full width on mobile */
-        text-align: center;
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
     }
 
     li {
-        flex-direction: column; /* Stack items vertically on mobile */
-        font-size: 1em; /* Adjust font size */
+        flex-direction: column;
+        gap: 5px;
     }
-}
-
-/* Style for the gathered list */
-#rankingList {
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0;
-    list-style-type: none;
 }
