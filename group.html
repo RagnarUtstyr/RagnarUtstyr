@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
-    <title>Initiative</title>
+    <title>Initiative Tracker</title>
     <script type="module" src="server.js" defer></script>
     <script type="module" src="health.js" defer></script> 
     <script type="module" src="auth.js" defer></script>
@@ -24,11 +24,6 @@
     <!-- Main Container -->
     <div class="container">
 
-        <!-- Create Lobby Button -->
-        <div class="button-group">
-            <button id="create-lobby-button">Create New Lobby</button>
-        </div>
-
         <h1>Initiative Tracker</h1>
 
         <!-- Ranking List -->
@@ -38,10 +33,6 @@
         <div class="button-group">
             <button id="apply-damage-button">Apply Damage</button>
             <button id="next-button">Next</button>
-        </div>
-
-        <!-- Clear List Button -->
-        <div class="button-group">
             <button id="clear-list-button">Clear List</button>
         </div>
 
@@ -50,16 +41,10 @@
             <h2>New Entry</h2>
             <form id="entry-form" class="compact-form">
                 <div class="form-row">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" required>
-                </div>
-                <div class="form-row">
-                    <label for="initiative">Init:</label>
-                    <input type="number" id="initiative" required>
-                    <label for="health">HP:</label>
-                    <input type="number" id="health">
-                    <label for="ac">AC:</label>
-                    <input type="number" id="ac">
+                    <input type="text" id="name" placeholder="Name" required>
+                    <input type="number" id="initiative" placeholder="Init" required>
+                    <input type="number" id="health" placeholder="HP">
+                    <input type="number" id="ac" placeholder="AC">
                 </div>
                 <button id="submit-button">Submit</button>
             </form>
@@ -74,7 +59,7 @@
     </div>
 
     <script type="module">
-        import { createLobby, logout } from './auth.js';
+        import { createLobby } from './auth.js';
 
         document.addEventListener('DOMContentLoaded', () => {
             const createLobbyButton = document.getElementById('create-lobby-button');
