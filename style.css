@@ -4,7 +4,7 @@ body {
     background-size: cover;
     position: relative;
     color: #E0D8B0;
-    font-family: 'MedievalSharp', serif;
+    font-family: 'Georgia', serif; /* Use more readable serif font for body text */
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -22,7 +22,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(46, 27, 24, 0.9); /* Dark brown overlay */
+    background-color: rgba(46, 27, 24, 0.7); /* Dark brown overlay with less opacity */
     z-index: -1;
 }
 
@@ -31,9 +31,9 @@ body::before {
     max-width: 800px;
     width: 100%;
     margin: 0 auto;
-    padding: 20px;
-    background-color: rgba(46, 27, 24, 0.8); /* Darker brown with opacity */
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    padding: 30px; /* Increased padding */
+    background-color: rgba(46, 27, 24, 0.85); /* Less opacity */
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7); /* Stronger shadow */
     border-radius: 10px;
     box-sizing: border-box;
     text-align: center;
@@ -51,8 +51,8 @@ input[type="text"], input[type="number"] {
     margin-bottom: 15px;
     box-sizing: border-box;
     background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
-    color: #E0D8B0; /* Parchment-like text color for input text */
-    font-family: 'MedievalSharp', serif;
+    color: #E0D8B0;
+    font-family: 'Georgia', serif;
     font-size: 1em;
     outline: none;
 }
@@ -71,113 +71,100 @@ input[type="number"] {
 
 /* Focused Input Fields */
 input[type="text"]:focus, input[type="number"]:focus {
-    border: 2px solid #8C5A4A; /* Darker reddish-brown border on focus */
-    background-color: rgba(255, 255, 255, 0.25); /* Slightly brighter background on focus */
+    border: 2px solid #D4AF37; /* Gold border */
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.7); /* Glow effect */
+    background-color: rgba(255, 255, 255, 0.3); /* Slightly brighter */
 }
 
 /* Headings */
 h1, h2 {
-    color: #D4AF37; /* Gold color for headings */
+    color: #D4AF37;
     font-weight: bold;
-    font-family: 'MedievalSharp', serif;
+    font-family: 'MedievalSharp', serif; /* Use the medieval font only for headings */
     text-align: center;
     margin-bottom: 15px;
 }
 
 /* List Items */
 li {
-    display: flex; /* Flexbox layout */
-    align-items: center; /* Vertically align elements */
-    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px; /* More padding */
     margin-bottom: 10px;
     border: 1px solid #8C5A4A;
     border-radius: 5px;
     background-color: rgba(165, 123, 91, 0.8);
-    max-width: 600px; /* Limit the total width */
-    margin: 0 auto 10px auto; /* Center the list item */
-    gap: 10px; /* Adds spacing between elements */
+    width: 100%;
+    gap: 10px;
+    font-size: 1.1em; /* Larger font size */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+}
+
+li:hover {
+    background-color: rgba(165, 123, 91, 0.9); /* Brighter on hover */
+    transform: translateY(-2px); /* Lift effect */
 }
 
 /* Flex properties for the name, number, health, and ac elements */
 li .name, li .number, li .health, li .ac {
-    padding: 0 5px; /* Add a little padding to the left and right */
-    flex: 1; /* Distribute space equally */
-    white-space: nowrap; /* Prevent text from breaking into multiple lines */
+    padding: 0 5px;
+    flex: 1;
+    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Add ellipsis (...) if content overflows */
-    text-align: center; /* Center the text */
+    text-overflow: ellipsis;
+    text-align: center;
 }
 
 /* Optionally make the name field wider */
 li .name {
-    flex: 2; /* Make the name field take up more space */
-}
-
-/* Specific styling for .ac class */
-li .ac {
-    color: #E0D8B0; /* Parchment-like text color */
-    font-size: 1em;
+    flex: 2; /* Name takes more space */
 }
 
 /* Input fields inside list items */
 input.damage-input {
-    flex: 0 0 auto; /* Do not let the input box grow unnecessarily */
-    width: 60px; /* Limit the width for mobile */
-    height: 30px; /* Set a consistent height */
+    flex: 0 0 auto;
+    width: 60px;
+    height: 30px;
     padding: 5px;
-    border: 2px solid #D4AF37; /* Gold border */
+    border: 2px solid #D4AF37;
     border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
-    color: #726c4b; /* Parchment-like text color */
-    font-family: 'MedievalSharp', serif;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #726c4b;
+    font-family: 'Georgia', serif;
     font-size: 1em;
     outline: none;
-    text-align: center; /* Center the number inside the input */
-    vertical-align: middle; /* Align it vertically */
-    margin: 0; /* Remove extra margins to better align it with other elements */
-    box-sizing: border-box; /* Ensure padding doesn't affect overall width */
+    text-align: center;
+    vertical-align: middle;
+    margin: 0;
+    box-sizing: border-box;
 }
 
 /* Defeated class for list items with 0 HP */
 .defeated {
-    background-color: #8B0000; /* Dark red background */
-    color: white; /* White text for better contrast */
-    border: 2px solid #FF0000; /* Optional: Red border to emphasize the defeated state */
-    transition: background-color 0.3s ease; /* Smooth transition when the item becomes defeated */
+    background-color: #8B0000;
+    color: white;
+    border: 2px solid #FF0000;
+    transition: background-color 0.3s ease;
 }
 
 /* Submit and Clear List Buttons */
 #submit-button, #clear-list-button, #apply-damage-button {
-    background-color: #2E1B18;
+    background: linear-gradient(135deg, #2E1B18, #8C5A4A); /* Gradient for modern look */
     color: #E0D8B0;
-    border: 2px solid #D4AF37;
-    padding: 10px 15px;
+    border: none;
+    padding: 12px 20px;
     cursor: pointer;
     border-radius: 5px;
     margin-top: 10px;
-    font-size: 1em;
+    font-size: 1.1em; /* Larger font size */
     width: fit-content;
+    transition: transform 0.2s ease, background 0.3s ease;
 }
 
-/* Apply Damage button styling */
-#apply-damage-button {
-    background-color: #2E1B18; /* Dark brown background */
-    color: #E0D8B0; /* Parchment-like text color */
-    border: 2px solid #D4AF37; /* Gold border */
-    padding: 10px 20px; /* Larger padding for the button */
-    cursor: pointer;
-    border-radius: 5px; /* Rounded corners */
-    font-family: 'MedievalSharp', serif; /* Use the same font */
-    font-size: 1em;
-    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
-    width: fit-content; /* Adjust the width to the content */
-    margin: 20px auto; /* Center the button */
-    display: block; /* Make sure the button is a block element */
-}
-
-#apply-damage-button:hover {
-    background-color: #8C5A4A; /* Rich reddish-brown hover background */
-    color: #2E1B18; /* Dark text on hover */
+#submit-button:hover, #clear-list-button:hover, #apply-damage-button:hover {
+    transform: scale(1.05); /* Slight zoom */
+    background: linear-gradient(135deg, #8C5A4A, #D4AF37); /* Change gradient on hover */
 }
 
 /* Link Styled as Button */
@@ -194,114 +181,47 @@ a.button-link {
     transition: background-color 0.3s, color 0.3s;
     text-align: center;
     width: fit-content;
-    align-self: center; /* Ensure it's centered within the flex container */
+    align-self: center;
 }
 
 a.button-link:hover {
     background-color: #8C5A4A;
     color: #2E1B18;
+    transform: scale(1.05);
 }
 
 /* Media Queries for Mobile Devices */
 @media (max-width: 768px) {
-    input.damage-input {
-        width: 50px; /* Reduce width even further on mobile */
-        height: 25px; /* Adjust height for smaller screens */
-        font-size: 0.9em; /* Slightly smaller font size */
+    .container {
+        padding: 20px; /* Less padding for smaller screens */
     }
 
-    li .name, li .number, li .health, li .ac {
-        flex: 1; /* Ensure better distribution of space on smaller screens */
-        text-align: center; /* Center the text for smaller screens */
+    ul.bottom {
+        flex-direction: column; /* Stack buttons on mobile */
+        align-items: center;
+    }
+
+    input.damage-input {
+        width: 45px;
+        height: 25px;
+    }
+
+    #submit-button, #clear-list-button, #apply-damage-button {
+        width: 100%; /* Full width on mobile */
+        text-align: center;
+    }
+
+    li {
+        flex-direction: column; /* Stack items vertically on mobile */
+        font-size: 1em; /* Adjust font size */
     }
 }
 
 /* Style for the gathered list */
 #rankingList {
-    max-width: 800px; /* Increase max-width to make the list wider */
-    width: 100%; /* Ensure it takes full width up to max-width */
-    margin: 0 auto; /* Center the list */
-    padding: 0;
-    list-style-type: none; /* Remove default bullet points */
-}
-
-/* Individual List Items (li) */
-li {
-    display: flex; /* Flexbox layout */
-    align-items: center; /* Vertically align elements */
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #8C5A4A;
-    border-radius: 5px;
-    background-color: rgba(165, 123, 91, 0.8);
-    width: 100%; /* Take full width of the container */
-    gap: 10px; /* Space between child elements */
-}
-/* Style for the name and AC container */
-.name-ac-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex: 2; /* Adjust as needed */
-    gap: 5px;
-}
-
-/* Flex properties for the name, ac, number, and health elements */
-.name-ac-container .name, .name-ac-container .ac, li .number, li .health {
-    padding: 0 5px;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
-}
-
-/* Optionally adjust the flex for name and AC */
-.name-ac-container .name, .name-ac-container .ac {
-    flex: 1; /* Together they take up the space assigned to name-ac-container */
-}
-
-/* Ensure buttons don't stretch */
-li button {
-    flex: 0 0 auto;
-}
-li .name, li .health {
-    padding: 0 5px;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
-}
-
-/* Adjust flex properties to center the elements */
-li {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Center the items horizontally */
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #8C5A4A;
-    border-radius: 5px;
-    background-color: rgba(165, 123, 91, 0.8);
+    max-width: 800px;
     width: 100%;
-    gap: 10px;
+    margin: 0 auto;
+    padding: 0;
+    list-style-type: none;
 }
-
-/* Ensure buttons don't stretch */
-li button {
-    flex: 0 0 auto;
-}
-
-ul.bottom {
-    list-style: none;  
-    padding: 0;      
-    margin: 0;         
-    display: flex;     
-    gap: 10px;         
-}
-
-ul.bottom li {
-    margin: 0;       
-}
-
