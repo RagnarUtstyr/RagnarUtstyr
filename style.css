@@ -28,13 +28,13 @@ body::before {
 
 /* Main Container Styling */
 .container {
-    max-width: 800px;
+    max-width: 700px;
     width: 100%;
-    margin: 20px;
-    padding: 30px;
-    background-color: rgba(46, 27, 24, 0.9); /* Darker brown */
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.7);
-    border-radius: 10px;
+    margin: 10px;
+    padding: 20px;
+    background-color: rgba(46, 27, 24, 0.95); /* Darker brown */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
     box-sizing: border-box;
     text-align: center;
     display: flex;
@@ -42,94 +42,101 @@ body::before {
     align-items: center;
 }
 
-/* Form Section */
-.form-section {
-    width: 100%;
-    margin: 20px 0;
-    background-color: rgba(165, 123, 91, 0.8); /* Darker background for form */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+/* Lobby Key Styling */
+.lobby-key {
+    padding: 8px;
+    background-color: #8C5A4A;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-size: 1em;
 }
 
-/* Input Fields */
-input[type="text"], input[type="number"], input[type="submit"], button {
-    padding: 10px;
-    border: 2px solid #D4AF37; /* Gold border */
-    border-radius: 5px;
+/* Compact Form Section */
+.form-section {
     width: 100%;
-    margin-bottom: 15px;
+    margin: 15px 0;
+    padding: 15px;
+    background-color: rgba(165, 123, 91, 0.8); /* Darker background for form */
+    border-radius: 8px;
+}
+
+/* Form Row for Compact Layout */
+.form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.compact-form input[type="text"],
+.compact-form input[type="number"] {
+    width: 100%;
+    max-width: 100px;
+    padding: 8px;
+    border: 1px solid #D4AF37;
+    border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.15);
     color: #E0D8B0;
     font-family: 'MedievalSharp', serif;
-    font-size: 1em;
     outline: none;
 }
 
-/* Control Buttons */
+/* Buttons and Links */
+button, a.button-link {
+    padding: 8px 15px;
+    background-color: #2E1B18;
+    color: #E0D8B0;
+    border: 2px solid #D4AF37;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover, a.button-link:hover {
+    background-color: #8C5A4A;
+}
+
 .button-group {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     width: 100%;
-    margin: 15px 0;
+    margin: 10px 0;
 }
 
-#submit-button {
-    width: auto;
-}
-
-/* List Styling */
+/* Ranking List Styling */
 #rankingList {
     width: 100%;
     list-style: none;
     padding: 0;
-    margin: 20px 0;
+    margin: 15px 0;
 }
 
 li {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
+    align-items: center;
+    padding: 8px;
     background-color: rgba(165, 123, 91, 0.8);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     border-radius: 5px;
     border: 1px solid #8C5A4A;
 }
 
-/* Lobby Key Display */
-.lobby-key {
-    padding: 10px;
-    background-color: #8C5A4A;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    font-size: 1.2em;
-}
-
-/* Button Link Styling */
-a.button-link {
-    display: inline-block;
-    background-color: #2E1B18;
-    color: #E0D8B0;
-    border: 2px solid #D4AF37;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-
-a.button-link:hover {
-    background-color: #8C5A4A;
-}
-
-/* Media Queries for Responsiveness */
+/* Responsive Design */
 @media (max-width: 768px) {
     .button-group {
         flex-direction: column;
         gap: 10px;
     }
 
+    .form-row {
+        flex-direction: column;
+    }
+
     li {
         flex-direction: column;
-        gap: 5px;
+        align-items: flex-start;
     }
 }

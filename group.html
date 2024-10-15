@@ -47,20 +47,20 @@
 
         <!-- Form for New Entry -->
         <div class="form-section">
-            <h2>Submit a New Entry</h2>
-            <form id="entry-form">
-                <label for="name">Name:</label>
-                <input type="text" id="name" required>
-
-                <label for="initiative">Initiative:</label>
-                <input type="number" id="initiative" required>
-
-                <label for="health">Health:</label>
-                <input type="number" id="health">
-
-                <label for="ac">AC:</label>
-                <input type="number" id="ac">
-
+            <h2>New Entry</h2>
+            <form id="entry-form" class="compact-form">
+                <div class="form-row">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-row">
+                    <label for="initiative">Init:</label>
+                    <input type="number" id="initiative" required>
+                    <label for="health">HP:</label>
+                    <input type="number" id="health">
+                    <label for="ac">AC:</label>
+                    <input type="number" id="ac">
+                </div>
                 <button id="submit-button">Submit</button>
             </form>
         </div>
@@ -76,7 +76,6 @@
     <script type="module">
         import { createLobby, logout } from './auth.js';
 
-        // Wait until the DOM is fully loaded before running the script
         document.addEventListener('DOMContentLoaded', () => {
             const createLobbyButton = document.getElementById('create-lobby-button');
             if (createLobbyButton) {
