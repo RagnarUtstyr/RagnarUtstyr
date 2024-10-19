@@ -8,7 +8,6 @@
     <title>Initiative Tracker</title>
     <script type="module" src="server.js" defer></script>
     <script type="module" src="health.js" defer></script> 
-    <script type="module" src="auth.js" defer></script>
     <link rel="stylesheet" href="style.css"> 
     <link rel="stylesheet" href="turn.css"> 
     <link rel="stylesheet" href="save.css"> 
@@ -18,8 +17,11 @@
 
 <body>
 
-    <!-- Lobby Key Display -->
-    <div id="lobbyKey" class="lobby-key">Invite Key: (none yet)</div>
+    <div class="container">
+        <h1>Create or Join a Room</h1>
+        <label for="room-key">Room Key:</label>
+        <input type="text" id="room-key" placeholder="Enter a room key">
+        <button id="create-room-button">Create Room</button>
 
     <!-- Main Container -->
     <div class="container">
@@ -58,15 +60,14 @@
 
     </div>
 
-    <script type="module">
-        import { createLobby } from './auth.js';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const createLobbyButton = document.getElementById('create-lobby-button');
-            if (createLobbyButton) {
-                createLobbyButton.addEventListener('click', createLobby);
+    <script>
+        document.getElementById('create-room-button').addEventListener('click', () => {
+            const roomKey = document.getElementById('room-key').value.trim();
+            if (roomKey) {
+                localStorage.setItem('roomKey', roomKey); // Save the room key locally
+                window.location.href = 'group.html'; // Redirect after creating the room
             } else {
-                console.error('Create Lobby button not found');
+                alert('Please enter a valid room key.');
             }
         });
     </script>

@@ -14,6 +14,12 @@
 
 <body>
     <div class="container">
+        <h1>Join a Room</h1>
+        <label for="room-key">Room Key:</label>
+        <input type="text" id="room-key" placeholder="Enter room key">
+        <button id="join-room-button">Join Room</button>
+    
+    <div class="container">
         <h1>Enter Name and Initiative</h1>
 		<label for="name">Name:</label>
 		<input type="text" id="name" required>
@@ -29,21 +35,15 @@
         <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
     </div>
 
-    <script type="module">
-        import { login, register } from './auth.js';
-
-        document.getElementById('login-form').addEventListener('submit', (event) => {
-            event.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            login(email, password);
-        });
-
-        document.getElementById('register-form').addEventListener('submit', (event) => {
-            event.preventDefault();
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            register(email, password);
+    <script>
+        document.getElementById('join-room-button').addEventListener('click', () => {
+            const roomKey = document.getElementById('room-key').value.trim();
+            if (roomKey) {
+                localStorage.setItem('roomKey', roomKey); // Save room key locally
+                window.location.href = 'group.html'; // Redirect to the group page
+            } else {
+                alert('Please enter a valid room key.');
+            }
         });
     </script>
 </body>
