@@ -27,6 +27,25 @@
         <!-- Audio element to play sound -->
         <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
     </div>
+
+    <div class="container">
+        <h1>Join a Room</h1>
+        <label for="room-key">Room Key:</label>
+        <input type="text" id="room-key" placeholder="Enter room key">
+        <button id="join-room-button">Join Room</button>
+
+        <script>
+            document.getElementById('join-room-button').addEventListener('click', () => {
+                const roomKey = document.getElementById('room-key').value.trim();
+                if (roomKey) {
+                    localStorage.setItem('roomKey', roomKey); // Save room key locally
+                    window.location.href = 'group.html'; // Redirect to the group page
+                } else {
+                    alert('Please enter a valid room key.');
+                }
+            });
+        </script>
+    </div>
 </body>
 
 </html>

@@ -42,6 +42,21 @@
         <!-- Link to group.html to view the rankings -->
         <a href="group.html" class="button-link">View Rankings</a>
     </div>
+
+    <script>
+        const roomKey = localStorage.getItem('roomKey');
+        const reference = ref(db, `savedLists/${roomKey}`);
+    
+        // Use this reference when saving or loading data
+        function saveList() {
+            const listName = document.getElementById('list-name').value.trim();
+            if (listName) {
+                // Save under the room key and list name
+                set(ref(db, `savedLists/${roomKey}/${listName}`), { ... });
+            }
+        }
+    </script>
+    
 </body>
 
 </html>

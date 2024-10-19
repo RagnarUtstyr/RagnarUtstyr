@@ -18,6 +18,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+const roomKey = localStorage.getItem('roomKey');
+const rankingsReference = ref(db, `rankings/${roomKey}`);  // Use room-specific reference
+
+// Example: when submitting data
+async function submitData() {
+    // Fetch data from the form
+    const name = document.getElementById('name').value;
+    const initiative = parseInt(document.getElementById('initiative').value);
+    // Save the data under the current room
+    await push(rankingsReference, { name, initiative });
+}
+
 // Function to submit data to Firebase
 async function submitData() {
     const name = document.getElementById('name').value;

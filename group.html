@@ -16,6 +16,14 @@
 </head>
 
 <body>
+
+    <div class="container">
+        <h1>Create or Join a Room</h1>
+        <label for="room-key">Room Key:</label>
+        <input type="text" id="room-key" placeholder="Enter a room key">
+        <button id="create-room-button">Create Room</button>
+    </div>
+
     <div class="container">
         <h1>Initiative</h1>
         
@@ -50,5 +58,17 @@
         <a href="save.html" class="button-link">Go to Lists</a>
         <a href="monster.html" class="button-link">Go to Monster List</a>
     </div>
+
+    <script>
+        document.getElementById('create-room-button').addEventListener('click', () => {
+            const roomKey = document.getElementById('room-key').value.trim();
+            if (roomKey) {
+                localStorage.setItem('roomKey', roomKey); // Save the room key locally
+                window.location.href = 'group.html'; // Redirect after creating the room
+            } else {
+                alert('Please enter a valid room key.');
+            }
+        });
+    </script>
 </body>
 </html>

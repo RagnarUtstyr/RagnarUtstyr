@@ -6868,6 +6868,22 @@
         </div>
       </div>
     </div>
+
+    <script>
+        const roomKey = localStorage.getItem('roomKey');
+        const reference = ref(db, `rankings/${roomKey}`);
+        
+        // Use this reference when adding or fetching data
+        async function submitMonsterToFirebase(name, initiative, health, url, ac) {
+            try {
+                await push(reference, { name, initiative, health, url, ac });
+                console.log('Data pushed to Firebase successfully.');
+            } catch (error) {
+                console.error('Error submitting monster:', error);
+            }
+        }
+    </script>
+    
     
     </body>
     </html>
