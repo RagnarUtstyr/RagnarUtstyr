@@ -1,6 +1,6 @@
 // Import necessary Firebase modules from the SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove, set, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -18,145 +18,135 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const roomKey = localStorage.getItem('roomKey');
-const rankingsReference = ref(db, `rankings/${roomKey}`);  // Use room-specific reference
-
-// Example: when submitting data
-async function submitData() {
-    // Fetch data from the form
-    const name = document.getElementById('name').value;
-    const initiative = parseInt(document.getElementById('initiative').value);
-    // Save the data under the current room
-    await push(rankingsReference, { name, initiative });
+// Function to check if the user is logged in
+function getRoomKey() {
+    const roomKey = localStorage.getItem('roomKey');
+    if (!roomKey) {
+        alert('You must log in with a room key.');
+        window.location.href = 'index.html'; // Redirect to login if no room key
+    }
+    return roomKey;
 }
 
 // Function to submit data to Firebase
 async function submitData() {
     const name = document.getElementById('name').value;
-    const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
+    const initiative = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
     const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
     const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
-
     const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
     const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
 
-    console.log('AC Input Value:', ac);
-
-    // Ensure name and number are valid, health and ac can be null
-    if (name && !isNaN(number)) {
+    // Ensure name and initiative are valid
+    if (name && !isNaN(initiative)) {
+        const roomKey = getRoomKey(); // Get the current room key
+        const reference = ref(db, `rankings/${roomKey}`); // Use room-specific reference
+        
         try {
-            const reference = ref(db, 'rankings/');
-            await push(reference, { name, number, health, ac });
-            console.log('Data submitted successfully:', { name, number, health, ac });
-
-            // Clear input fields after successful submission
+            await push(reference, { name, initiative, health, ac });
+            console.log('Data submitted successfully:', { name, initiative, health, ac });
+            
+            // Clear the input fields after successful submission
             document.getElementById('name').value = '';
             document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
             if (document.getElementById('health')) document.getElementById('health').value = '';
             if (document.getElementById('ac')) document.getElementById('ac').value = '';
-
-            // Play sword sound after submission
-            const swordSound = document.getElementById('sword-sound');
-            if (swordSound) {
-                swordSound.play();
-            }
         } catch (error) {
             console.error('Error submitting data:', error);
         }
     } else {
-        console.log('Please enter valid name and initiative values.');
+        alert('Please enter valid name and initiative values.');
     }
 }
 
-// Function to fetch and display rankings
+// Function to fetch and display rankings from Firebase
 function fetchRankings() {
-    const reference = ref(db, 'rankings/');
+    const roomKey = getRoomKey(); // Ensure the user is logged in
+    const reference = ref(db, `rankings/${roomKey}`); // Fetch rankings for the current room
+
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = '';
+        rankingList.innerHTML = ''; // Clear current rankings
 
         if (data) {
-            // Convert the data into an array and include the 'number' field for sorting
+            // Convert Firebase data to an array for easier manipulation and sorting
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
+            rankings.sort((a, b) => b.initiative - a.initiative); // Sort by initiative (number)
 
-            rankings.forEach(({ id, name, number, health, ac }) => {
+            // Populate the list with ranking data
+            rankings.forEach(({ id, name, initiative, health, ac }) => {
                 const listItem = document.createElement('li');
+                
+                const nameText = `${name} (Initiative: ${initiative}`;
+                const acText = ac !== null ? `, AC: ${ac}` : '';
+                const healthText = health !== null ? `, HP: ${health}` : '';
+                listItem.textContent = `${nameText}${acText}${healthText})`;
 
-                // Name and AC combined
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
-                if (ac !== null && ac !== undefined) {
-                    nameDiv.textContent = `${name} (AC: ${ac})`;
-                } else {
-                    nameDiv.textContent = name;
-                }
-
-                // Health
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
-
-                // Remove Button
+                // Remove button for each item
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
-                // Append elements to listItem
-                listItem.appendChild(nameDiv);
-                if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv);
-                }
                 listItem.appendChild(removeButton);
-
-                // Append the listItem to the rankingList
                 rankingList.appendChild(listItem);
             });
-        } else {
-            console.log('No data available');
         }
-    }, (error) => {
-        console.error('Error fetching data:', error);
     });
 }
 
 // Function to remove an entry from Firebase
 function removeEntry(id) {
-    const reference = ref(db, `rankings/${id}`);
+    const roomKey = getRoomKey(); // Get the room key
+    const reference = ref(db, `rankings/${roomKey}/${id}`); // Reference to the specific entry
+
     remove(reference)
         .then(() => {
-            console.log(`Entry with id ${id} removed successfully`);
+            console.log(`Entry with ID: ${id} removed successfully.`);
         })
         .catch((error) => {
             console.error('Error removing entry:', error);
         });
 }
 
-// Function to clear all entries from Firebase
-function clearAllEntries() {
-    const reference = ref(db, 'rankings/');
-    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
+// Function to check if the room key exists (used for login validation)
+async function validateRoomKey(roomKey) {
+    const reference = ref(db, `rankings/${roomKey}`);
+    const snapshot = await get(reference);
+    return snapshot.exists(); // Return whether the room key exists
+}
+
+// Function to save a list in Firebase under the current room
+function saveList(listName, listData) {
+    const roomKey = getRoomKey(); // Ensure the user is logged in
+    const reference = ref(db, `savedLists/${roomKey}/${listName}`); // Save under the room's list name
+
+    set(reference, listData)
         .then(() => {
-            console.log('All entries removed successfully');
-            // Clear the displayed list immediately
-            const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = ''; // Explicitly clear the UI
+            alert(`List "${listName}" saved successfully.`);
         })
         .catch((error) => {
-            console.error('Error clearing all entries:', error);
+            console.error('Error saving list:', error);
         });
 }
 
-// Event listeners for page-specific actions
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('submit-button')) {
-        document.getElementById('submit-button').addEventListener('click', submitData);
-    }
-    if (document.getElementById('rankingList')) {
-        fetchRankings();
-    }
-    if (document.getElementById('clear-list-button')) {
-        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
-    }
-});
+// Function to load a saved list from Firebase
+function loadList(listName) {
+    const roomKey = getRoomKey(); // Ensure the user is logged in
+    const reference = ref(db, `savedLists/${roomKey}/${listName}`);
+
+    get(reference)
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const listData = snapshot.val();
+                // Handle the list data here, e.g., populate the UI with the list
+                alert(`List "${listName}" loaded successfully.`);
+                // Load data into the UI as needed
+            } else {
+                alert(`No list found with the name "${listName}".`);
+            }
+        })
+        .catch((error) => {
+            console.error('Error loading list:', error);
+        });
+}

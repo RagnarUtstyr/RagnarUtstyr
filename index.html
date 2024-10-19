@@ -35,13 +35,22 @@
         <button id="join-room-button">Join Room</button>
 
         <script>
-            document.getElementById('join-room-button').addEventListener('click', () => {
+            document.getElementById('login-button').addEventListener('click', async () => {
                 const roomKey = document.getElementById('room-key').value.trim();
+                
                 if (roomKey) {
-                    localStorage.setItem('roomKey', roomKey); // Save room key locally
-                    window.location.href = 'group.html'; // Redirect to the group page
+                    const dbRef = ref(db, `rankings/${roomKey}`);
+                    
+                    // Check if the room key exists in Firebase
+                    const snapshot = await get(dbRef);
+                    if (snapshot.exists()) {
+                        localStorage.setItem('roomKey', roomKey); // Store room key in localStorage
+                        window.location.href = 'group.html'; // Redirect to group.html
+                    } else {
+                        alert('Invalid room key. Please try again.');
+                    }
                 } else {
-                    alert('Please enter a valid room key.');
+                    alert('Please enter a room key.');
                 }
             });
         </script>

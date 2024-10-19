@@ -6871,18 +6871,23 @@
 
     <script>
         const roomKey = localStorage.getItem('roomKey');
+        if (!roomKey) {
+            alert('You must log in with a room key.');
+            window.location.href = 'index.html'; // Redirect to login page
+        }
+    
         const reference = ref(db, `rankings/${roomKey}`);
         
         // Use this reference when adding or fetching data
-        async function submitMonsterToFirebase(name, initiative, health, url, ac) {
-            try {
-                await push(reference, { name, initiative, health, url, ac });
-                console.log('Data pushed to Firebase successfully.');
-            } catch (error) {
-                console.error('Error submitting monster:', error);
-            }
+        function fetchMonsterList() {
+            onValue(reference, (snapshot) => {
+                // Fetch monster data based on roomKey
+            });
         }
+    
+        fetchMonsterList();
     </script>
+    
     
     
     </body>

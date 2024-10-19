@@ -45,15 +45,28 @@
 
     <script>
         const roomKey = localStorage.getItem('roomKey');
+        if (!roomKey) {
+            alert('You must log in with a room key.');
+            window.location.href = 'index.html'; // Redirect to login page
+        }
+    
         const reference = ref(db, `savedLists/${roomKey}`);
     
-        // Use this reference when saving or loading data
+        // Save or load lists under the current roomKey
         function saveList() {
             const listName = document.getElementById('list-name').value.trim();
             if (listName) {
-                // Save under the room key and list name
-                set(ref(db, `savedLists/${roomKey}/${listName}`), { ... });
+                set(ref(db, `savedLists/${roomKey}/${listName}`), { /* data */ });
             }
+        }
+    
+        function loadList() {
+            const listName = document.getElementById('list-name').value.trim();
+            get(ref(db, `savedLists/${roomKey}/${listName}`)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    // Load the saved list data
+                }
+            });
         }
     </script>
     

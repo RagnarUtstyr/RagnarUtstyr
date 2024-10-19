@@ -60,15 +60,37 @@
     </div>
 
     <script>
-        document.getElementById('create-room-button').addEventListener('click', () => {
-            const roomKey = document.getElementById('room-key').value.trim();
-            if (roomKey) {
-                localStorage.setItem('roomKey', roomKey); // Save the room key locally
-                window.location.href = 'group.html'; // Redirect after creating the room
-            } else {
-                alert('Please enter a valid room key.');
-            }
-        });
+        // Check if the user is logged in
+        const roomKey = localStorage.getItem('roomKey');
+        if (!roomKey) {
+            alert('You must log in with a room key.');
+            window.location.href = 'index.html'; // Redirect to login page
+        }
+
+        // Continue with your existing Firebase logic
+        const reference = ref(db, `rankings/${roomKey}`);
+
+        // Example of fetching data for the room
+        function fetchRankings() {
+            onValue(reference, (snapshot) => {
+                const data = snapshot.val();
+                const rankingList = document.getElementById('rankingList');
+                rankingList.innerHTML = '';
+
+                if (data) {
+                    const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
+                    rankings.sort((a, b) => b.number - a.number);
+
+                    rankings.forEach(({ id, name, number, health, ac }) => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${name} (Initiative: ${number}, HP: ${health || ''}, AC: ${ac || ''})`;
+                        rankingList.appendChild(listItem);
+                    });
+                }
+            });
+        }
+
+        fetchRankings(); // Fetch rankings when the page loads
     </script>
 </body>
 </html>
