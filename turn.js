@@ -18,6 +18,9 @@ function highlightCurrentEntry() {
 
     // Highlight the current item
     listItems[currentHighlightIndex].classList.add('highlighted');
+
+    // Ensure the highlighted item is in view (optional)
+    listItems[currentHighlightIndex].scrollIntoView({ block: "nearest" });
 }
 
 function moveToNextEntry() {
@@ -35,6 +38,21 @@ function moveToNextEntry() {
     highlightCurrentEntry();
 }
 
+function moveToPreviousEntry() {
+    const listItems = document.querySelectorAll('#rankingList li');
+
+    // If there are no items, exit the function
+    if (listItems.length === 0) {
+        return;
+    }
+
+    // Move to the previous item, or loop to the last if at the beginning
+    currentHighlightIndex = (currentHighlightIndex - 1 + listItems.length) % listItems.length;
+
+    // Apply the new highlight
+    highlightCurrentEntry();
+}
+
 function refreshHighlightAfterRemoval() {
     const listItems = document.querySelectorAll('#rankingList li');
 
@@ -44,9 +62,9 @@ function refreshHighlightAfterRemoval() {
         return;
     }
 
-    // If the current item was removed, shift the highlight down
+    // If the current item was removed, shift the highlight to the next item
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = listItems.length - 1; // Move to the last item
+        currentHighlightIndex = listItems.length - 1; // Move to the last item if necessary
     }
 
     // Reapply highlight to the current item
@@ -57,8 +75,8 @@ function removeEntry(id, listItem) {
     // Simulate removing from database (assuming `remove` is a function you have)
     listItem.remove(); // Remove the DOM element
 
-    // Check if the removed item was the highlighted one
-    refreshHighlightAfterRemoval(); // Refresh highlight after removal
+    // Refresh highlight after removal
+    refreshHighlightAfterRemoval(); 
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -68,6 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
         nextButton.addEventListener('click', moveToNextEntry);
     }
 
+    // Attach event listener to "Previous" button (if applicable)
+    const prevButton = document.getElementById('prev-button');
+    if (prevButton) {
+        prevButton.addEventListener('click', moveToPreviousEntry);
+    }
+
     // Highlight the first item when the page loads, if there are any items
-    highlightCurrentEntry();  // Ensure the first item is highlighted
+    highlightCurrentEntry();
 });
