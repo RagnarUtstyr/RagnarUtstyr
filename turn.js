@@ -10,7 +10,7 @@ function highlightCurrentEntry() {
 
     // Ensure currentHighlightIndex is within bounds
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = listItems.length - 1; // Move to the last available item
+        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1); // Stay within bounds
     }
 
     // Remove highlight from all items
@@ -53,18 +53,18 @@ function moveToPreviousEntry() {
 function refreshHighlightAfterRemoval() {
     const listItems = document.querySelectorAll('#rankingList li');
 
-    // If there are no items left, do nothing
+    // If there are no items left, reset
     if (listItems.length === 0) {
-        currentHighlightIndex = 0; // Reset the index to 0 if the list is empty
+        currentHighlightIndex = 0;
         return;
     }
 
-    // If the current item was removed, shift the highlight to the next item
+    // If the current highlighted item was removed, adjust the index
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1); // Move to the last item if necessary
+        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1); // Stay within bounds
     }
 
-    // Reapply highlight to the current item
+    // Apply highlight to the new current item
     highlightCurrentEntry();
 }
 
@@ -75,13 +75,26 @@ function removeEntry(listItem) {
     // Remove the DOM element
     listItem.remove();
 
-    // Adjust the highlight index if needed
+    // Adjust the highlight index if the highlighted item was removed
     if (currentHighlightIndex >= indexToRemove) {
         currentHighlightIndex = Math.max(0, currentHighlightIndex - 1); // Move the highlight up if needed
     }
 
     // Refresh the highlight after removal
-    refreshHighlightAfterRemoval(); 
+    refreshHighlightAfterRemoval();
+}
+
+// Ensure that highlighting is always applied after DOM changes or button clicks
+function ensureHighlightAlwaysVisible() {
+    const observer = new MutationObserver(() => {
+        highlightCurrentEntry(); // Reapply highlight after any DOM changes
+    });
+
+    // Observe the list for any changes (additions, deletions, etc.)
+    const listElement = document.getElementById('rankingList');
+    if (listElement) {
+        observer.observe(listElement, { childList: true, subtree: false });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -97,6 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         prevButton.addEventListener('click', moveToPreviousEntry);
     }
 
-    // Highlight the first item when the page loads, if there are any items
+    // Ensure the first item is highlighted when the page loads
     highlightCurrentEntry();
+
+    // Ensure the highlight stays visible even when the DOM changes
+    ensureHighlightAlwaysVisible();
 });
