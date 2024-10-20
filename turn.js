@@ -18,9 +18,6 @@ function highlightCurrentEntry() {
 
     // Highlight the current item
     listItems[currentHighlightIndex].classList.add('highlighted');
-
-    // Ensure the highlighted item is in view (optional)
-    listItems[currentHighlightIndex].scrollIntoView({ block: "nearest" });
 }
 
 function moveToNextEntry() {
@@ -64,18 +61,26 @@ function refreshHighlightAfterRemoval() {
 
     // If the current item was removed, shift the highlight to the next item
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = listItems.length - 1; // Move to the last item if necessary
+        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1); // Move to the last item if necessary
     }
 
     // Reapply highlight to the current item
     highlightCurrentEntry();
 }
 
-function removeEntry(id, listItem) {
-    // Simulate removing from database (assuming `remove` is a function you have)
-    listItem.remove(); // Remove the DOM element
+function removeEntry(listItem) {
+    const listItems = document.querySelectorAll('#rankingList li');
+    const indexToRemove = Array.from(listItems).indexOf(listItem);
 
-    // Refresh highlight after removal
+    // Remove the DOM element
+    listItem.remove();
+
+    // Adjust the highlight index if needed
+    if (currentHighlightIndex >= indexToRemove) {
+        currentHighlightIndex = Math.max(0, currentHighlightIndex - 1); // Move the highlight up if needed
+    }
+
+    // Refresh the highlight after removal
     refreshHighlightAfterRemoval(); 
 }
 
