@@ -43,9 +43,9 @@ function refreshHighlightAfterRemoval() {
         return;
     }
 
-    // Adjust currentHighlightIndex if necessary
+    // If the current item was removed, shift the highlight down
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = 0; // Reset to first item if out of bounds
+        currentHighlightIndex = listItems.length - 1; // Move to the last item
     }
 
     // Reapply highlight to the current item
@@ -55,6 +55,8 @@ function refreshHighlightAfterRemoval() {
 function removeEntry(id, listItem) {
     // Simulate removing from database (assuming `remove` is a function you have)
     listItem.remove(); // Remove the DOM element
+
+    // Check if the removed item was the highlighted one
     refreshHighlightAfterRemoval(); // Refresh highlight after removal
 }
 
