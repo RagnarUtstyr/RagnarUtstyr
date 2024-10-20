@@ -10,7 +10,7 @@ function highlightCurrentEntry() {
 
     // Ensure currentHighlightIndex is within bounds
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = 0; // Reset to first item if out of bounds
+        currentHighlightIndex = listItems.length - 1; // Move to the last available item
     }
 
     // Remove highlight from all items
@@ -40,6 +40,7 @@ function refreshHighlightAfterRemoval() {
 
     // If there are no items left, do nothing
     if (listItems.length === 0) {
+        currentHighlightIndex = 0; // Reset the index to 0 if the list is empty
         return;
     }
 
@@ -68,5 +69,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Highlight the first item when the page loads, if there are any items
-    highlightCurrentEntry();
+    highlightCurrentEntry();  // Ensure the first item is highlighted
 });
