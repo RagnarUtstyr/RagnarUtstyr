@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, set, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -44,7 +44,6 @@ async function submitMonsterData() {
 
     if (name && !isNaN(initiative)) {
         try {
-            // Data is now submitted to the room identified by the invite key
             const reference = ref(db, `rooms/${inviteKey}/data`);
             await push(reference, { name, initiative, health, ac });
             console.log('Monster data submitted:', { name, initiative, health, ac });
@@ -63,7 +62,7 @@ async function submitMonsterData() {
     }
 }
 
-// Function to fetch and display rankings (used in group.html and monster.html)
+// Function to fetch and display rankings
 function fetchRankings() {
     const inviteKey = getInviteKeyFromCookies();
     if (!inviteKey) {
@@ -113,87 +112,6 @@ function fetchRankings() {
     });
 }
 
-// Function to save the current list (used in save.html)
-function saveList() {
-    const inviteKey = getInviteKeyFromCookies();
-    if (!inviteKey) {
-        alert('You must join a room with an invite key before saving a list.');
-        return;
-    }
-
-    const listName = document.getElementById('list-name').value.trim();
-    if (!listName) {
-        alert('Please enter a name for the list.');
-        return;
-    }
-
-    const rankingsRef = ref(db, `rooms/${inviteKey}/data`);
-    get(rankingsRef).then((snapshot) => {
-        if (snapshot.exists()) {
-            const listData = snapshot.val();
-            const savedListRef = ref(db, `savedLists/${listName}`);
-            set(savedListRef, { list: listData }).then(() => {
-                alert(`List "${listName}" saved successfully!`);
-            }).catch((error) => {
-                console.error('Error saving the list:', error);
-            });
-        } else {
-            alert('No data available in the room to save.');
-        }
-    }).catch((error) => {
-        console.error('Error fetching data for save:', error);
-    });
-}
-
-// Function to load a saved list into the room (used in save.html)
-function loadList() {
-    const inviteKey = getInviteKeyFromCookies();
-    if (!inviteKey) {
-        alert('You must join a room with an invite key before loading a list.');
-        return;
-    }
-
-    const listName = document.getElementById('list-name').value.trim();
-    if (!listName) {
-        alert('Please enter the name of the list to load.');
-        return;
-    }
-
-    const savedListRef = ref(db, `savedLists/${listName}`);
-    get(savedListRef).then((snapshot) => {
-        if (snapshot.exists()) {
-            const savedList = snapshot.val().list;
-            const rankingsRef = ref(db, `rooms/${inviteKey}/data`);
-            set(rankingsRef, savedList).then(() => {
-                alert(`List "${listName}" loaded successfully into the current room.`);
-                window.location.href = 'group.html'; // Redirect to group.html to view the list
-            }).catch((error) => {
-                console.error('Error loading the list into the room:', error);
-            });
-        } else {
-            alert(`No list found with the name "${listName}".`);
-        }
-    }).catch((error) => {
-        console.error('Error fetching saved list:', error);
-    });
-}
-
-// Function to remove an entry (used in group.html and monster.html)
-function removeEntry(id) {
-    const inviteKey = getInviteKeyFromCookies();
-    if (!inviteKey) {
-        console.error('Invite key not found, cannot remove entry.');
-        return;
-    }
-
-    const reference = ref(db, `rooms/${inviteKey}/data/${id}`);
-    remove(reference).then(() => {
-        console.log(`Entry ${id} removed from the room.`);
-    }).catch((error) => {
-        console.error('Error removing entry:', error);
-    });
-}
-
 // Detect the active page and initialize relevant functions
 document.addEventListener('DOMContentLoaded', function () {
     const currentPage = document.body.getAttribute('data-page');
@@ -206,18 +124,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const submitButton = document.getElementById('submit-monster-entry');
         if (submitButton) {
             submitButton.addEventListener('click', submitMonsterData);
-        }
-    }
-
-    if (currentPage === 'save') {
-        // Attach event listeners for saving and loading lists in save.html
-        const saveButton = document.getElementById('save-list-button');
-        const loadButton = document.getElementById('load-list-button');
-        if (saveButton) {
-            saveButton.addEventListener('click', saveList);
-        }
-        if (loadButton) {
-            loadButton.addEventListener('click', loadList);
         }
     }
 });

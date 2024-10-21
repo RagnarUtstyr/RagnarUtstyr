@@ -1,4 +1,4 @@
-import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Initialize Firebase Database
 const db = getDatabase();
@@ -6,9 +6,10 @@ const db = getDatabase();
 // Function to create or join a room and store the key in cookies
 function handleInviteKeySubmit(pageType) {
     const inviteKeyInput = document.getElementById(`invite-key-${pageType}`).value;
-    
+
     if (inviteKeyInput) {
-        document.cookie = `inviteKey=${inviteKeyInput}; path=/; max-age=86400`; // Store in cookie for 1 day
+        // Save invite key in cookies
+        document.cookie = `inviteKey=${inviteKeyInput}; path=/; max-age=86400`; // Store for 1 day
         alert(`Joined room with invite key: ${inviteKeyInput}`);
 
         // Explicitly create the room in Firebase
@@ -21,7 +22,7 @@ function handleInviteKeySubmit(pageType) {
 // Function to create the room in Firebase if it doesn't exist yet
 function createRoomInFirebase(inviteKey) {
     const roomRef = ref(db, `rooms/${inviteKey}`);
-    
+
     // Set the room to an empty object to create it in Firebase if it doesn't already exist
     set(roomRef, {
         createdAt: new Date().toISOString(),
@@ -45,46 +46,7 @@ function getInviteKeyFromCookies() {
     return null;
 }
 
-// Function to submit data (name and initiative) to Firebase within a room
-function handleSubmitEntry(pageType) {
-    const name = document.getElementById('name').value;
-    const initiative = document.getElementById('initiative').value;
-
-    if (!name || !initiative) {
-        alert('Please enter both name and initiative.');
-        return;
-    }
-
-    const inviteKey = getInviteKeyFromCookies();
-    if (!inviteKey) {
-        alert('You must first join a room with an invite key.');
-        return;
-    }
-
-    const reference = ref(db, `rooms/${inviteKey}/data`);
-    push(reference, { name, initiative }).then(() => {
-        alert('Data submitted successfully.');
-    }).catch(error => {
-        console.error('Error submitting data:', error);
-    });
-}
-
-// Function to initialize the page
-function initializePage(pageType) {
-    // Attach event listeners for invite key submission
-    document.getElementById(`submit-invite-${pageType}`).addEventListener('click', function() {
-        handleInviteKeySubmit(pageType);
-    });
-
-    // Optionally start listening to room data when the page loads
-    listenToRoomData();
-}
-
-// Automatically detect which page is loaded (group or index) and initialize
-document.addEventListener('DOMContentLoaded', function () {
-    if (document.getElementById('submit-invite-group')) {
-        initializePage('group');
-    } else if (document.getElementById('submit-invite-index')) {
-        initializePage('index');
-    }
-});
+// Expose the functions globally
+window.createRoomInFirebase = createRoomInFirebase;
+window.handleInviteKeySubmit = handleInviteKeySubmit;
+window.getInviteKeyFromCookies = getInviteKeyFromCookies;
