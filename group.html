@@ -7,26 +7,30 @@
     <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
     <title>Initiative</title>
     
-    <script type="module" src="health.js" defer></script> 
-    
-    <link rel="stylesheet" href="style.css"> 
-    <link rel="stylesheet" href="turn.css"> 
-    <link rel="stylesheet" href="save.css"> 
-  
-    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> 
+    <!-- Required scripts and styles -->
+    <script type="module" src="server.js" defer></script>
+    <script type="module" src="health.js" defer></script>
+    <script type="module" src="key.js" defer></script> <!-- Added key.js -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="turn.css">
+    <link rel="stylesheet" href="save.css">
+    <script src="turn.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
 
-<body data-page="group">
+<body>
     <div class="container">
-
-        <h2>Create or Join a Room</h2>
-        <label for="invite-key-group">Invite Key:</label>
-        <input type="text" id="invite-key-group" placeholder="Enter invite key or create a new one">
-        <button id="submit-invite-group">Submit Invite Key</button>
-
-
         <h1>Initiative</h1>
         
+        <!-- Invite Key Section (Added this) -->
+        <div>
+            <h2>Create or Join a Room</h2>
+            <label for="invite-key-group">Invite Key:</label>
+            <input type="text" id="invite-key-group" placeholder="Enter invite key or create a new one">
+            <button id="submit-invite-group">Submit Invite Key</button>
+        </div>
+        
+        <!-- Existing Ranking List Section -->
         <ul id="rankingList"></ul>
 
         <div class="button-container">
@@ -52,14 +56,30 @@
         <label for="ac">AC:</label>
         <input type="number" id="ac">
 
-        <button id="submit-monster-entry">Submit Monster Entry</button>
+        <button id="submit-button">Submit</button>
 
         <br><br>
         <a href="save.html" class="button-link">Go to Lists</a>
         <a href="monster.html" class="button-link">Go to Monster List</a>
     </div>
-    <script type="module" src="key.js" defer></script>
-    <script type="module" src="server.js" defer></script>
-    
+
+    <!-- Add JavaScript event listeners for submitting invite key and entries -->
+    <script>
+        // Event listener for invite key submission
+        document.getElementById('submit-invite-group').addEventListener('click', function () {
+            handleInviteKeySubmit('group');
+        });
+
+        // Event listener for submitting a monster entry
+        document.getElementById('submit-button').addEventListener('click', function () {
+            const name = document.getElementById('name').value;
+            const initiative = document.getElementById('initiative').value;
+            const health = document.getElementById('health').value;
+            const ac = document.getElementById('ac').value;
+
+            // Call the submitEntry function from server.js with the relevant data
+            submitEntry({ name, initiative, health: health || null, ac: ac || null });
+        });
+    </script>
 </body>
 </html>
