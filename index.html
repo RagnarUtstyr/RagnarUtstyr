@@ -5,9 +5,11 @@
     <!-- Existing head content -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Your Name and Number</title>
+    <title>Submit Your Name and Initiative</title>
     <script type="module" src="key.js" defer></script>
     <script type="module" src="server.js" defer></script>
+    <!-- Include roomChecker.js -->
+    <script type="module" src="roomChecker.js" defer></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
@@ -39,26 +41,41 @@
     <!-- JavaScript to handle room key setting and display -->
     <script type="module">
         import { setRoomKey, getRoomKey } from './key.js';
+        import { checkRoomExists } from './roomChecker.js'; // New module to check room existence
 
         document.addEventListener('DOMContentLoaded', () => {
             const setRoomButton = document.getElementById('set-room-button');
             const roomKeyInput = document.getElementById('room-key');
             const currentRoomDisplay = document.getElementById('current-room');
+            const submitButton = document.getElementById('submit-button');
+
+            // Disable submit button if no room is set
+            if (!getRoomKey()) {
+                submitButton.disabled = true;
+            }
 
             // Load the current room key from cookie
             const currentRoomKey = getRoomKey();
             if (currentRoomKey) {
                 currentRoomDisplay.textContent = 'Current Room: ' + currentRoomKey;
+                submitButton.disabled = false;
             } else {
                 currentRoomDisplay.textContent = 'No room set.';
             }
 
-            setRoomButton.addEventListener('click', () => {
+            setRoomButton.addEventListener('click', async () => {
                 const key = roomKeyInput.value.trim();
                 if (key) {
-                    setRoomKey(key);
-                    currentRoomDisplay.textContent = 'Current Room: ' + key;
-                    window.location.reload(); // Reload to ensure the new room key is used
+                    // Check if the room exists
+                    const exists = await checkRoomExists(key);
+                    if (exists) {
+                        setRoomKey(key);
+                        currentRoomDisplay.textContent = 'Current Room: ' + key;
+                        submitButton.disabled = false;
+                        window.location.reload(); // Reload to ensure the new room key is used
+                    } else {
+                        alert('Room does not exist. Please enter a valid room key.');
+                    }
                 }
             });
         });

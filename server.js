@@ -25,32 +25,31 @@ const db = getDatabase(app);
 // Function to submit data to Firebase
 async function submitData() {
     const name = document.getElementById('name').value;
-    const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null;
-    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null;
-    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null;
-    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
+    const numberInput = document.getElementById('initiative') || document.getElementById('number');
+    const number = parseInt(numberInput.value);
 
     // Ensure name and number are valid
     if (name && !isNaN(number)) {
         try {
             // Get the room key
             const roomKey = getRoomKey();
+
+            // Check if the room key is set
             if (!roomKey) {
                 alert('Please set a room key first.');
                 return;
             }
 
-            // Modify the reference to include the room key
+            // Reference to the rankings in the specific room
             const reference = ref(db, `rooms/${roomKey}/rankings/`);
-            await push(reference, { name, number, health, ac });
-            console.log('Data submitted successfully:', { name, number, health, ac });
+
+            // Push the data to the database
+            await push(reference, { name, number });
+            console.log('Data submitted successfully:', { name, number });
 
             // Clear input fields after successful submission
             document.getElementById('name').value = '';
-            document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
-            if (document.getElementById('health')) document.getElementById('health').value = '';
-            if (document.getElementById('ac')) document.getElementById('ac').value = '';
+            numberInput.value = '';
 
             // Play sword sound after submission
             const swordSound = document.getElementById('sword-sound');
@@ -61,7 +60,7 @@ async function submitData() {
             console.error('Error submitting data:', error);
         }
     } else {
-        console.log('Please enter valid name and initiative values.');
+        alert('Please enter valid name and initiative values.');
     }
 }
 
@@ -69,24 +68,32 @@ async function submitData() {
 function fetchRankings() {
     // Get the room key
     const roomKey = getRoomKey();
+
+    // Check if the room key is set
     if (!roomKey) {
-        alert('Please set a room key first.');
+        console.log('No room key set. Cannot fetch rankings.');
         return;
     }
 
+    // Reference to the rankings in the specific room
     const reference = ref(db, `rooms/${roomKey}/rankings/`);
+
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = '';
+        if (rankingList) {
+            rankingList.innerHTML = ''; // Clear the list
+        }
 
         if (data) {
+            // Convert the data into an array and include the 'number' field for sorting
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number);
+            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
             rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
+                // Name and AC combined
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 if (ac !== null && ac !== undefined) {
@@ -95,24 +102,30 @@ function fetchRankings() {
                     nameDiv.textContent = name;
                 }
 
+                // Health
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
                 healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
 
+                // Remove Button
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
+                // Append elements to listItem
                 listItem.appendChild(nameDiv);
                 if (healthDiv.textContent !== '') {
                     listItem.appendChild(healthDiv);
                 }
                 listItem.appendChild(removeButton);
 
-                rankingList.appendChild(listItem);
+                // Append the listItem to the rankingList
+                if (rankingList) {
+                    rankingList.appendChild(listItem);
+                }
             });
         } else {
-            console.log('No data available');
+            console.log('No data available in this room.');
         }
     }, (error) => {
         console.error('Error fetching data:', error);
@@ -123,6 +136,8 @@ function fetchRankings() {
 function removeEntry(id) {
     // Get the room key
     const roomKey = getRoomKey();
+
+    // Check if the room key is set
     if (!roomKey) {
         alert('Please set a room key first.');
         return;
@@ -142,17 +157,22 @@ function removeEntry(id) {
 function clearAllEntries() {
     // Get the room key
     const roomKey = getRoomKey();
+
+    // Check if the room key is set
     if (!roomKey) {
         alert('Please set a room key first.');
         return;
     }
 
     const reference = ref(db, `rooms/${roomKey}/rankings/`);
-    set(reference, null)
+    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
         .then(() => {
             console.log('All entries removed successfully');
+            // Clear the displayed list immediately
             const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = '';
+            if (rankingList) {
+                rankingList.innerHTML = ''; // Explicitly clear the UI
+            }
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);
@@ -161,13 +181,21 @@ function clearAllEntries() {
 
 // Event listeners for page-specific actions
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('submit-button')) {
-        document.getElementById('submit-button').addEventListener('click', submitData);
+    // Attach event listener for the submit button
+    const submitButton = document.getElementById('submit-button');
+    if (submitButton) {
+        submitButton.addEventListener('click', submitData);
     }
-    if (document.getElementById('rankingList')) {
+
+    // If the rankingList element exists, fetch and display rankings
+    const rankingList = document.getElementById('rankingList');
+    if (rankingList) {
         fetchRankings();
     }
-    if (document.getElementById('clear-list-button')) {
-        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
+
+    // Attach event listener for the clear list button
+    const clearListButton = document.getElementById('clear-list-button');
+    if (clearListButton) {
+        clearListButton.addEventListener('click', clearAllEntries);
     }
 });
