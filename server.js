@@ -29,7 +29,7 @@ function getInviteKeyFromCookies() {
     return null;
 }
 
-// Function to submit monster data to Firebase (used in monster.html and group.html)
+// Function to submit monster data to Firebase (used in group.html and monster.html)
 async function submitMonsterData() {
     const name = document.getElementById('name').value;
     const initiative = parseInt(document.getElementById('initiative').value);
@@ -44,6 +44,7 @@ async function submitMonsterData() {
 
     if (name && !isNaN(initiative)) {
         try {
+            // Data is now submitted to the room identified by the invite key
             const reference = ref(db, `rooms/${inviteKey}/data`);
             await push(reference, { name, initiative, health, ac });
             console.log('Monster data submitted:', { name, initiative, health, ac });
