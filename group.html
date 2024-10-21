@@ -8,6 +8,7 @@
     <title>Initiative</title>
     <script type="module" src="server.js" defer></script>
     <script type="module" src="health.js" defer></script> 
+    <script type="module" src="key.js" defer></script>
     <link rel="stylesheet" href="style.css"> 
     <link rel="stylesheet" href="turn.css"> 
     <link rel="stylesheet" href="save.css"> 
@@ -17,6 +18,13 @@
 
 <body>
     <div class="container">
+
+        <h2>Create or Join a Room</h2>
+<label for="invite-key-group">Invite Key:</label>
+<input type="text" id="invite-key-group" placeholder="Enter invite key or create a new one">
+<button id="submit-invite-group">Submit Invite Key</button>
+
+
         <h1>Initiative</h1>
         
         <ul id="rankingList"></ul>
@@ -51,11 +59,5 @@
         <a href="monster.html" class="button-link">Go to Monster List</a>
     </div>
 
-    <button id="create-room-button">Create Room</button>
-
-<script type="module" src="key.js" defer></script>
-<script>
-    document.getElementById('create-room-button').addEventListener('click', createRoom);
-</script>
 </body>
 </html>

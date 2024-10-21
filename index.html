@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
     <title>Submit Your Name and Number</title>
+    <script type="module" src="key.js" defer></script>
     <script type="module" src="server.js" defer></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
@@ -13,6 +14,13 @@
 
 <body>
     <div class="container">
+
+        <h2>Join a Room</h2>
+<label for="invite-key-index">Invite Key:</label>
+<input type="text" id="invite-key-index" placeholder="Enter invite key">
+<button id="submit-invite-index">Submit Invite Key</button>
+
+
         <h1>Enter Name and Initiative</h1>
 		<label for="name">Name:</label>
 		<input type="text" id="name" required>
@@ -21,30 +29,14 @@
 		<input type="number" id="initiative" required>
 		<br><br>
         <button id="submit-button">Submit</button>
+        <br><br>
+        <button id="submit-button">Submit</button>
 
        
 
         <!-- Audio element to play sound -->
         <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
     </div>
-
-    <button id="submit-button">Submit</button>
-
-<script type="module" src="key.js" defer></script>
-<script>
-    document.getElementById('submit-button').addEventListener('click', function () {
-        const name = document.getElementById('name').value;
-        const initiative = document.getElementById('initiative').value;
-
-        if (name && initiative) {
-            submitDataToRoom({ name, initiative });
-        } else {
-            alert('Please enter both name and initiative.');
-        }
-    });
-</script>
-
-
 
 </body>
 
