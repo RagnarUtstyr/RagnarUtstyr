@@ -8,7 +8,6 @@ function handleInviteKeySubmit(pageType) {
     const inviteKeyInput = document.getElementById(`invite-key-${pageType}`).value;
     
     if (inviteKeyInput) {
-        // Store invite key in cookies
         document.cookie = `inviteKey=${inviteKeyInput}; path=/; max-age=86400`; // Store in cookie for 1 day
         alert(`Joined room with invite key: ${inviteKeyInput}`);
 
@@ -70,29 +69,11 @@ function handleSubmitEntry(pageType) {
     });
 }
 
-// Function to listen for room data changes (optional, for displaying dynamic updates)
-function listenToRoomData() {
-    const inviteKey = getInviteKeyFromCookies();
-    if (!inviteKey) return;
-
-    const reference = ref(db, `rooms/${inviteKey}/data`);
-    onValue(reference, (snapshot) => {
-        const data = snapshot.val();
-        console.log('Received data for the room:', data);
-        // Handle data display or updates here
-    });
-}
-
 // Function to initialize the page
 function initializePage(pageType) {
     // Attach event listeners for invite key submission
     document.getElementById(`submit-invite-${pageType}`).addEventListener('click', function() {
         handleInviteKeySubmit(pageType);
-    });
-
-    // Attach event listeners for entry submission
-    document.getElementById(`submit-entry-${pageType}`).addEventListener('click', function() {
-        handleSubmitEntry(pageType);
     });
 
     // Optionally start listening to room data when the page loads

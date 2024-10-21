@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove, set, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -29,74 +29,58 @@ function getInviteKeyFromCookies() {
     return null;
 }
 
-// Function to submit data to Firebase
-async function submitData() {
+// Function to submit monster data to Firebase (used in monster.html and group.html)
+async function submitMonsterData() {
     const name = document.getElementById('name').value;
-    const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
-    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
+    const initiative = parseInt(document.getElementById('initiative').value);
+    const health = document.getElementById('health') ? parseInt(document.getElementById('health').value) : null;
+    const ac = document.getElementById('ac') ? parseInt(document.getElementById('ac').value) : null;
 
-    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
-    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
-
-    // Retrieve the invite key from cookies
     const inviteKey = getInviteKeyFromCookies();
-    console.log('Invite Key:', inviteKey); // Debugging log for invite key
-
     if (!inviteKey) {
         alert('You must join a room with an invite key before submitting data.');
         return;
     }
 
-    // Ensure name and initiative are valid, health and ac can be null
-    if (name && !isNaN(number)) {
+    if (name && !isNaN(initiative)) {
         try {
             const reference = ref(db, `rooms/${inviteKey}/data`);
-            console.log('Submitting to Firebase room:', reference.toString()); // Debugging log for Firebase reference
-            await push(reference, { name, number, health, ac });
-            console.log('Data submitted successfully:', { name, number, health, ac });
+            await push(reference, { name, initiative, health, ac });
+            console.log('Monster data submitted:', { name, initiative, health, ac });
 
-            // Clear input fields after successful submission
+            // Clear input fields
             document.getElementById('name').value = '';
-            if (document.getElementById('initiative')) document.getElementById('initiative').value = '';
+            document.getElementById('initiative').value = '';
             if (document.getElementById('health')) document.getElementById('health').value = '';
             if (document.getElementById('ac')) document.getElementById('ac').value = '';
 
-            // Optionally, play a sound or trigger a visual feedback
-            const swordSound = document.getElementById('sword-sound');
-            if (swordSound) {
-                swordSound.play();
-            }
         } catch (error) {
-            console.error('Error submitting data:', error);
+            console.error('Error submitting monster data:', error);
         }
     } else {
-        console.log('Please enter valid name and initiative values.');
+        alert('Please enter valid name and initiative values.');
     }
 }
 
-// Function to fetch and display rankings (specific to the room)
+// Function to fetch and display rankings (used in group.html and monster.html)
 function fetchRankings() {
     const inviteKey = getInviteKeyFromCookies();
     if (!inviteKey) {
-        console.error('Invite key not found in cookies, cannot fetch room data.');
+        console.error('Invite key not found, cannot fetch room data.');
         return;
     }
 
     const reference = ref(db, `rooms/${inviteKey}/data`);
-    console.log('Fetching data from room:', reference.toString()); // Debugging log for Firebase reference
-
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
         rankingList.innerHTML = ''; // Clear the list
 
         if (data) {
-            // Convert the data into an array and sort by initiative (number)
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
+            rankings.sort((a, b) => b.initiative - a.initiative); // Sort by initiative
 
-            rankings.forEach(({ id, name, ac, health }) => {
+            rankings.forEach(({ id, name, ac, health, initiative }) => {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item';
 
@@ -107,13 +91,18 @@ function fetchRankings() {
 
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
-                acDiv.textContent = `AC: ${ac !== null ? ac : 'N/A'}`;
+                acDiv.textContent = `AC: ${ac ?? 'N/A'}`;
                 listItem.appendChild(acDiv);
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                healthDiv.textContent = `HP: ${health !== null ? health : 'N/A'}`;
+                healthDiv.textContent = `HP: ${health ?? 'N/A'}`;
                 listItem.appendChild(healthDiv);
+
+                const initiativeDiv = document.createElement('div');
+                initiativeDiv.className = 'initiative';
+                initiativeDiv.textContent = `Initiative: ${initiative}`;
+                listItem.appendChild(initiativeDiv);
 
                 rankingList.appendChild(listItem);
             });
@@ -123,7 +112,72 @@ function fetchRankings() {
     });
 }
 
-// Function to remove an entry from Firebase
+// Function to save the current list (used in save.html)
+function saveList() {
+    const inviteKey = getInviteKeyFromCookies();
+    if (!inviteKey) {
+        alert('You must join a room with an invite key before saving a list.');
+        return;
+    }
+
+    const listName = document.getElementById('list-name').value.trim();
+    if (!listName) {
+        alert('Please enter a name for the list.');
+        return;
+    }
+
+    const rankingsRef = ref(db, `rooms/${inviteKey}/data`);
+    get(rankingsRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const listData = snapshot.val();
+            const savedListRef = ref(db, `savedLists/${listName}`);
+            set(savedListRef, { list: listData }).then(() => {
+                alert(`List "${listName}" saved successfully!`);
+            }).catch((error) => {
+                console.error('Error saving the list:', error);
+            });
+        } else {
+            alert('No data available in the room to save.');
+        }
+    }).catch((error) => {
+        console.error('Error fetching data for save:', error);
+    });
+}
+
+// Function to load a saved list into the room (used in save.html)
+function loadList() {
+    const inviteKey = getInviteKeyFromCookies();
+    if (!inviteKey) {
+        alert('You must join a room with an invite key before loading a list.');
+        return;
+    }
+
+    const listName = document.getElementById('list-name').value.trim();
+    if (!listName) {
+        alert('Please enter the name of the list to load.');
+        return;
+    }
+
+    const savedListRef = ref(db, `savedLists/${listName}`);
+    get(savedListRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const savedList = snapshot.val().list;
+            const rankingsRef = ref(db, `rooms/${inviteKey}/data`);
+            set(rankingsRef, savedList).then(() => {
+                alert(`List "${listName}" loaded successfully into the current room.`);
+                window.location.href = 'group.html'; // Redirect to group.html to view the list
+            }).catch((error) => {
+                console.error('Error loading the list into the room:', error);
+            });
+        } else {
+            alert(`No list found with the name "${listName}".`);
+        }
+    }).catch((error) => {
+        console.error('Error fetching saved list:', error);
+    });
+}
+
+// Function to remove an entry (used in group.html and monster.html)
 function removeEntry(id) {
     const inviteKey = getInviteKeyFromCookies();
     if (!inviteKey) {
@@ -139,30 +193,30 @@ function removeEntry(id) {
     });
 }
 
-// Function to clear the entire list
-function clearList() {
-    const inviteKey = getInviteKeyFromCookies();
-    if (!inviteKey) {
-        console.error('Invite key not found, cannot clear the list.');
-        return;
+// Detect the active page and initialize relevant functions
+document.addEventListener('DOMContentLoaded', function () {
+    const currentPage = document.body.getAttribute('data-page');
+
+    if (currentPage === 'group' || currentPage === 'monster') {
+        // Fetch rankings for both group.html and monster.html
+        fetchRankings();
+
+        // Attach event listener for submitting monster data
+        const submitButton = document.getElementById('submit-monster-entry');
+        if (submitButton) {
+            submitButton.addEventListener('click', submitMonsterData);
+        }
     }
 
-    const reference = ref(db, `rooms/${inviteKey}/data`);
-    remove(reference).then(() => {
-        console.log('Room data cleared successfully.');
-    }).catch((error) => {
-        console.error('Error clearing room data:', error);
-    });
-}
-
-// Attach event listeners when the page loads
-document.addEventListener('DOMContentLoaded', function () {
-    // Fetch and display rankings
-    fetchRankings();
-
-    // Attach event listener for clearing the list
-    const clearListButton = document.getElementById('clear-list-button');
-    if (clearListButton) {
-        clearListButton.addEventListener('click', clearList);
+    if (currentPage === 'save') {
+        // Attach event listeners for saving and loading lists in save.html
+        const saveButton = document.getElementById('save-list-button');
+        const loadButton = document.getElementById('load-list-button');
+        if (saveButton) {
+            saveButton.addEventListener('click', saveList);
+        }
+        if (loadButton) {
+            loadButton.addEventListener('click', loadList);
+        }
     }
 });
