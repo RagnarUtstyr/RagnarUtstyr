@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
+    <!-- Existing head content -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
     <title>Submit Your Name and Number</title>
     <script type="module" src="key.js" defer></script>
     <script type="module" src="server.js" defer></script>
@@ -14,30 +14,36 @@
 
 <body>
     <div class="container">
-
-        <h2>Join a Room</h2>
-<label for="invite-key-index">Invite Key:</label>
-<input type="text" id="invite-key-index" placeholder="Enter invite key">
-<button id="submit-invite-index">Submit Invite Key</button>
-
-
         <h1>Enter Name and Initiative</h1>
-		<label for="name">Name:</label>
-		<input type="text" id="name" required>
-		
-		<label for="initiative">Initiative:</label>
-		<input type="number" id="initiative" required>
-		<br><br>
-        <button id="submit-button">Submit</button>
+        <!-- Display current room key -->
+        <p id="current-room">Current Room: </p>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+
+        <label for="initiative">Initiative:</label>
+        <input type="number" id="initiative" required>
         <br><br>
         <button id="submit-button">Submit</button>
-
-       
 
         <!-- Audio element to play sound -->
         <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
     </div>
 
+    <!-- JavaScript to display current room key -->
+    <script type="module">
+        import { getRoomKey } from './key.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentRoomDisplay = document.getElementById('current-room');
+            const currentRoomKey = getRoomKey();
+            if (currentRoomKey) {
+                currentRoomDisplay.textContent = 'Current Room: ' + currentRoomKey;
+            } else {
+                currentRoomDisplay.textContent = 'No room set.';
+                alert('Please set a room key first in group.html.');
+            }
+        });
+    </script>
 </body>
 
 </html>

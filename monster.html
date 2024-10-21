@@ -14,6 +14,8 @@
     <script type="module" src="key.js" defer></script>
 </head>
 <body>
+    <p id="current-room">Current Room: </p>
+   
     <a href="group.html" class="button-link">View Initiative</a>
     <!-- Search bar on top -->
     <input type="text" id="search" placeholder="Search by name..." />
@@ -14967,18 +14969,19 @@
         </div>
       </div>
     </div>
-    <script>
-        // Ensure the room is joined and then listen to data
-        document.addEventListener('DOMContentLoaded', function () {
-            listenToRoomData(function (data) {
-                console.log('Received room data:', data);  // Update UI based on data
-            });
+    <script type="module">
+        import { getRoomKey } from './key.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentRoomDisplay = document.getElementById('current-room');
+            const currentRoomKey = getRoomKey();
+            if (currentRoomKey) {
+                currentRoomDisplay.textContent = 'Current Room: ' + currentRoomKey;
+            } else {
+                currentRoomDisplay.textContent = 'No room set.';
+                alert('Please set a room key first in group.html.');
+            }
         });
-    
-        // Example of submitting monster data to room
-        function addMonster(name, initiative) {
-            submitDataToRoom({ name, initiative });
-        }
     </script>
     
     

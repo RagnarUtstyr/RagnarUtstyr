@@ -2,12 +2,13 @@
 <html lang="en">
 
 <head>
+    <!-- Existing head content -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
     <title>Manage Saved Lists</title>
 
     <!-- Link to the various scripts and stylesheets -->
+    <script type="module" src="key.js" defer></script>
     <script type="module" src="server.js" defer></script>
     <script type="module" src="health.js" defer></script>
     <script type="module" src="save.js" defer></script>
@@ -20,6 +21,9 @@
 <body>
     <div class="container">
         <h1>Manage Saved Lists</h1>
+
+        <!-- Display current room key -->
+        <p id="current-room">Current Room: </p>
 
         <!-- Input for list name above the buttons -->
         <div class="input-controls">
@@ -43,33 +47,21 @@
         <a href="group.html" class="button-link">View Rankings</a>
     </div>
 
-    <script>
-        const roomKey = localStorage.getItem('roomKey');
-        if (!roomKey) {
-            alert('You must log in with a room key.');
-            window.location.href = 'index.html'; // Redirect to login page
-        }
-    
-        const reference = ref(db, `savedLists/${roomKey}`);
-    
-        // Save or load lists under the current roomKey
-        function saveList() {
-            const listName = document.getElementById('list-name').value.trim();
-            if (listName) {
-                set(ref(db, `savedLists/${roomKey}/${listName}`), { /* data */ });
+    <!-- JavaScript to display current room key -->
+    <script type="module">
+        import { getRoomKey } from './key.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentRoomDisplay = document.getElementById('current-room');
+            const currentRoomKey = getRoomKey();
+            if (currentRoomKey) {
+                currentRoomDisplay.textContent = 'Current Room: ' + currentRoomKey;
+            } else {
+                currentRoomDisplay.textContent = 'No room set.';
+                alert('Please set a room key first in group.html.');
             }
-        }
-    
-        function loadList() {
-            const listName = document.getElementById('list-name').value.trim();
-            get(ref(db, `savedLists/${roomKey}/${listName}`)).then((snapshot) => {
-                if (snapshot.exists()) {
-                    // Load the saved list data
-                }
-            });
-        }
+        });
     </script>
-    
 </body>
 
 </html>

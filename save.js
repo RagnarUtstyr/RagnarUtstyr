@@ -1,17 +1,11 @@
 // Import Firebase modules
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getRoomKey } from './key.js';
 
-// Firebase configuration (same as in group.html and server.js)
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-  authDomain: "roll202-c0b0d.firebaseapp.com",
-  databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "roll202-c0b0d",
-  storageBucket: "roll202-c0b0d.appspot.com",
-  messagingSenderId: "607661730400",
-  appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-  measurementId: "G-L3JB5YC43M"
+    // Your Firebase config here
 };
 
 // Initialize Firebase only if it's not already initialized
@@ -25,9 +19,15 @@ if (!getApps().length) {
 // Initialize the database
 const db = getDatabase(app);
 
-// Function to fetch the current list from Firebase (the same list displayed in group.html)
+// Function to fetch the current list from Firebase
 function fetchCurrentListFromFirebase() {
-    const reference = ref(db, 'rankings/');
+    const roomKey = getRoomKey();
+    if (!roomKey) {
+        alert('Please set a room key first.');
+        return null;
+    }
+
+    const reference = ref(db, `rooms/${roomKey}/rankings/`);
     return get(reference)
         .then((snapshot) => {
             if (snapshot.exists()) {
@@ -50,15 +50,19 @@ function saveList() {
         return;
     }
 
-    // Fetch the current list from Firebase
+    const roomKey = getRoomKey();
+    if (!roomKey) {
+        alert('Please set a room key first.');
+        return;
+    }
+
     fetchCurrentListFromFirebase().then((currentList) => {
         if (currentList) {
-            // Save the list under a new name in Firebase
-            const newListReference = ref(db, 'savedLists/' + listName);
+            const newListReference = ref(db, `rooms/${roomKey}/savedLists/${listName}`);
             set(newListReference, { list: currentList })
                 .then(() => {
                     alert(`List "${listName}" saved successfully!`);
-                    loadSavedLists();  // Reload the saved lists
+                    loadSavedLists();
                 })
                 .catch((error) => {
                     console.error('Error saving the list:', error);
@@ -75,18 +79,23 @@ function loadList() {
         return;
     }
 
-    const reference = ref(db, 'savedLists/' + listName);
+    const roomKey = getRoomKey();
+    if (!roomKey) {
+        alert('Please set a room key first.');
+        return;
+    }
+
+    const reference = ref(db, `rooms/${roomKey}/savedLists/${listName}`);
     get(reference)
         .then((snapshot) => {
             if (snapshot.exists()) {
                 const savedList = snapshot.val().list;
 
-                // Sync the saved list back to the current rankings in Firebase
-                const rankingsReference = ref(db, 'rankings/');
-                set(rankingsReference, savedList)  // This overwrites the existing list in rankings/
+                const rankingsReference = ref(db, `rooms/${roomKey}/rankings/`);
+                set(rankingsReference, savedList)
                     .then(() => {
                         alert(`List "${listName}" loaded successfully! Redirecting to group.html.`);
-                        window.location.href = 'group.html';  // Redirect to group.html to view the list
+                        window.location.href = 'group.html';
                     })
                     .catch((error) => {
                         console.error('Error syncing the list:', error);
@@ -108,25 +117,37 @@ function deleteList() {
         return;
     }
 
-    const reference = ref(db, 'savedLists/' + listName);
+    const roomKey = getRoomKey();
+    if (!roomKey) {
+        alert('Please set a room key first.');
+        return;
+    }
+
+    const reference = ref(db, `rooms/${roomKey}/savedLists/${listName}`);
     remove(reference)
         .then(() => {
             alert(`List "${listName}" deleted successfully!`);
-            loadSavedLists();  // Reload the saved lists after deletion
+            loadSavedLists();
         })
         .catch((error) => {
             console.error('Error deleting the list:', error);
         });
 }
 
-// Function to load and display all saved lists in the <ul id="savedLists"> element
+// Function to load and display all saved lists
 function loadSavedLists() {
     const savedListsContainer = document.getElementById('savedLists');
-    const reference = ref(db, 'savedLists/');
-    
+    const roomKey = getRoomKey();
+    if (!roomKey) {
+        alert('Please set a room key first.');
+        return;
+    }
+
+    const reference = ref(db, `rooms/${roomKey}/savedLists/`);
+
     get(reference)
         .then((snapshot) => {
-            savedListsContainer.innerHTML = '';  // Clear the list
+            savedListsContainer.innerHTML = '';
             if (snapshot.exists()) {
                 const savedLists = snapshot.val();
                 Object.keys(savedLists).forEach((listName) => {
@@ -146,10 +167,10 @@ function loadSavedLists() {
         });
 }
 
-// Attach event listeners for Save, Load, and Delete buttons
+// Attach event listeners
 document.getElementById('save-list-button').addEventListener('click', saveList);
 document.getElementById('load-list-button').addEventListener('click', loadList);
 document.getElementById('delete-list-button').addEventListener('click', deleteList);
 
-// Load saved lists when the page is loaded
+// Load saved lists on page load
 document.addEventListener('DOMContentLoaded', loadSavedLists);
