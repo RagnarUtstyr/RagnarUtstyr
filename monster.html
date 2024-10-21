@@ -14967,24 +14967,21 @@
       </div>
     </div>
 
+    <script type="module" src="key.js" defer></script>
     <script>
-        const roomKey = localStorage.getItem('roomKey');
-        if (!roomKey) {
-            alert('You must log in with a room key.');
-            window.location.href = 'index.html'; // Redirect to login page
-        }
-    
-        const reference = ref(db, `rankings/${roomKey}`);
-        
-        // Use this reference when adding or fetching data
-        function fetchMonsterList() {
-            onValue(reference, (snapshot) => {
-                // Fetch monster data based on roomKey
+        // Ensure the room is joined and then listen to data
+        document.addEventListener('DOMContentLoaded', function () {
+            listenToRoomData(function (data) {
+                console.log('Received room data:', data);  // Update UI based on data
             });
-        }
+        });
     
-        fetchMonsterList();
+        // Example of submitting monster data to room
+        function addMonster(name, initiative) {
+            submitDataToRoom({ name, initiative });
+        }
     </script>
+    
     
     
     

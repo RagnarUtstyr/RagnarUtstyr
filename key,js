@@ -1,0 +1,76 @@
+// key.js
+import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+// Initialize the Firebase app (you should already have this elsewhere in your project)
+const db = getDatabase();
+
+// Function to create a new room and store the key in cookies
+function createRoom() {
+    const inviteKey = prompt('Enter a new invite key for your room:');
+    if (inviteKey) {
+        // Store the key in cookies
+        document.cookie = `inviteKey=${inviteKey}; path=/; max-age=86400`; // 1 day expiration
+        alert(`Room created with key: ${inviteKey}`);
+    } else {
+        alert('You must enter a valid invite key.');
+    }
+}
+
+// Function to join a room using the invite key from input or cookie
+function joinRoom() {
+    let inviteKey = getCookie('inviteKey');
+    if (!inviteKey) {
+        inviteKey = prompt('Enter your invite key:');
+        if (inviteKey) {
+            document.cookie = `inviteKey=${inviteKey}; path=/; max-age=86400`; // Store in cookie for 1 day
+        } else {
+            alert('Invite key is required.');
+            return;
+        }
+    }
+    return inviteKey;
+}
+
+// Function to get a cookie by name
+function getCookie(name) {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+            return cookie.substring(name.length + 1);
+        }
+    }
+    return null;
+}
+
+// Function to submit data to the room's Firebase location
+function submitDataToRoom(data) {
+    const inviteKey = joinRoom();  // Get the invite key from cookie or prompt
+    if (!inviteKey) return;
+
+    const reference = ref(db, `rooms/${inviteKey}/data`);  // Use inviteKey as the room path
+    push(reference, data).then(() => {
+        alert('Data submitted successfully.');
+    }).catch(error => {
+        console.error('Error submitting data:', error);
+    });
+}
+
+// Function to listen for data changes in the room
+function listenToRoomData(callback) {
+    const inviteKey = joinRoom();  // Get the invite key from cookie or prompt
+    if (!inviteKey) return;
+
+    const reference = ref(db, `rooms/${inviteKey}/data`);
+    onValue(reference, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            callback(data);
+        }
+    });
+}
+
+// Expose the functions globally
+window.createRoom = createRoom;
+window.submitDataToRoom = submitDataToRoom;
+window.listenToRoomData = listenToRoomData;

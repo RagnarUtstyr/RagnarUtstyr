@@ -28,33 +28,24 @@
         <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
     </div>
 
-    <div class="container">
-        <h1>Join a Room</h1>
-        <label for="room-key">Room Key:</label>
-        <input type="text" id="room-key" placeholder="Enter room key">
-        <button id="join-room-button">Join Room</button>
+    <button id="submit-button">Submit</button>
 
-        <script>
-            document.getElementById('login-button').addEventListener('click', async () => {
-                const roomKey = document.getElementById('room-key').value.trim();
-                
-                if (roomKey) {
-                    const dbRef = ref(db, `rankings/${roomKey}`);
-                    
-                    // Check if the room key exists in Firebase
-                    const snapshot = await get(dbRef);
-                    if (snapshot.exists()) {
-                        localStorage.setItem('roomKey', roomKey); // Store room key in localStorage
-                        window.location.href = 'group.html'; // Redirect to group.html
-                    } else {
-                        alert('Invalid room key. Please try again.');
-                    }
-                } else {
-                    alert('Please enter a room key.');
-                }
-            });
-        </script>
-    </div>
+<script type="module" src="key.js" defer></script>
+<script>
+    document.getElementById('submit-button').addEventListener('click', function () {
+        const name = document.getElementById('name').value;
+        const initiative = document.getElementById('initiative').value;
+
+        if (name && initiative) {
+            submitDataToRoom({ name, initiative });
+        } else {
+            alert('Please enter both name and initiative.');
+        }
+    });
+</script>
+
+
+
 </body>
 
 </html>
