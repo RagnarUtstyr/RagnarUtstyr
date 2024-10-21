@@ -1,23 +1,11 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove, set, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 
-// Firebase Configuration (from your original code)
-const firebaseConfig = {
-    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-    authDomain: "roll202-c0b0d.firebaseapp.com",
-    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "roll202-c0b0d",
-    storageBucket: "roll202-c0b0d.appspot.com",
-    messagingSenderId: "607661730400",
-    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-    measurementId: "G-6X5L39W56C"
-};
-
-// Initialize Firebase App (ensure only one initialization)
-const app = initializeApp(firebaseConfig);
+// Ensure Firebase is initialized and get the database instance
+const app = getApp();
 const db = getDatabase(app);
 
-// Function to retrieve the invite key from cookies
+// Function to get the invite key from cookies
 function getInviteKeyFromCookies() {
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; i++) {
@@ -29,7 +17,7 @@ function getInviteKeyFromCookies() {
     return null;
 }
 
-// Function to submit data to the Firebase room based on the invite key (used for both monster and player entries)
+// Function to submit data (monster or player entry) to Firebase
 async function submitEntry(data) {
     const inviteKey = getInviteKeyFromCookies();
     if (!inviteKey) {
@@ -46,7 +34,7 @@ async function submitEntry(data) {
     }
 }
 
-// Function to fetch data from the room and display it in the appropriate list (used for rankings, monsters, etc.)
+// Function to fetch and display room data (e.g., rankings)
 function fetchRoomData(callback) {
     const inviteKey = getInviteKeyFromCookies();
     if (!inviteKey) {
@@ -65,7 +53,7 @@ function fetchRoomData(callback) {
     });
 }
 
-// Function to remove an entry from the room in Firebase
+// Function to remove an entry from Firebase
 function removeEntry(id) {
     const inviteKey = getInviteKeyFromCookies();
     if (!inviteKey) {
@@ -81,7 +69,7 @@ function removeEntry(id) {
     });
 }
 
-// Saving the current room's data (save.html page)
+// Saving the current room's data (for use in save.html)
 function saveList() {
     const inviteKey = getInviteKeyFromCookies();
     if (!inviteKey) {
@@ -109,11 +97,11 @@ function saveList() {
             alert('No data available in the room to save.');
         }
     }).catch((error) => {
-        console.error('Error fetching data for saving:', error);
+        console.error('Error fetching data for save:', error);
     });
 }
 
-// Loading a saved list into the current room (save.html page)
+// Loading a saved list into the current room (for use in save.html)
 function loadList() {
     const inviteKey = getInviteKeyFromCookies();
     if (!inviteKey) {

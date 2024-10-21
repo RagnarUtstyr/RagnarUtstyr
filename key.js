@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase Configuration (based on your original setup)
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
     authDomain: "roll202-c0b0d.firebaseapp.com",
@@ -13,7 +13,7 @@ const firebaseConfig = {
     measurementId: "G-6X5L39W56C"
 };
 
-// Initialize Firebase App (only done once)
+// Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
@@ -22,27 +22,27 @@ function handleInviteKeySubmit(pageType) {
     const inviteKeyInput = document.getElementById(`invite-key-${pageType}`).value;
 
     if (inviteKeyInput) {
-        // Store the invite key in cookies
-        document.cookie = `inviteKey=${inviteKeyInput}; path=/; max-age=86400`; // Store for 1 day
+        // Store the invite key in cookies for 1 day
+        document.cookie = `inviteKey=${inviteKeyInput}; path=/; max-age=86400`; 
         alert(`Joined room with invite key: ${inviteKeyInput}`);
 
-        // Create the room in Firebase (if it doesn't exist)
+        // Create or join the room in Firebase
         createRoomInFirebase(inviteKeyInput);
     } else {
         alert('Please enter a valid invite key.');
     }
 }
 
-// Function to create a room in Firebase if it doesn't exist yet
+// Function to create the room in Firebase if it doesn't exist yet
 function createRoomInFirebase(inviteKey) {
     const roomRef = ref(db, `rooms/${inviteKey}`);
 
-    // Initialize the room if it doesn't exist
+    // Initialize the room with a placeholder if it doesn't exist
     set(roomRef, {
         createdAt: new Date().toISOString(),
-        data: {} // Placeholder for the room's data
+        data: {} // Placeholder for room data
     }).then(() => {
-        console.log(`Room "${inviteKey}" created successfully.`);
+        console.log(`Room "${inviteKey}" created successfully in Firebase.`);
     }).catch(error => {
         console.error('Error creating room:', error);
     });
@@ -60,6 +60,6 @@ function getInviteKeyFromCookies() {
     return null;
 }
 
-// Expose the functions globally so they can be used in HTML
+// Expose the functions globally for use in HTML files
 window.handleInviteKeySubmit = handleInviteKeySubmit;
 window.getInviteKeyFromCookies = getInviteKeyFromCookies;
