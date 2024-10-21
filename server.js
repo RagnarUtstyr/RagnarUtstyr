@@ -41,6 +41,8 @@ async function submitData() {
 
     // Retrieve the invite key from cookies
     const inviteKey = getInviteKeyFromCookies();
+    console.log('Invite Key:', inviteKey); // Debugging log for invite key
+
     if (!inviteKey) {
         alert('You must join a room with an invite key before submitting data.');
         return;
@@ -50,6 +52,7 @@ async function submitData() {
     if (name && !isNaN(number)) {
         try {
             const reference = ref(db, `rooms/${inviteKey}/data`);
+            console.log('Submitting to Firebase room:', reference.toString()); // Debugging log for Firebase reference
             await push(reference, { name, number, health, ac });
             console.log('Data submitted successfully:', { name, number, health, ac });
 
@@ -81,6 +84,8 @@ function fetchRankings() {
     }
 
     const reference = ref(db, `rooms/${inviteKey}/data`);
+    console.log('Fetching data from room:', reference.toString()); // Debugging log for Firebase reference
+
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
