@@ -15,8 +15,15 @@
 <body>
     <div class="container">
         <h1>Enter Name and Initiative</h1>
+
+        <!-- Room key input -->
+        <label for="room-key">Room Key:</label>
+        <input type="text" id="room-key" placeholder="Enter room key">
+        <button id="set-room-button">Set Room</button>
+
         <!-- Display current room key -->
         <p id="current-room">Current Room: </p>
+
         <label for="name">Name:</label>
         <input type="text" id="name" required>
 
@@ -29,19 +36,31 @@
         <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
     </div>
 
-    <!-- JavaScript to display current room key -->
+    <!-- JavaScript to handle room key setting and display -->
     <script type="module">
-        import { getRoomKey } from './key.js';
+        import { setRoomKey, getRoomKey } from './key.js';
 
         document.addEventListener('DOMContentLoaded', () => {
+            const setRoomButton = document.getElementById('set-room-button');
+            const roomKeyInput = document.getElementById('room-key');
             const currentRoomDisplay = document.getElementById('current-room');
+
+            // Load the current room key from cookie
             const currentRoomKey = getRoomKey();
             if (currentRoomKey) {
                 currentRoomDisplay.textContent = 'Current Room: ' + currentRoomKey;
             } else {
                 currentRoomDisplay.textContent = 'No room set.';
-                alert('Please set a room key first in group.html.');
             }
+
+            setRoomButton.addEventListener('click', () => {
+                const key = roomKeyInput.value.trim();
+                if (key) {
+                    setRoomKey(key);
+                    currentRoomDisplay.textContent = 'Current Room: ' + key;
+                    window.location.reload(); // Reload to ensure the new room key is used
+                }
+            });
         });
     </script>
 </body>
