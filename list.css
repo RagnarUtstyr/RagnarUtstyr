@@ -1,7 +1,7 @@
 /* General page background */
 body {
-    background-color: #2E1B18; /* Dark brown background */
-    color: #E0D8B0; /* Parchment-like text color */
+    background-color: #0d2920; /* Dark brown background */
+    color: #827b5a; /* Parchment-like text color */
     font-family: 'MedievalSharp', serif; /* Themed font */
     margin: 0;
     padding: 0;
@@ -20,7 +20,7 @@ body {
     margin: 20px auto; /* Center the search bar with margin */
     padding: 10px;
     font-size: 1.2em;
-    border: 2px solid #D4AF37; /* Gold border */
+    border: 2px solid #2d3d73; /* Gold border */
     border-radius: 5px;
     background-color: #f0f0f0;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -32,7 +32,7 @@ body {
     max-width: 800px; /* Adjust the max width to fit your layout */
     margin: 0 auto; /* Center the entire container */
     padding: 20px;
-    background-color: rgba(46, 27, 24, 0.8); /* Darker background for the container */
+    background-color: rgba(11, 41, 36, 0.8); /* Darker background for the container */
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
@@ -42,9 +42,9 @@ body {
     display: block;
     margin-bottom: 20px;
     padding: 20px;
-    border: 1px solid #8C5A4A; /* Border matching the theme */
+    border: 1px solid #1a3b4a; /* Border matching the theme */
     border-radius: 10px;
-    background-color: rgba(165, 123, 91, 0.8); /* Light brown background with opacity */
+    background-color: rgba(11, 41, 36, 0.8); /* Light brown background with opacity */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
 }
 
@@ -57,21 +57,21 @@ body {
 
 .table-entry span.label {
     font-weight: bold;
-    color: #D4AF37; /* Gold color for labels */
+    color: #2d3d73; /* Gold color for labels */
     font-family: 'MedievalSharp', serif;
 }
 
 .table-entry span.content {
-    color: #E0D8B0; /* Parchment-like text color */
+    color: #827b5a; /* Parchment-like text color */
     font-family: 'MedievalSharp', serif;
 }
 
 /* Button styling for "View Details" button if applicable */
 .link-button a {
     display: inline-block;
-    background-color: #2E1B18; /* Dark brown background */
-    color: #E0D8B0; /* Parchment-like text color */
-    border: 2px solid #D4AF37; /* Gold border */
+    background-color: #0b2621; /* Dark brown background */
+    color: #827b5a; /* Parchment-like text color */
+    border: 2px solid #2d3d73; /* Gold border */
     padding: 10px 20px;
     text-decoration: none;
     border-radius: 5px;
@@ -81,8 +81,8 @@ body {
 }
 
 .link-button a:hover {
-    background-color: #8C5A4A; /* Rich reddish-brown background on hover */
-    color: #2E1B18; /* Dark text on hover */
+    background-color: #1a3b4a; /* Rich reddish-brown background on hover */
+    color: #0b2621; /* Dark text on hover */
 }
 
 /* Responsive adjustments */
@@ -112,13 +112,13 @@ body {
 /* Search Input Field */
 #search {
     padding: 10px;
-    border: 2px solid #D4AF37; /* Gold border for input fields */
+    border: 2px solid #2d3d73; /* Gold border for input fields */
     border-radius: 5px;
     max-width: 800px;
 	width: calc(100% - 20px); /* Adjust the width */
     margin-bottom: 15px;
     background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
-    color: #E0D8B0; /* Parchment-like text color for input text */
+    color: #827b5a; /* Parchment-like text color for input text */
     font-family: 'MedievalSharp', serif;
     font-size: 1em;
     outline: none;
@@ -127,14 +127,14 @@ body {
 
 /* Focused Search Input Field */
 #search:focus {
-    border: 2px solid #8C5A4A; /* Darker reddish-brown border on focus */
+    border: 2px solid #1a3b4a; /* Darker reddish-brown border on focus */
     background-color: rgba(255, 255, 255, 0.25); /* Slightly brighter background on focus */
 }
 .add-to-list-button {
     display: inline-block;
-    background-color: #2E1B18; /* Dark brown background */
-    color: #E0D8B0; /* Parchment-like text color */
-    border: 2px solid #D4AF37; /* Gold border */
+    background-color: #0b2621; /* Dark brown background */
+    color: #827b5a; /* Parchment-like text color */
+    border: 2px solid #2d3d73; /* Gold border */
     padding: 10px 20px;
     text-decoration: none;
     border-radius: 5px;
@@ -144,6 +144,6 @@ body {
 }
 
 .add-to-list-button:hover {
-    background-color: #8C5A4A; /* Rich reddish-brown background on hover */
-    color: #2E1B18; /* Dark text on hover */
+    background-color: #1a3b4a; /* Rich reddish-brown background on hover */
+    color: #0b2621; /* Dark text on hover */
 }

@@ -2,14 +2,11 @@
 <html lang="en">
 
 <head>
-    <!-- Existing head content -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Your Name and Initiative</title>
-    <script type="module" src="key.js" defer></script>
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
+    <title>Submit Your Name and Number</title>
     <script type="module" src="server.js" defer></script>
-    <!-- Include roomChecker.js -->
-    <script type="module" src="roomChecker.js" defer></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
@@ -17,69 +14,19 @@
 <body>
     <div class="container">
         <h1>Enter Name and Initiative</h1>
-
-        <!-- Room key input -->
-        <label for="room-key">Room Key:</label>
-        <input type="text" id="room-key" placeholder="Enter room key">
-        <button id="set-room-button">Set Room</button>
-
-        <!-- Display current room key -->
-        <p id="current-room">Current Room: </p>
-
-        <label for="name">Name:</label>
-        <input type="text" id="name" required>
-
-        <label for="initiative">Initiative:</label>
-        <input type="number" id="initiative" required>
-        <br><br>
+		<label for="name">Name:</label>
+		<input type="text" id="name" required>
+		
+		<label for="initiative">Initiative:</label>
+		<input type="number" id="initiative" required>
+		<br><br>
         <button id="submit-button">Submit</button>
+
+       
 
         <!-- Audio element to play sound -->
         <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
     </div>
-
-    <!-- JavaScript to handle room key setting and display -->
-    <script type="module">
-        import { setRoomKey, getRoomKey } from './key.js';
-        import { checkRoomExists } from './roomChecker.js'; // New module to check room existence
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const setRoomButton = document.getElementById('set-room-button');
-            const roomKeyInput = document.getElementById('room-key');
-            const currentRoomDisplay = document.getElementById('current-room');
-            const submitButton = document.getElementById('submit-button');
-
-            // Disable submit button if no room is set
-            if (!getRoomKey()) {
-                submitButton.disabled = true;
-            }
-
-            // Load the current room key from cookie
-            const currentRoomKey = getRoomKey();
-            if (currentRoomKey) {
-                currentRoomDisplay.textContent = 'Current Room: ' + currentRoomKey;
-                submitButton.disabled = false;
-            } else {
-                currentRoomDisplay.textContent = 'No room set.';
-            }
-
-            setRoomButton.addEventListener('click', async () => {
-                const key = roomKeyInput.value.trim();
-                if (key) {
-                    // Check if the room exists
-                    const exists = await checkRoomExists(key);
-                    if (exists) {
-                        setRoomKey(key);
-                        currentRoomDisplay.textContent = 'Current Room: ' + key;
-                        submitButton.disabled = false;
-                        window.location.reload(); // Reload to ensure the new room key is used
-                    } else {
-                        alert('Room does not exist. Please enter a valid room key.');
-                    }
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>

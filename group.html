@@ -2,33 +2,23 @@
 <html lang="en">
 
 <head>
-    <!-- Existing head content -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
     <title>Initiative</title>
-    <!-- Include key.js -->
-    <script type="module" src="key.js" defer></script>
     <script type="module" src="server.js" defer></script>
-    <script type="module" src="health.js" defer></script>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="turn.css">
-    <link rel="stylesheet" href="save.css">
-    <script src="turn.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <script type="module" src="health.js" defer></script> 
+    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="turn.css"> 
+    <link rel="stylesheet" href="save.css"> 
+    <script src="turn.js" defer></script> 
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> 
 </head>
 
 <body>
     <div class="container">
         <h1>Initiative</h1>
-
-        <!-- Room key input -->
-        <label for="room-key">Room Key:</label>
-        <input type="text" id="room-key" placeholder="Enter room key">
-        <button id="set-room-button">Set Room</button>
-
-        <!-- Display current room key -->
-        <p id="current-room">Current Room: </p>
-
+        
         <ul id="rankingList"></ul>
 
         <div class="button-container">
@@ -39,15 +29,15 @@
         <br>
         <button id="clear-list-button">Clear List</button>
         <br><br>
-
+       
         <br><br>
         <h2>Submit a New Entry</h2>
         <label for="name">Name:</label>
         <input type="text" id="name" required>
-
+        
         <label for="initiative">Initiative:</label>
         <input type="number" id="initiative" required>
-
+        
         <label for="health">Health:</label>
         <input type="number" id="health">
 
@@ -60,34 +50,5 @@
         <a href="save.html" class="button-link">Go to Lists</a>
         <a href="monster.html" class="button-link">Go to Monster List</a>
     </div>
-
-    <!-- JavaScript to handle room key setting -->
-    <script type="module">
-        import { setRoomKey, getRoomKey } from './key.js';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const setRoomButton = document.getElementById('set-room-button');
-            const roomKeyInput = document.getElementById('room-key');
-            const currentRoomDisplay = document.getElementById('current-room');
-
-            // Load the current room key from cookie
-            const currentRoomKey = getRoomKey();
-            if (currentRoomKey) {
-                currentRoomDisplay.textContent = 'Current Room: ' + currentRoomKey;
-            } else {
-                currentRoomDisplay.textContent = 'No room set.';
-            }
-
-            setRoomButton.addEventListener('click', () => {
-                const key = roomKeyInput.value.trim();
-                if (key) {
-                    setRoomKey(key);
-                    currentRoomDisplay.textContent = 'Current Room: ' + key;
-                    window.location.reload(); // Reload to fetch data for the new room
-                }
-            });
-        });
-    </script>
 </body>
-
 </html>

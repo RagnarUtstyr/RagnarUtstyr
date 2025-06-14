@@ -3,7 +3,7 @@ body {
     background: url('background.jpg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
-    color: #E0D8B0;
+    color: #45341;
     font-family: 'MedievalSharp', serif;
     margin: 0;
     padding: 0;
@@ -22,7 +22,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(46, 27, 24, 0.9); /* Dark brown overlay */
+    background-color: rgba(255, 255, 255, 0.0);
     z-index: -1;
 }
 
@@ -32,7 +32,7 @@ body::before {
     width: 100%;
     margin: 0 auto;
     padding: 20px;
-    background-color: rgba(46, 27, 24, 0.8); /* Darker brown with opacity */
+    background-color: rgba(11, 41, 36, 0.8); /* Darker brown with opacity */
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     box-sizing: border-box;
@@ -45,13 +45,13 @@ body::before {
 /* Input Fields */
 input[type="text"], input[type="number"] {
     padding: 10px;
-    border: 2px solid #D4AF37; /* Gold border for input fields */
+    border: 2px solid #2d3d73; /* Gold border for input fields */
     border-radius: 5px;
     width: calc(100% - 20px);
     margin-bottom: 15px;
     box-sizing: border-box;
     background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
-    color: #E0D8B0; /* Parchment-like text color for input text */
+    color: #827b5a; /* Parchment-like text color for input text */
     font-family: 'MedievalSharp', serif;
     font-size: 1em;
     outline: none;
@@ -71,13 +71,13 @@ input[type="number"] {
 
 /* Focused Input Fields */
 input[type="text"]:focus, input[type="number"]:focus {
-    border: 2px solid #8C5A4A; /* Darker reddish-brown border on focus */
+    border: 2px solid #1a3b4a; /* Darker reddish-brown border on focus */
     background-color: rgba(255, 255, 255, 0.25); /* Slightly brighter background on focus */
 }
 
 /* Headings */
 h1, h2 {
-    color: #D4AF37; /* Gold color for headings */
+    color: #2d3d73; /* Gold color for headings */
     font-weight: bold;
     font-family: 'MedievalSharp', serif;
     text-align: center;
@@ -90,9 +90,9 @@ li {
     align-items: center; /* Vertically align elements */
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #8C5A4A;
+    border: 1px solid #1a3b4a;
     border-radius: 5px;
-    background-color: rgba(165, 123, 91, 0.8);
+    background-color: rgba(11, 41, 36, 0.8);
     max-width: 600px; /* Limit the total width */
     margin: 0 auto 10px auto; /* Center the list item */
     gap: 10px; /* Adds spacing between elements */
@@ -115,7 +115,7 @@ li .name {
 
 /* Specific styling for .ac class */
 li .ac {
-    color: #E0D8B0; /* Parchment-like text color */
+    color: #669666; /* Parchment-like text color */
     font-size: 1em;
 }
 
@@ -125,10 +125,10 @@ input.damage-input {
     width: 60px; /* Limit the width for mobile */
     height: 30px; /* Set a consistent height */
     padding: 5px;
-    border: 2px solid #D4AF37; /* Gold border */
+    border: 2px solid #2d3d73; /* Gold border */
     border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
-    color: #726c4b; /* Parchment-like text color */
+    color: #b68558; /* Parchment-like text color */
     font-family: 'MedievalSharp', serif;
     font-size: 1em;
     outline: none;
@@ -140,17 +140,17 @@ input.damage-input {
 
 /* Defeated class for list items with 0 HP */
 .defeated {
-    background-color: #8B0000; /* Dark red background */
+    background-color: #530d0d; /* Dark red background */
     color: white; /* White text for better contrast */
-    border: 2px solid #FF0000; /* Optional: Red border to emphasize the defeated state */
+    border: 2px solid #023754; /* Optional: Red border to emphasize the defeated state */
     transition: background-color 0.3s ease; /* Smooth transition when the item becomes defeated */
 }
 
 /* Submit and Clear List Buttons */
 #submit-button, #clear-list-button, #apply-damage-button {
-    background-color: #2E1B18;
-    color: #E0D8B0;
-    border: 2px solid #D4AF37;
+    background-color: #0b2621; /* Dark brown background */
+    color: #bdb382; /* Parchment-like text color */
+    border: 2px solid #2d3d73; /* Gold border */
     padding: 10px 15px;
     cursor: pointer;
     border-radius: 5px;
@@ -161,9 +161,9 @@ input.damage-input {
 
 /* Apply Damage button styling */
 #apply-damage-button {
-    background-color: #2E1B18; /* Dark brown background */
-    color: #E0D8B0; /* Parchment-like text color */
-    border: 2px solid #D4AF37; /* Gold border */
+    background-color: #0b2621; /* Dark brown background */
+    color: #bdb382; /* Parchment-like text color */
+    border: 2px solid #2d3d73; /* Gold border */
     padding: 10px 20px; /* Larger padding for the button */
     cursor: pointer;
     border-radius: 5px; /* Rounded corners */
@@ -176,16 +176,16 @@ input.damage-input {
 }
 
 #apply-damage-button:hover {
-    background-color: #8C5A4A; /* Rich reddish-brown hover background */
-    color: #2E1B18; /* Dark text on hover */
+    background-color: #1a3b4a; /* Rich reddish-brown hover background */
+    color: #237768; /* Dark text on hover */
 }
 
 /* Link Styled as Button */
 a.button-link {
     display: block;
-    background-color: #2E1B18;
-    color: #E0D8B0;
-    border: 2px solid #D4AF37;
+    background-color: #0b2621; /* Dark brown background */
+    color: #bdb382; /* Parchment-like text color */
+    border: 2px solid #2d3d73; /* Gold border */
     padding: 10px 15px;
     cursor: pointer;
     border-radius: 5px;
@@ -198,8 +198,8 @@ a.button-link {
 }
 
 a.button-link:hover {
-    background-color: #8C5A4A;
-    color: #2E1B18;
+    background-color: #1a3b4a; /* Rich reddish-brown hover background */
+    color: #075e4e; /* Dark text on hover */
 }
 
 /* Media Queries for Mobile Devices */
@@ -231,7 +231,7 @@ li {
     align-items: center; /* Vertically align elements */
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #8C5A4A;
+    border: 1px solid #1a3b4a;
     border-radius: 5px;
     background-color: rgba(165, 123, 91, 0.8);
     width: 100%; /* Take full width of the container */
@@ -281,9 +281,9 @@ li {
     justify-content: center; /* Center the items horizontally */
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #8C5A4A;
+    border: 1px solid #1a3b4a;
     border-radius: 5px;
-    background-color: rgba(165, 123, 91, 0.8);
+    background-color: rgba(11, 41, 36, 0.8);
     width: 100%;
     gap: 10px;
 }
