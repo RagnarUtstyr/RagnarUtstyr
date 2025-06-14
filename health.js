@@ -102,8 +102,8 @@ function applyDamageToAll() {
             // Calculate the effective damage (damage minus AC)
             const effectiveDamage = Math.max(damage - ac, 0); // Ensure no negative damage
 
-            // Apply the minimum damage rule: if effective damage is less than 3, set it to 3
-            const finalDamage = effectiveDamage < 3 ? 3 : effectiveDamage;
+            // If effective damage is positive but less than 3, set it to 3
+            const finalDamage = effectiveDamage > 0 && effectiveDamage < 3 ? 3 : effectiveDamage;
 
             // Calculate the new health
             const updatedHealth = currentHealth - finalDamage;
