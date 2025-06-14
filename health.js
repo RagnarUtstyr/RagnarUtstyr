@@ -105,9 +105,18 @@ function applyDamageToAll() {
             // If effective damage is positive but less than 3, set it to 3
             const finalDamage = effectiveDamage > 0 && effectiveDamage < 3 ? 3 : effectiveDamage;
 
-            // Calculate the new health
-            const updatedHealth = currentHealth - finalDamage;
-            updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0, input);
+            // If the effective damage is less than or equal to 0, do not update health, just allow input to remain
+            if (finalDamage > 0) {
+                // Calculate the new health
+                const updatedHealth = currentHealth - finalDamage;
+                updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0, input);
+            }
+
+            // Clear the input field after applying damage
+            input.value = '';  // Reset input field to empty string
+        } else {
+            // If the input is invalid (NaN), clear the input field as well
+            input.value = '';
         }
     });
 }
