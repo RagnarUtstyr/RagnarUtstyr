@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchRankings();
     }
 
-    // Event listener for "Apply Damage" button
+    // Ensure the apply damage button is present before attaching the event listener
     const applyDamageButton = document.getElementById('apply-damage-button');
     if (applyDamageButton) {
         applyDamageButton.addEventListener('click', applyDamageToAll);
