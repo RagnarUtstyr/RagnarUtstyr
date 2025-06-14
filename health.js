@@ -88,7 +88,7 @@ function fetchRankings() {
     });
 }
 
-// Function to apply damage to all entries, factoring in AC reduction
+// Function to apply damage to all entries, factoring in AC reduction and minimum damage of 3
 function applyDamageToAll() {
     const damageInputs = document.querySelectorAll('.damage-input');
     damageInputs.forEach(input => {
@@ -102,8 +102,11 @@ function applyDamageToAll() {
             // Calculate the effective damage (damage minus AC)
             const effectiveDamage = Math.max(damage - ac, 0); // Ensure no negative damage
 
+            // Apply the minimum damage rule: if effective damage is less than 3, set it to 3
+            const finalDamage = effectiveDamage < 3 ? 3 : effectiveDamage;
+
             // Calculate the new health
-            const updatedHealth = currentHealth - effectiveDamage;
+            const updatedHealth = currentHealth - finalDamage;
             updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0, input);
         }
     });
