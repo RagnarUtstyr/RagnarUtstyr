@@ -74,7 +74,8 @@ a.button-link:hover {
 }
 
 #rankingList li {
-    background-color: rgba(165, 123, 91, 0.8);
+    background-color: rgba(219, 193, 157, 0.9);
+    color: #2c2b28;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #1a3b4a;
@@ -84,10 +85,12 @@ a.button-link:hover {
     flex-wrap: nowrap;
     align-items: center;
     overflow: hidden;
+    font-weight: 500;
+    letter-spacing: 0.2px;
 }
 
 li .name {
-    flex: 2;
+    flex: 1.5;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
@@ -131,7 +134,7 @@ input.damage-input {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background-color: rgba(11, 41, 36, 0.85);
+    background-color: rgba(31, 29, 26, 0.85);
     border-radius: 10px;
     box-shadow: 0 0 10px #000;
 }
@@ -230,9 +233,10 @@ ul {
 }
 
 /* Defeated red background */
+#rankingList li.defeated,
 .list-item.defeated {
     background-color: #530d0d !important;
-    color: white;
+    color: white !important;
 }
 
 /* Global stat selector */
@@ -268,7 +272,7 @@ ul {
     }
 
     .column.name {
-        flex: 2 1 0;
+        flex: 1.2 1 0;
     }
 
     .damage-input {
