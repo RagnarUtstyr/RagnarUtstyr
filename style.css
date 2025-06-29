@@ -313,3 +313,68 @@ li button {
     accent-color: #2d3d73;
     cursor: pointer;
 }
+
+.ranking-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border: 2px solid #2d3d73;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: rgba(11, 41, 36, 0.9);
+}
+
+/* Header row */
+.ranking-header {
+    display: flex;
+    padding: 10px;
+    background-color: #0b2621;
+    color: #bdb382;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #2d3d73;
+}
+
+.ranking-header .column {
+    flex: 1;
+}
+
+/* Individual list item rows */
+.ranking-body {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ranking-body li {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    border-bottom: 1px solid #1a3b4a;
+    background-color: rgba(165, 123, 91, 0.1);
+}
+
+.ranking-body li > div,
+.ranking-body li > input {
+    flex: 1;
+}
+
+/* Health input and checkboxes */
+.damage-input {
+    width: 60px;
+    margin: 0 auto;
+}
+
+input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2d3d73;
+    cursor: pointer;
+}
+
+/* Defeated style */
+.ranking-body li.defeated {
+    background-color: #530d0d;
+    color: white;
+}
