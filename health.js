@@ -16,7 +16,7 @@ function fetchRankings() {
             rankings.forEach(({ id, name, grd, res, tgh, health, url }) => {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item';
-                if (health === 0) listItem.classList.add('defeated');
+                if (newHealth <= 0) row.classList.add('defeated');
 
                 // Name column
                 const nameDiv = document.createElement('div');
