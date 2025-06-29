@@ -437,3 +437,17 @@ input[type="radio"] {
     background-color: #530d0d;
     color: white;
 }
+
+.global-stat-selector {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 12px;
+  color: #bdb382;
+  font-family: 'MedievalSharp', serif;
+}
+
+.global-stat-selector input[type="radio"] {
+  transform: scale(1.2);
+  margin-right: 6px;
+}

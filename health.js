@@ -18,7 +18,7 @@ function fetchRankings() {
                 listItem.className = 'list-item';
                 if (health === 0) listItem.classList.add('defeated');
 
-                // Name column
+                // Name
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'column name';
                 nameDiv.textContent = name;
@@ -27,23 +27,6 @@ function fetchRankings() {
                     nameDiv.addEventListener('click', () => window.open(url, '_blank'));
                 }
                 listItem.appendChild(nameDiv);
-
-                // Stat columns with radio buttons
-                ['grd', 'res', 'tgh'].forEach(stat => {
-                    const value = eval(stat);
-                    const container = document.createElement('div');
-                    container.className = `column ${stat}`;
-                    container.textContent = value ?? 'N/A';
-
-                    const radio = document.createElement('input');
-                    radio.type = 'radio';
-                    radio.name = `stat-${id}`;
-                    radio.value = stat;
-                    if (stat === 'grd') radio.checked = true;
-                    radio.style.marginLeft = '6px';
-                    container.appendChild(radio);
-                    listItem.appendChild(container);
-                });
 
                 // HP
                 const hpDiv = document.createElement('div');
@@ -61,7 +44,6 @@ function fetchRankings() {
                 dmgInput.dataset.grd = grd ?? 0;
                 dmgInput.dataset.res = res ?? 0;
                 dmgInput.dataset.tgh = tgh ?? 0;
-                dmgInput.dataset.statGroup = `stat-${id}`;
 
                 const dmgWrapper = document.createElement('div');
                 dmgWrapper.className = 'column dmg';
@@ -87,17 +69,15 @@ function fetchRankings() {
 
 function applyDamageToAll() {
     const damageInputs = document.querySelectorAll('.damage-input');
+    const globalStat = document.querySelector('input[name="globalStat"]:checked')?.value || 'grd';
+
     damageInputs.forEach(input => {
         const entryId = input.dataset.entryId;
         const currentHealth = parseInt(input.dataset.currentHealth);
         const damage = parseInt(input.value);
-        const statGroup = input.dataset.statGroup;
+        const defense = parseInt(input.dataset[globalStat]) || 0;
 
-        const selectedRadio = document.querySelector(`input[name="${statGroup}"]:checked`);
-        const stat = selectedRadio ? selectedRadio.value : 'grd';
-        const defense = parseInt(input.dataset[stat]);
-
-        if (!isNaN(damage) && !isNaN(defense)) {
+        if (!isNaN(damage)) {
             const effectiveDamage = Math.max(damage - defense, 0);
             const finalDamage = effectiveDamage > 0 && effectiveDamage < 3 ? 3 : effectiveDamage;
 
