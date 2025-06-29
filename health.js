@@ -123,9 +123,10 @@ function updateHealth(id, newHealth, healthInput) {
             const hpDiv = row.querySelector('.column.hp');
             hpDiv.textContent = newHealth;
 
+            healthInput.dataset.currentHealth = newHealth;
+
             if (newHealth <= 0) {
                 row.classList.add('defeated');
-                healthInput.dataset.currentHealth = newHealth;
 
                 let removeButton = row.querySelector('.remove-button');
                 if (!removeButton) {
@@ -136,8 +137,11 @@ function updateHealth(id, newHealth, healthInput) {
                     row.appendChild(removeButton);
                 }
             } else {
-                healthInput.dataset.currentHealth = newHealth;
                 row.classList.remove('defeated');
+
+                // Remove the remove button if it exists and health > 0
+                const existing = row.querySelector('.remove-button');
+                if (existing) existing.remove();
             }
         })
         .catch((error) => {

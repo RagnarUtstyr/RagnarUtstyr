@@ -407,3 +407,8 @@ input[type="radio"] {
     font-size: 1em;
     outline: none;
 }
+
+.defeated {
+    background-color: #530d0d;
+    color: white;
+}
