@@ -183,9 +183,12 @@ ul {
 }
 
 .column.name {
-    flex: 2 1 0;
+    flex: 1.5 1 0;
     text-align: left;
     font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .column.hp {
