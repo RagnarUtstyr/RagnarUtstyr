@@ -1,85 +1,88 @@
 import { getDatabase, ref, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 const db = getDatabase();
+let selectedStat = 'grd'; // Default stat for damage reduction
 
-// Function to fetch and display rankings with health update functionality
 function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = ''; // Clear the list
+        rankingList.innerHTML = '';
 
         if (data) {
-            // Convert data into an array and sort by initiative (number)
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
+            rankings.sort((a, b) => b.number - a.number);
 
-            // Display rankings
-            rankings.forEach(({ id, name, ac, health, url }) => {
+            rankings.forEach(({ id, name, grd, res, tgh, health, url }) => {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item';
 
-                // Create container for name and AC
-                const nameAcContainer = document.createElement('div');
-                nameAcContainer.className = 'name-ac-container';
+                const nameContainer = document.createElement('div');
+                nameContainer.className = 'name-ac-container';
 
-                // Name div
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
-
-                // Add click event to the name only if a URL exists
                 if (url) {
                     nameDiv.style.cursor = 'pointer';
-                    nameDiv.addEventListener('click', () => {
-                        window.open(url, '_blank');
-                    });
+                    nameDiv.addEventListener('click', () => window.open(url, '_blank'));
                 }
-                nameAcContainer.appendChild(nameDiv);
+                nameContainer.appendChild(nameDiv);
 
-                // AC div (ensure AC is retrieved and displayed)
-                const acDiv = document.createElement('div');
-                acDiv.className = 'ac';
-                acDiv.textContent = `AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}`;
-                nameAcContainer.appendChild(acDiv);
+                // GRD, RES, TGH with radio buttons
+                const statOptions = ['grd', 'res', 'tgh'];
+                statOptions.forEach(stat => {
+                    const statValue = eval(stat); // Get stat value
+                    const statDiv = document.createElement('div');
+                    statDiv.className = stat;
+                    statDiv.textContent = `${stat.toUpperCase()}: ${statValue ?? 'N/A'}`;
 
-                // Append name and AC container to the list item
-                listItem.appendChild(nameAcContainer);
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `stat-${id}`;
+                    radio.value = stat;
+                    radio.checked = (stat === 'grd'); // Default selection
+                    radio.addEventListener('change', () => {
+                        selectedStat = radio.value;
+                    });
 
-                // Health div
+                    statDiv.appendChild(radio);
+                    nameContainer.appendChild(statDiv);
+                });
+
+                listItem.appendChild(nameContainer);
+
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
+                healthDiv.textContent = `HP: ${health ?? 'N/A'}`;
                 listItem.appendChild(healthDiv);
 
-                // Damage input field (always visible, even if health is 0)
                 const healthInput = document.createElement('input');
                 healthInput.type = 'number';
                 healthInput.placeholder = 'Damage';
                 healthInput.className = 'damage-input';
-                healthInput.style.width = '50px';  // Small input field
-                healthInput.dataset.entryId = id;  // Store entry ID
-                healthInput.dataset.currentHealth = health;  // Store current health
+                healthInput.style.width = '50px';
+                healthInput.dataset.entryId = id;
+                healthInput.dataset.currentHealth = health;
+                healthInput.dataset.grd = grd ?? 0;
+                healthInput.dataset.res = res ?? 0;
+                healthInput.dataset.tgh = tgh ?? 0;
+                healthInput.dataset.statGroup = `stat-${id}`;
                 listItem.appendChild(healthInput);
 
-                // Add the remove button only if health is 0 or below
                 if (health === 0) {
                     const removeButton = document.createElement('button');
                     removeButton.textContent = 'Remove';
                     removeButton.className = 'remove-button';
-                    removeButton.addEventListener('click', () => {
-                        removeEntry(id, listItem); // Pass listItem to remove it from DOM
-                    });
+                    removeButton.addEventListener('click', () => removeEntry(id, listItem));
                     listItem.appendChild(removeButton);
                 }
 
-                // Add defeated class if health is 0
                 if (health === 0) {
                     listItem.classList.add('defeated');
                 }
 
-                // Append the list item to ranking list
                 rankingList.appendChild(listItem);
             });
         } else {
@@ -88,74 +91,60 @@ function fetchRankings() {
     });
 }
 
-// Function to apply damage to all entries, factoring in AC reduction and minimum damage of 3
 function applyDamageToAll() {
     const damageInputs = document.querySelectorAll('.damage-input');
     damageInputs.forEach(input => {
         const entryId = input.dataset.entryId;
         const currentHealth = parseInt(input.dataset.currentHealth);
         const damage = parseInt(input.value);
-        const ac = parseInt(input.parentElement.querySelector('.ac').textContent.replace('AC: ', ''));
+        const statGroup = input.dataset.statGroup;
 
-        // Ensure damage and AC are valid numbers
-        if (!isNaN(damage) && !isNaN(ac)) {
-            // Calculate the effective damage (damage minus AC)
-            const effectiveDamage = Math.max(damage - ac, 0); // Ensure no negative damage
+        const selectedRadio = document.querySelector(`input[name="${statGroup}"]:checked`);
+        const stat = selectedRadio ? selectedRadio.value : 'grd';
+        const defense = parseInt(input.dataset[stat]);
 
-            // If effective damage is positive but less than 3, set it to 3
+        if (!isNaN(damage) && !isNaN(defense)) {
+            const effectiveDamage = Math.max(damage - defense, 0);
             const finalDamage = effectiveDamage > 0 && effectiveDamage < 3 ? 3 : effectiveDamage;
 
-            // If the effective damage is less than or equal to 0, do not update health, just allow input to remain
             if (finalDamage > 0) {
-                // Calculate the new health
                 const updatedHealth = currentHealth - finalDamage;
                 updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0, input);
             }
 
-            // Clear the input field after applying damage
-            input.value = '';  // Reset input field to empty string
+            input.value = '';
         } else {
-            // If the input is invalid (NaN), clear the input field as well
             input.value = '';
         }
     });
 }
 
-// Function to update health in Firebase and UI
 function updateHealth(id, newHealth, healthInput) {
     const reference = ref(db, `rankings/${id}`);
     update(reference, { health: newHealth })
         .then(() => {
             const healthDiv = healthInput.parentElement.querySelector('.health');
-            healthDiv.textContent = `HP: ${newHealth}`;  // Update health display
+            healthDiv.textContent = `HP: ${newHealth}`;
 
             const listItem = healthInput.parentElement;
 
-            // If the health is 0 or below, mark as defeated
             if (newHealth <= 0) {
-                listItem.classList.add('defeated');  // Add defeated class
+                listItem.classList.add('defeated');
+                healthInput.disabled = false;
+                healthInput.style.display = 'inline-block';
+                healthInput.dataset.currentHealth = newHealth;
 
-                // Ensure the damage input stays visible and usable
-                healthInput.disabled = false; // Ensure input is not disabled
-                healthInput.style.display = 'inline-block';  // Ensure it's visible
-                healthInput.dataset.currentHealth = newHealth;  // Update current health dataset
-
-                // Check if remove button exists; if not, create it
                 let removeButton = listItem.querySelector('.remove-button');
                 if (!removeButton) {
                     removeButton = document.createElement('button');
                     removeButton.textContent = 'Remove';
                     removeButton.className = 'remove-button';
-                    removeButton.addEventListener('click', () => {
-                        removeEntry(id, listItem);
-                    });
+                    removeButton.addEventListener('click', () => removeEntry(id, listItem));
                     listItem.appendChild(removeButton);
                 }
-
             } else {
-                // If health is greater than 0, just update the health
-                healthInput.dataset.currentHealth = newHealth;  // Update current health
-                listItem.classList.remove('defeated');  // Remove defeated class if health is restored
+                healthInput.dataset.currentHealth = newHealth;
+                listItem.classList.remove('defeated');
             }
         })
         .catch((error) => {
@@ -163,7 +152,6 @@ function updateHealth(id, newHealth, healthInput) {
         });
 }
 
-// Function to remove an entry
 function removeEntry(id, listItem) {
     const reference = ref(db, `rankings/${id}`);
     remove(reference)
@@ -175,13 +163,11 @@ function removeEntry(id, listItem) {
         });
 }
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('rankingList')) {
         fetchRankings();
     }
 
-    // Ensure the apply damage button is present before attaching the event listener
     const applyDamageButton = document.getElementById('apply-damage-button');
     if (applyDamageButton) {
         applyDamageButton.addEventListener('click', applyDamageToAll);
