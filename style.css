@@ -375,3 +375,35 @@ input[type="radio"] {
         margin: 5px 0;
     }
 }
+
+.defense-input-row {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.defense-input {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.defense-input label {
+    font-size: 0.9em;
+    margin-bottom: 4px;
+    color: #bdb382;
+    text-align: left;
+}
+
+.defense-input input {
+    padding: 8px;
+    border: 2px solid #2d3d73;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #827b5a;
+    font-family: 'MedievalSharp', serif;
+    font-size: 1em;
+    outline: none;
+}
