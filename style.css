@@ -81,24 +81,23 @@ a.button-link:hover {
     border: 1px solid #1a3b4a;
     border-radius: 5px;
     display: flex;
-    justify-content: space-between;
-    flex-wrap: nowrap;
+    justify-content: flex-start;
     align-items: center;
+    flex-wrap: nowrap;
     overflow: hidden;
     font-weight: 500;
     letter-spacing: 0.2px;
+    gap: 10px;
 }
 
 li .name {
-    flex: 1.5;
-    text-align: left;
+    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 li .health, li .ac, li .number {
-    flex: 1;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -148,8 +147,7 @@ ul {
     padding: 10px 0;
 }
 
-/* === ADDED/UPDATED STYLES FOR GROUP.HTML === */
-
+/* Group page specific layout */
 .ranking-container {
     width: 100%;
     margin: 0 auto;
@@ -163,11 +161,10 @@ ul {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    gap: 6px;
+    justify-content: flex-start;
+    gap: 10px;
     flex-wrap: nowrap;
-    padding: 6px 0;
-    border-bottom: 1px solid #1a3b4a;
+    padding: 6px 15px;
 }
 
 .ranking-body {
@@ -178,28 +175,22 @@ ul {
 
 .ranking-header .column,
 .ranking-body li .column {
-    flex: 1 1 0;
     text-align: center;
     font-size: 1em;
     white-space: nowrap;
 }
 
 .column.name {
-    flex: 1.5 1 0;
-    text-align: center;
+    width: 40%;
     font-weight: bold;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .column.hp {
-    color: #ffc184;
+    width: 20%;
 }
 
 .column.dmg {
-    display: flex;
-    justify-content: center;
+    width: 20%;
 }
 
 .defense-input-row {
@@ -271,7 +262,15 @@ ul {
     }
 
     .column.name {
-        flex: 1.2 1 0;
+        width: 40%;
+    }
+
+    .column.hp {
+        width: 20%;
+    }
+
+    .column.dmg {
+        width: 20%;
     }
 
     .damage-input {
@@ -301,6 +300,6 @@ ul {
     #rankingList li {
         flex-direction: row;
         flex-wrap: nowrap;
-        gap: 5px;
+        gap: 10px;
     }
 }
