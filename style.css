@@ -292,3 +292,24 @@ li {
 li button {
     flex: 0 0 auto;
 }
+
+.name-ac-container .grd,
+.name-ac-container .res,
+.name-ac-container .tgh {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 3px 6px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    color: #bdb382;
+}
+
+/* Radio button look */
+.name-ac-container input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2d3d73;
+    cursor: pointer;
+}

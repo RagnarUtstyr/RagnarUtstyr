@@ -25,8 +25,13 @@ async function submitData() {
     const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
     const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
 
-    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
-    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
+    const grdInput = document.getElementById('grd')?.value;
+    const resInput = document.getElementById('res')?.value;
+    const tghInput = document.getElementById('tgh')?.value;
+
+    const grd = grdInput !== '' ? parseInt(grdInput) : null;
+    const res = resInput !== '' ? parseInt(resInput) : null;
+    const tgh = tghInput !== '' ? parseInt(tghInput) : null;
 
     console.log('AC Input Value:', ac);
 
@@ -34,7 +39,7 @@ async function submitData() {
     if (name && !isNaN(number)) {
         try {
             const reference = ref(db, 'rankings/');
-            await push(reference, { name, number, health, ac });
+            await push(reference, { name, number, health, grd, res, tgh });
             console.log('Data submitted successfully:', { name, number, health, ac });
 
             // Clear input fields after successful submission
