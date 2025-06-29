@@ -16,6 +16,7 @@ function fetchRankings() {
             rankings.forEach(({ id, name, grd, res, tgh, health, url }) => {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item';
+                if (health === 0) listItem.classList.add('defeated');
 
                 // Name column
                 const nameDiv = document.createElement('div');
@@ -27,9 +28,9 @@ function fetchRankings() {
                 }
                 listItem.appendChild(nameDiv);
 
-                // Stat columns (GRD, RES, TGH) + radio buttons
+                // Stat columns with radio buttons
                 ['grd', 'res', 'tgh'].forEach(stat => {
-                    const value = eval(stat); // get grd/res/tgh value
+                    const value = eval(stat);
                     const container = document.createElement('div');
                     container.className = `column ${stat}`;
                     container.textContent = value ?? 'N/A';
@@ -38,19 +39,19 @@ function fetchRankings() {
                     radio.type = 'radio';
                     radio.name = `stat-${id}`;
                     radio.value = stat;
-                    radio.checked = stat === 'grd'; // default to GRD
+                    if (stat === 'grd') radio.checked = true;
                     radio.style.marginLeft = '6px';
                     container.appendChild(radio);
                     listItem.appendChild(container);
                 });
 
-                // HP column
+                // HP
                 const hpDiv = document.createElement('div');
                 hpDiv.className = 'column hp';
                 hpDiv.textContent = health ?? 'N/A';
                 listItem.appendChild(hpDiv);
 
-                // Damage input field
+                // Damage input
                 const dmgInput = document.createElement('input');
                 dmgInput.type = 'number';
                 dmgInput.placeholder = '0';
@@ -67,7 +68,7 @@ function fetchRankings() {
                 dmgWrapper.appendChild(dmgInput);
                 listItem.appendChild(dmgWrapper);
 
-                // Remove button if defeated
+                // Remove button if 0 HP
                 if (health === 0) {
                     const removeButton = document.createElement('button');
                     removeButton.textContent = 'Remove';
@@ -75,9 +76,6 @@ function fetchRankings() {
                     removeButton.addEventListener('click', () => removeEntry(id, listItem));
                     listItem.appendChild(removeButton);
                 }
-
-                // Mark as defeated
-                if (health === 0) listItem.classList.add('defeated');
 
                 rankingList.appendChild(listItem);
             });
@@ -122,7 +120,6 @@ function updateHealth(id, newHealth, healthInput) {
             const row = healthInput.closest('.list-item');
             const hpDiv = row.querySelector('.column.hp');
             hpDiv.textContent = newHealth;
-
             healthInput.dataset.currentHealth = newHealth;
 
             if (newHealth <= 0) {
@@ -139,9 +136,8 @@ function updateHealth(id, newHealth, healthInput) {
             } else {
                 row.classList.remove('defeated');
 
-                // Remove the remove button if it exists and health > 0
-                const existing = row.querySelector('.remove-button');
-                if (existing) existing.remove();
+                const removeBtn = row.querySelector('.remove-button');
+                if (removeBtn) removeBtn.remove();
             }
         })
         .catch((error) => {
