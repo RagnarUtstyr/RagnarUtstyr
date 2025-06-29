@@ -186,7 +186,7 @@ ul {
 
 .column.name {
     flex: 1.5 1 0;
-    text-align: left;
+    text-align: center;
     font-weight: bold;
     overflow: hidden;
     text-overflow: ellipsis;
