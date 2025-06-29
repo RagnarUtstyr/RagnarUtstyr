@@ -77,7 +77,8 @@ function applyDamageToAll() {
         if (!isNaN(damage) && !isNaN(statValue)) {
             let effectiveDamage = damage - statValue;
 
-            if (damage >= statValue && effectiveDamage > 0 && effectiveDamage < 3) {
+            // Apply minimum of 3 if damage >= stat and result < 3
+            if (damage >= statValue && effectiveDamage < 3) {
                 effectiveDamage = 3;
             }
 
