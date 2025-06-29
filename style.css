@@ -70,13 +70,13 @@ a.button-link:hover {
     list-style-type: none;
     padding: 0;
     margin: 0 auto;
-    max-width: 600px;
+    max-width: 100%;
 }
 
 #rankingList li {
     background-color: rgba(219, 193, 157, 0.9);
     color: #2c2b28;
-    padding: 10px;
+    padding: 10px 15px;
     margin-bottom: 10px;
     border: 1px solid #1a3b4a;
     border-radius: 5px;
@@ -133,7 +133,7 @@ input.damage-input {
 .container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px 0;
     background-color: rgba(31, 29, 26, 0.85);
     border-radius: 10px;
     box-shadow: 0 0 10px #000;
@@ -152,11 +152,10 @@ ul {
 
 .ranking-container {
     width: 100%;
-    margin: 20px auto;
-    border: 2px solid #2d3d73;
-    border-radius: 10px;
-    background-color: rgba(11, 41, 36, 0.9);
-    padding: 10px;
+    margin: 0 auto;
+    padding: 10px 15px;
+    background-color: transparent;
+    border: none;
 }
 
 .ranking-header,
@@ -286,7 +285,7 @@ ul {
     }
 
     .container {
-        padding: 10px;
+        padding: 10px 0;
     }
 
     button {
