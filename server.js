@@ -22,8 +22,8 @@ const db = getDatabase(app);
 async function submitData() {
     const name = document.getElementById('name').value;
     const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
-    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
+    const healthInput = document.getElementById('health')?.value;
+    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null;
 
     const grdInput = document.getElementById('grd')?.value;
     const resInput = document.getElementById('res')?.value;
@@ -33,26 +33,26 @@ async function submitData() {
     const res = resInput !== '' ? parseInt(resInput) : null;
     const tgh = tghInput !== '' ? parseInt(tghInput) : null;
 
-    console.log('AC Input Value:', ac);
-
-    // Ensure name and number are valid, health and ac can be null
+    // Ensure name and number are valid
     if (name && !isNaN(number)) {
         try {
             const reference = ref(db, 'rankings/');
             await push(reference, { name, number, health, grd, res, tgh });
-            console.log('Data submitted successfully:', { name, number, health, ac });
+            console.log('Data submitted successfully:', { name, number, health, grd, res, tgh });
 
             // Clear input fields after successful submission
             document.getElementById('name').value = '';
-            document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
+            if (document.getElementById('initiative')) document.getElementById('initiative').value = '';
+            if (document.getElementById('number')) document.getElementById('number').value = '';
             if (document.getElementById('health')) document.getElementById('health').value = '';
-            if (document.getElementById('ac')) document.getElementById('ac').value = '';
+            if (document.getElementById('grd')) document.getElementById('grd').value = '';
+            if (document.getElementById('res')) document.getElementById('res').value = '';
+            if (document.getElementById('tgh')) document.getElementById('tgh').value = '';
 
             // Play sword sound after submission
             const swordSound = document.getElementById('sword-sound');
-            if (swordSound) {
-                swordSound.play();
-            }
+            if (swordSound) swordSound.play();
+
         } catch (error) {
             console.error('Error submitting data:', error);
         }
@@ -70,40 +70,30 @@ function fetchRankings() {
         rankingList.innerHTML = '';
 
         if (data) {
-            // Convert the data into an array and include the 'number' field for sorting
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
+            rankings.sort((a, b) => b.number - a.number);
 
-            rankings.forEach(({ id, name, number, health, ac }) => {
+            rankings.forEach(({ id, name, number, health, grd, res, tgh }) => {
                 const listItem = document.createElement('li');
 
-                // Name and AC combined
+                // Name + GRD/RES/TGH display
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
-                if (ac !== null && ac !== undefined) {
-                    nameDiv.textContent = `${name} (AC: ${ac})`;
-                } else {
-                    nameDiv.textContent = name;
-                }
+                nameDiv.textContent = `${name} (GRD: ${grd ?? 'N/A'}, RES: ${res ?? 'N/A'}, TGH: ${tgh ?? 'N/A'})`;
 
-                // Health
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
                 healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
 
-                // Remove Button
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
-                // Append elements to listItem
                 listItem.appendChild(nameDiv);
                 if (healthDiv.textContent !== '') {
                     listItem.appendChild(healthDiv);
                 }
                 listItem.appendChild(removeButton);
-
-                // Append the listItem to the rankingList
                 rankingList.appendChild(listItem);
             });
         } else {
@@ -129,12 +119,11 @@ function removeEntry(id) {
 // Function to clear all entries from Firebase
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
+    set(reference, null)
         .then(() => {
             console.log('All entries removed successfully');
-            // Clear the displayed list immediately
             const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = ''; // Explicitly clear the UI
+            rankingList.innerHTML = '';
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);
