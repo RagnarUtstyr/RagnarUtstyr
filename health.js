@@ -2,12 +2,14 @@ import { getDatabase, ref, update, onValue, remove } from "https://www.gstatic.c
 
 const db = getDatabase();
 
+// Function to fetch and display rankings with health update functionality
 function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
-        const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = '';
+        const rankingList = document.querySelector('.ranking-body');
+        if (!rankingList) return;
+        rankingList.innerHTML = ''; // Clear the list
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
@@ -18,39 +20,35 @@ function fetchRankings() {
                 listItem.className = 'list-item';
                 if (health === 0) listItem.classList.add('defeated');
 
-                // Name
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'column name';
-                nameDiv.textContent = name;
+                const nameCol = document.createElement('div');
+                nameCol.className = 'column name';
+                nameCol.textContent = name;
                 if (url) {
-                    nameDiv.style.cursor = 'pointer';
-                    nameDiv.addEventListener('click', () => window.open(url, '_blank'));
+                    nameCol.style.cursor = 'pointer';
+                    nameCol.addEventListener('click', () => window.open(url, '_blank'));
                 }
-                listItem.appendChild(nameDiv);
 
-                // HP
-                const hpDiv = document.createElement('div');
-                hpDiv.className = 'column hp';
-                hpDiv.textContent = health ?? 'N/A';
-                listItem.appendChild(hpDiv);
+                const hpCol = document.createElement('div');
+                hpCol.className = 'column hp';
+                hpCol.textContent = `${health ?? 'N/A'}`;
 
-                // Damage input
+                const dmgCol = document.createElement('div');
+                dmgCol.className = 'column dmg';
                 const dmgInput = document.createElement('input');
                 dmgInput.type = 'number';
-                dmgInput.placeholder = '0';
+                dmgInput.placeholder = 'DMG';
                 dmgInput.className = 'damage-input';
                 dmgInput.dataset.entryId = id;
-                dmgInput.dataset.currentHealth = health;
+                dmgInput.dataset.health = health;
                 dmgInput.dataset.grd = grd ?? 0;
                 dmgInput.dataset.res = res ?? 0;
                 dmgInput.dataset.tgh = tgh ?? 0;
+                dmgCol.appendChild(dmgInput);
 
-                const dmgWrapper = document.createElement('div');
-                dmgWrapper.className = 'column dmg';
-                dmgWrapper.appendChild(dmgInput);
-                listItem.appendChild(dmgWrapper);
+                listItem.appendChild(nameCol);
+                listItem.appendChild(hpCol);
+                listItem.appendChild(dmgCol);
 
-                // Remove button if 0 HP
                 if (health === 0) {
                     const removeButton = document.createElement('button');
                     removeButton.textContent = 'Remove';
@@ -61,31 +59,34 @@ function fetchRankings() {
 
                 rankingList.appendChild(listItem);
             });
-        } else {
-            console.log('No data available');
         }
     });
 }
 
+// Function to apply damage to all entries
 function applyDamageToAll() {
-    const damageInputs = document.querySelectorAll('.damage-input');
-    const globalStat = document.querySelector('input[name="globalStat"]:checked')?.value || 'grd';
+    const inputs = document.querySelectorAll('.damage-input');
+    const selectedStat = document.querySelector('input[name="globalStat"]:checked')?.value ?? 'grd';
 
-    damageInputs.forEach(input => {
-        const entryId = input.dataset.entryId;
-        const currentHealth = parseInt(input.dataset.currentHealth);
+    inputs.forEach(input => {
+        const id = input.dataset.entryId;
+        const currentHealth = parseInt(input.dataset.health);
         const damage = parseInt(input.value);
-        const defense = parseInt(input.dataset[globalStat]) || 0;
+        const statValue = parseInt(input.dataset[selectedStat]);
 
-        if (!isNaN(damage)) {
-            const effectiveDamage = Math.max(damage - defense, 0);
-            const finalDamage = effectiveDamage > 0 && effectiveDamage < 3 ? 3 : effectiveDamage;
+        if (!isNaN(damage) && !isNaN(statValue)) {
+            let effectiveDamage = damage - statValue;
 
-            if (finalDamage > 0) {
-                const updatedHealth = currentHealth - finalDamage;
-                updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0, input);
+            if (damage >= statValue && effectiveDamage > 0 && effectiveDamage < 3) {
+                effectiveDamage = 3;
             }
 
+            const finalDamage = Math.max(effectiveDamage, 0);
+
+            if (finalDamage > 0) {
+                const updatedHealth = Math.max(currentHealth - finalDamage, 0);
+                updateHealth(id, updatedHealth, input);
+            }
             input.value = '';
         } else {
             input.value = '';
@@ -93,52 +94,44 @@ function applyDamageToAll() {
     });
 }
 
-function updateHealth(id, newHealth, healthInput) {
+// Function to update health in Firebase
+function updateHealth(id, newHealth, input) {
     const reference = ref(db, `rankings/${id}`);
     update(reference, { health: newHealth })
         .then(() => {
-            const row = healthInput.closest('.list-item');
-            const hpDiv = row.querySelector('.column.hp');
-            hpDiv.textContent = newHealth;
-            healthInput.dataset.currentHealth = newHealth;
+            const listItem = input.closest('.list-item');
+            const hpCol = listItem.querySelector('.column.hp');
+            hpCol.textContent = `${newHealth}`;
+            input.dataset.health = newHealth;
 
             if (newHealth <= 0) {
-                row.classList.add('defeated');
-
-                let removeButton = row.querySelector('.remove-button');
+                listItem.classList.add('defeated');
+                let removeButton = listItem.querySelector('.remove-button');
                 if (!removeButton) {
                     removeButton = document.createElement('button');
                     removeButton.textContent = 'Remove';
                     removeButton.className = 'remove-button';
-                    removeButton.addEventListener('click', () => removeEntry(id, row));
-                    row.appendChild(removeButton);
+                    removeButton.addEventListener('click', () => removeEntry(id, listItem));
+                    listItem.appendChild(removeButton);
                 }
             } else {
-                row.classList.remove('defeated');
-
-                const removeBtn = row.querySelector('.remove-button');
-                if (removeBtn) removeBtn.remove();
+                listItem.classList.remove('defeated');
             }
         })
-        .catch((error) => {
-            console.error('Error updating health:', error);
-        });
+        .catch(error => console.error('Error updating health:', error));
 }
 
+// Function to remove an entry
 function removeEntry(id, listItem) {
     const reference = ref(db, `rankings/${id}`);
     remove(reference)
         .then(() => listItem.remove())
-        .catch((error) => console.error('Error removing entry:', error));
+        .catch(error => console.error('Error removing entry:', error));
 }
 
+// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('rankingList')) {
-        fetchRankings();
-    }
-
-    const applyDamageButton = document.getElementById('apply-damage-button');
-    if (applyDamageButton) {
-        applyDamageButton.addEventListener('click', applyDamageToAll);
-    }
+    if (document.querySelector('.ranking-body')) fetchRankings();
+    const dmgButton = document.getElementById('apply-damage-button');
+    if (dmgButton) dmgButton.addEventListener('click', applyDamageToAll);
 });
