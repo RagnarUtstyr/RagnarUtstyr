@@ -1,34 +1,94 @@
-/* === Base Page Styling === */
+/* === General Body Styling === */
 body {
-    font-family: 'MedievalSharp', cursive;
-    background-color: #0b2621;
-    color: #bdb382;
+    background: url('background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+    color: #45341;
+    font-family: 'MedievalSharp', serif;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
-h1 {
-    text-align: center;
-    color: #e3cf95;
+/* Background overlay */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.0);
+    z-index: -1;
 }
 
+/* === Container === */
 .container {
-    max-width: 600px;
+    max-width: 800px;
+    width: 100%;
     margin: 0 auto;
     padding: 20px;
-    background-color: #112d29;
-    border: 2px solid #2d3d73;
+    background-color: rgba(11, 41, 36, 0.8);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
     border-radius: 10px;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* === Ranking Table Layout === */
+/* === Headings === */
+h1, h2 {
+    color: #2d3d73;
+    font-weight: bold;
+    font-family: 'MedievalSharp', serif;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* === Inputs === */
+input[type="text"], input[type="number"] {
+    padding: 10px;
+    border: 2px solid #2d3d73;
+    border-radius: 5px;
+    width: calc(100% - 20px);
+    margin-bottom: 15px;
+    background-color: rgba(255,255,255,0.15);
+    color: #827b5a;
+    font-family: 'MedievalSharp', serif;
+    font-size: 1em;
+    outline: none;
+}
+
+/* Remove arrows from number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Focused input fields */
+input[type="text"]:focus, input[type="number"]:focus {
+    border-color: #1a3b4a;
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* === Ranking Table Structure === */
 .ranking-container {
     width: 100%;
     max-width: 800px;
-    margin: 20px auto;
+    margin: 0 auto 20px auto;
     border: 2px solid #2d3d73;
     border-radius: 10px;
-    overflow-x: auto;
+    overflow: hidden;
     background-color: rgba(11, 41, 36, 0.9);
 }
 
@@ -51,14 +111,13 @@ h1 {
     flex: 2;
 }
 
-/* === List of Characters === */
 .ranking-body {
     list-style: none;
     padding: 0;
     margin: 0;
-    min-width: 600px;
 }
 
+/* === Individual Entries (Rows) === */
 .ranking-body li {
     display: flex;
     align-items: center;
@@ -66,8 +125,6 @@ h1 {
     padding: 10px;
     border-bottom: 1px solid #1a3b4a;
     background-color: rgba(165, 123, 91, 0.1);
-    flex-wrap: nowrap;
-    white-space: nowrap;
 }
 
 .ranking-body li > .column {
@@ -84,12 +141,6 @@ h1 {
     font-weight: bold;
 }
 
-/* === Defeated Row === */
-.list-item.defeated {
-    background-color: #530d0d !important;
-    color: white;
-}
-
 /* === Damage Input === */
 .damage-input {
     width: 60px;
@@ -103,7 +154,7 @@ h1 {
     text-align: center;
 }
 
-/* === Stat Selection Radio === */
+/* === Radio Buttons for Stats === */
 input[type="radio"] {
     width: 16px;
     height: 16px;
@@ -112,7 +163,60 @@ input[type="radio"] {
     margin-left: 5px;
 }
 
-/* === Remove Button === */
+/* === Defeated Row Style === */
+.defeated {
+    background-color: #530d0d;
+    color: white;
+}
+
+/* === Buttons === */
+#submit-button,
+#clear-list-button,
+#apply-damage-button,
+#next-button {
+    background-color: #0b2621;
+    color: #bdb382;
+    border: 2px solid #2d3d73;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-family: 'MedievalSharp', serif;
+    font-size: 1em;
+    margin: 10px auto;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#apply-damage-button:hover,
+#submit-button:hover,
+#clear-list-button:hover,
+#next-button:hover {
+    background-color: #1a3b4a;
+    color: #237768;
+}
+
+/* === Link Styled as Button === */
+a.button-link {
+    display: block;
+    background-color: #0b2621;
+    color: #bdb382;
+    border: 2px solid #2d3d73;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 20px;
+    transition: background-color 0.3s, color 0.3s;
+    text-align: center;
+    width: fit-content;
+    align-self: center;
+}
+
+a.button-link:hover {
+    background-color: #1a3b4a;
+    color: #075e4e;
+}
+
+/* === Remove Button in Row === */
 .remove-button {
     background-color: #0b2621;
     color: #bdb382;
@@ -130,7 +234,173 @@ input[type="radio"] {
     color: #237768;
 }
 
-/* === Inline Stat Input Row (Group Entry Form) === */
+@media (max-width: 768px) {
+  .ranking-header,
+  .ranking-body li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap; /* 🔑 FORCE SINGLE LINE */
+    align-items: center;
+    justify-content: space-between;
+    overflow-x: auto; /* allow horizontal scroll if necessary */
+    gap: 6px;
+  }
+
+  .ranking-body li > .column,
+  .ranking-header .column {
+    flex: 1 1 auto;
+    min-width: 50px;
+    max-width: 100px;
+    font-size: 0.85em;
+    text-align: center;
+    white-space: nowrap; /* 🔑 prevent inner text from wrapping */
+  }
+
+  .column.name {
+    flex: 2 1 auto;
+    min-width: 120px;
+    max-width: 160px;
+  }
+
+  .damage-input {
+    width: 60px;
+    font-size: 0.85em;
+  }
+
+  input[type="radio"] {
+    transform: scale(0.9);
+    margin-left: 4px;
+  }
+
+  .remove-button {
+    font-size: 0.8em;
+    padding: 4px 6px;
+  }
+}
+/* === Ranking Table Structure === */
+.ranking-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 20px auto;
+    border: 2px solid #2d3d73;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: rgba(11, 41, 36, 0.9);
+}
+
+.ranking-header {
+    display: flex;
+    padding: 10px;
+    background-color: #0b2621;
+    color: #bdb382;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #2d3d73;
+}
+
+.ranking-header .column {
+    flex: 1;
+    text-align: center;
+}
+
+.column.name {
+    flex: 2;
+}
+
+.ranking-body {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ranking-body li {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    border-bottom: 1px solid #1a3b4a;
+    background-color: rgba(165, 123, 91, 0.1);
+}
+
+.ranking-body li > .column {
+    flex: 1;
+    text-align: center;
+    padding: 6px;
+    color: #bdb382;
+    font-family: 'MedievalSharp', serif;
+    font-size: 0.95em;
+}
+
+.ranking-body li .name {
+    flex: 2;
+    font-weight: bold;
+}
+
+/* === Damage Input === */
+.damage-input {
+    width: 60px;
+    padding: 4px;
+    border: 2px solid #2d3d73;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #b68558;
+    font-family: 'MedievalSharp', serif;
+    font-size: 1em;
+    text-align: center;
+}
+
+/* === Radio Buttons for Stats === */
+input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2d3d73;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+/* === Defeated Row Style === */
+.defeated {
+    background-color: #530d0d;
+    color: white;
+}
+
+/* === Remove Button in Row === */
+.remove-button {
+    background-color: #0b2621;
+    color: #bdb382;
+    border: 2px solid #2d3d73;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: 'MedievalSharp', serif;
+    font-size: 0.9em;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.remove-button:hover {
+    background-color: #1a3b4a;
+    color: #237768;
+}
+
+/* === Mobile Support === */
+@media (max-width: 768px) {
+    .ranking-header, .ranking-body li {
+        flex-direction: column;
+    }
+
+    .column {
+        width: 100%;
+    }
+
+    .damage-input {
+        width: 100%;
+    }
+
+    input[type="radio"] {
+        margin: 5px 0;
+    }
+}
+
 .defense-input-row {
     display: flex;
     width: 100%;
@@ -163,55 +433,7 @@ input[type="radio"] {
     outline: none;
 }
 
-/* === Mobile Support === */
-@media (max-width: 768px) {
-    .ranking-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .ranking-body {
-        min-width: 600px;
-    }
-
-    .ranking-header,
-    .ranking-body li {
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: center;
-        overflow-x: auto;
-    }
-
-    .ranking-header .column,
-    .ranking-body li > .column {
-        flex: 1 1 auto;
-        min-width: 50px;
-        max-width: 100px;
-        font-size: 0.85em;
-        text-align: center;
-        white-space: nowrap;
-    }
-
-    .column.name {
-        flex: 2 1 auto;
-        min-width: 120px;
-        max-width: 160px;
-    }
-
-    .damage-input {
-        width: 60px;
-        font-size: 0.85em;
-    }
-
-    input[type="radio"] {
-        transform: scale(0.9);
-        margin-left: 4px;
-    }
-
-    .remove-button {
-        margin-top: 5px;
-        font-size: 0.8em;
-        padding: 4px 6px;
-    }
+.defeated {
+    background-color: #530d0d;
+    color: white;
 }
