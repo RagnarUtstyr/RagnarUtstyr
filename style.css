@@ -234,22 +234,42 @@ a.button-link:hover {
     color: #237768;
 }
 
-/* === Media Query for Mobile === */
 @media (max-width: 768px) {
-    .ranking-header, .ranking-body li {
-        flex-direction: column;
+    .ranking-header,
+    .ranking-body li {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .column {
-        width: 100%;
+    .ranking-body li > .column,
+    .ranking-header .column {
+        font-size: 0.85em;
+        padding: 4px;
+        flex: 1;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    .column.name {
+        flex: 2;
+        min-width: 100px;
     }
 
     .damage-input {
-        width: 100%;
+        width: 60px;
+        font-size: 0.85em;
     }
 
     input[type="radio"] {
-        margin: 5px 0;
+        transform: scale(0.85);
+    }
+
+    .remove-button {
+        margin-top: 5px;
+        font-size: 0.8em;
+        padding: 4px 8px;
     }
 }
 /* === Ranking Table Structure === */
