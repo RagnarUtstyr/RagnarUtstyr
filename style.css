@@ -378,3 +378,17 @@ input[type="radio"] {
     background-color: #530d0d;
     color: white;
 }
+
+/* For column layout consistency */
+.ranking-header .column,
+.ranking-body .list-item .column {
+    flex: 1;
+    text-align: center;
+    padding: 6px;
+    box-sizing: border-box;
+}
+
+/* Specific size for name (can be wider) */
+.column.name {
+    flex: 2;
+}

@@ -1,7 +1,6 @@
 import { getDatabase, ref, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 const db = getDatabase();
-let selectedStat = 'grd'; // Default stat for damage reduction
 
 function fetchRankings() {
     const reference = ref(db, 'rankings/');
@@ -18,59 +17,57 @@ function fetchRankings() {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item';
 
-                const nameContainer = document.createElement('div');
-                nameContainer.className = 'name-ac-container';
-
+                // Name column
                 const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
+                nameDiv.className = 'column name';
                 nameDiv.textContent = name;
                 if (url) {
                     nameDiv.style.cursor = 'pointer';
                     nameDiv.addEventListener('click', () => window.open(url, '_blank'));
                 }
-                nameContainer.appendChild(nameDiv);
+                listItem.appendChild(nameDiv);
 
-                // GRD, RES, TGH with radio buttons
-                const statOptions = ['grd', 'res', 'tgh'];
-                statOptions.forEach(stat => {
-                    const statValue = eval(stat); // Get stat value
-                    const statDiv = document.createElement('div');
-                    statDiv.className = stat;
-                    statDiv.textContent = `${stat.toUpperCase()}: ${statValue ?? 'N/A'}`;
+                // Stat columns (GRD, RES, TGH) + radio buttons
+                ['grd', 'res', 'tgh'].forEach(stat => {
+                    const value = eval(stat); // get grd/res/tgh value
+                    const container = document.createElement('div');
+                    container.className = `column ${stat}`;
+                    container.textContent = value ?? 'N/A';
 
                     const radio = document.createElement('input');
                     radio.type = 'radio';
                     radio.name = `stat-${id}`;
                     radio.value = stat;
-                    radio.checked = (stat === 'grd'); // Default selection
-                    radio.addEventListener('change', () => {
-                        selectedStat = radio.value;
-                    });
-
-                    statDiv.appendChild(radio);
-                    nameContainer.appendChild(statDiv);
+                    radio.checked = stat === 'grd'; // default to GRD
+                    radio.style.marginLeft = '6px';
+                    container.appendChild(radio);
+                    listItem.appendChild(container);
                 });
 
-                listItem.appendChild(nameContainer);
+                // HP column
+                const hpDiv = document.createElement('div');
+                hpDiv.className = 'column hp';
+                hpDiv.textContent = health ?? 'N/A';
+                listItem.appendChild(hpDiv);
 
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                healthDiv.textContent = `HP: ${health ?? 'N/A'}`;
-                listItem.appendChild(healthDiv);
+                // Damage input field
+                const dmgInput = document.createElement('input');
+                dmgInput.type = 'number';
+                dmgInput.placeholder = '0';
+                dmgInput.className = 'damage-input';
+                dmgInput.dataset.entryId = id;
+                dmgInput.dataset.currentHealth = health;
+                dmgInput.dataset.grd = grd ?? 0;
+                dmgInput.dataset.res = res ?? 0;
+                dmgInput.dataset.tgh = tgh ?? 0;
+                dmgInput.dataset.statGroup = `stat-${id}`;
 
-                const healthInput = document.createElement('input');
-                healthInput.type = 'number';
-                healthInput.placeholder = 'Damage';
-                healthInput.className = 'damage-input';
-                healthInput.style.width = '50px';
-                healthInput.dataset.entryId = id;
-                healthInput.dataset.currentHealth = health;
-                healthInput.dataset.grd = grd ?? 0;
-                healthInput.dataset.res = res ?? 0;
-                healthInput.dataset.tgh = tgh ?? 0;
-                healthInput.dataset.statGroup = `stat-${id}`;
-                listItem.appendChild(healthInput);
+                const dmgWrapper = document.createElement('div');
+                dmgWrapper.className = 'column dmg';
+                dmgWrapper.appendChild(dmgInput);
+                listItem.appendChild(dmgWrapper);
 
+                // Remove button if defeated
                 if (health === 0) {
                     const removeButton = document.createElement('button');
                     removeButton.textContent = 'Remove';
@@ -79,9 +76,8 @@ function fetchRankings() {
                     listItem.appendChild(removeButton);
                 }
 
-                if (health === 0) {
-                    listItem.classList.add('defeated');
-                }
+                // Mark as defeated
+                if (health === 0) listItem.classList.add('defeated');
 
                 rankingList.appendChild(listItem);
             });
@@ -123,28 +119,25 @@ function updateHealth(id, newHealth, healthInput) {
     const reference = ref(db, `rankings/${id}`);
     update(reference, { health: newHealth })
         .then(() => {
-            const healthDiv = healthInput.parentElement.querySelector('.health');
-            healthDiv.textContent = `HP: ${newHealth}`;
-
-            const listItem = healthInput.parentElement;
+            const row = healthInput.closest('.list-item');
+            const hpDiv = row.querySelector('.column.hp');
+            hpDiv.textContent = newHealth;
 
             if (newHealth <= 0) {
-                listItem.classList.add('defeated');
-                healthInput.disabled = false;
-                healthInput.style.display = 'inline-block';
+                row.classList.add('defeated');
                 healthInput.dataset.currentHealth = newHealth;
 
-                let removeButton = listItem.querySelector('.remove-button');
+                let removeButton = row.querySelector('.remove-button');
                 if (!removeButton) {
                     removeButton = document.createElement('button');
                     removeButton.textContent = 'Remove';
                     removeButton.className = 'remove-button';
-                    removeButton.addEventListener('click', () => removeEntry(id, listItem));
-                    listItem.appendChild(removeButton);
+                    removeButton.addEventListener('click', () => removeEntry(id, row));
+                    row.appendChild(removeButton);
                 }
             } else {
                 healthInput.dataset.currentHealth = newHealth;
-                listItem.classList.remove('defeated');
+                row.classList.remove('defeated');
             }
         })
         .catch((error) => {
@@ -155,12 +148,8 @@ function updateHealth(id, newHealth, healthInput) {
 function removeEntry(id, listItem) {
     const reference = ref(db, `rankings/${id}`);
     remove(reference)
-        .then(() => {
-            listItem.remove();
-        })
-        .catch((error) => {
-            console.error('Error removing entry:', error);
-        });
+        .then(() => listItem.remove())
+        .catch((error) => console.error('Error removing entry:', error));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
