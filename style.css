@@ -235,42 +235,47 @@ a.button-link:hover {
 }
 
 @media (max-width: 768px) {
-    .ranking-header,
-    .ranking-body li {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-    }
+  .ranking-header,
+  .ranking-body li {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap; /* 🔑 FORCE SINGLE LINE */
+    align-items: center;
+    justify-content: space-between;
+    overflow-x: auto; /* allow horizontal scroll if necessary */
+    gap: 6px;
+  }
 
-    .ranking-body li > .column,
-    .ranking-header .column {
-        font-size: 0.85em;
-        padding: 4px;
-        flex: 1;
-        min-width: 50px;
-        text-align: center;
-    }
+  .ranking-body li > .column,
+  .ranking-header .column {
+    flex: 1 1 auto;
+    min-width: 50px;
+    max-width: 100px;
+    font-size: 0.85em;
+    text-align: center;
+    white-space: nowrap; /* 🔑 prevent inner text from wrapping */
+  }
 
-    .column.name {
-        flex: 2;
-        min-width: 100px;
-    }
+  .column.name {
+    flex: 2 1 auto;
+    min-width: 120px;
+    max-width: 160px;
+  }
 
-    .damage-input {
-        width: 60px;
-        font-size: 0.85em;
-    }
+  .damage-input {
+    width: 60px;
+    font-size: 0.85em;
+  }
 
-    input[type="radio"] {
-        transform: scale(0.85);
-    }
+  input[type="radio"] {
+    transform: scale(0.9);
+    margin-left: 4px;
+  }
 
-    .remove-button {
-        margin-top: 5px;
-        font-size: 0.8em;
-        padding: 4px 8px;
-    }
+  .remove-button {
+    font-size: 0.8em;
+    padding: 4px 6px;
+  }
 }
 /* === Ranking Table Structure === */
 .ranking-container {
