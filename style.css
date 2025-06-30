@@ -5,8 +5,12 @@ body {
   color: #bdb382;
   margin: 0;
   padding: 20px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
 }
-
 h1, h2 {
   color: #e3cf95;
   text-align: center;
@@ -127,14 +131,14 @@ input.damage-input {
 }
 
 .container {
+  width: 100%;
   max-width: 800px;
-  margin: 0 auto;
-  padding: 10px 0;
+  padding: 20px;
   background-color: rgba(31, 29, 26, 0.85);
   border-radius: 10px;
   box-shadow: 0 0 10px #000;
+  margin: 0 auto;
 }
-
 ul {
   padding: 0;
 }
