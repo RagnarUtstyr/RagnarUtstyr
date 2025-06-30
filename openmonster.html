@@ -21,7 +21,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+    import { getDatabase, ref, onValue, get, push, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
@@ -61,7 +61,7 @@
         const data = snapshot.val();
         if (!data) return;
 
-        monsterCache = Object.values(data); // Save for download
+        monsterCache = Object.values(data); // Store for download
         document.getElementById("monsterTable").innerHTML = "";
         monsterCache.forEach(monster => {
           renderMonster(monster.name, monster.health, monster.grd, monster.res, monster.tgh);
@@ -71,18 +71,25 @@
 
     function downloadMonsterList() {
       let htmlContent = "<html><head><title>Open Legend Monsters</title></head><body>";
-      htmlContent += "<h1>Monster List</h1><ul>";
+      htmlContent += "<h1>Monster List</h1>";
 
       monsterCache.forEach(monster => {
-        htmlContent += `<li>${monster.name} — HP: ${monster.health ?? "N/A"}, GRD: ${monster.grd ?? "N/A"}, RES: ${monster.res ?? "N/A"}, TGH: ${monster.tgh ?? "N/A"}</li>`;
+        htmlContent += `
+          <h2>${monster.name}</h2>
+          <p>HP: ${monster.health ?? "N/A"}</p>
+          <p>GRD: ${monster.grd ?? "N/A"}</p>
+          <p>RES: ${monster.res ?? "N/A"}</p>
+          <p>TGH: ${monster.tgh ?? "N/A"}</p>
+          <hr>
+        `;
       });
 
-      htmlContent += "</ul></body></html>";
+      htmlContent += "</body></html>";
 
       const blob = new Blob([htmlContent], { type: "text/html" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "monster_list.html";
+      a.download = "OpenLegendMonsters.html";
       a.click();
     }
 
@@ -98,9 +105,33 @@
       }
     }
 
+    async function addUniqueMonster(monster) {
+      const refData = ref(db, "OpenLegendMonster/");
+      const snapshot = await get(refData);
+      const existing = snapshot.val();
+
+      const duplicate = existing && Object.values(existing).some(entry =>
+        entry.name === monster.name &&
+        entry.health === monster.health &&
+        entry.grd === monster.grd &&
+        entry.res === monster.res &&
+        entry.tgh === monster.tgh
+      );
+
+      if (!duplicate) {
+        await push(refData, monster);
+        alert(`${monster.name} added to permanent list.`);
+      } else {
+        alert(`${monster.name} already exists in permanent list.`);
+      }
+    }
+
     document.getElementById("download-button").addEventListener("click", downloadMonsterList);
     document.getElementById("clear-button").addEventListener("click", clearMonsterList);
     document.addEventListener("DOMContentLoaded", loadMonsters);
+
+    // Exported for testing if needed elsewhere
+    window.addUniqueMonster = addUniqueMonster;
   </script>
 </body>
 </html>
