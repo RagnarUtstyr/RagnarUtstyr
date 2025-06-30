@@ -247,17 +247,20 @@ ul {
 
 /* Button container alignment */
 .button-container {
-    display: flex;
-    justify-content: center; /* Center the group */
-    gap: 40px;                /* Controls the spacing between buttons */
-    margin: 1em 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  margin-top: 1em;
 }
 
 .button-container button {
-    padding: 6px 12px;
-    font-size: 14px;
-    width: 120px;
-    white-space: nowrap;
+  padding: 6px 12px;
+  font-size: 14px;
+  width: 120px;
+  white-space: nowrap;
+  text-align: center;
 }
 
 /* Responsive fixes for mobile */
