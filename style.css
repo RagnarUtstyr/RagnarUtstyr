@@ -249,8 +249,16 @@ ul {
 .button-container {
     display: flex;
     justify-content: space-between;
+    gap: 10px;
     width: 100%;
-    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.button-container button {
+    flex: 1;
+    min-width: 120px;
+    max-width: 48%;
+    box-sizing: border-box;
 }
 
 /* Responsive fixes for mobile */
