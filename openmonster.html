@@ -85,8 +85,8 @@
         const data = snapshot.val();
         if (!data) return;
 
-        const unique = [];
         const seen = new Set();
+        const unique = [];
 
         for (const entry of Object.values(data)) {
           const key = `${entry.name}|${entry.health}|${entry.grd}|${entry.res}|${entry.tgh}`;
