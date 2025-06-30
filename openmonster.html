@@ -3,25 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Open Legend Monsters</title>
+  <title>OpenLegend Monster List</title>
   <link rel="stylesheet" href="list.css" />
   <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <a href="group.html" class="button-link">View Initiative</a>
-  <input type="text" id="search" placeholder="Search by name..." />
-  <br><br>
-
-  <div class="button-container">
-    <button id="download-button">Download List</button>
-    <button id="clear-button">Clear List</button>
-  </div>
-
-  <div class='table-container' id="monsterTable"></div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getDatabase, ref, onValue, get, push, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, set, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
@@ -36,11 +23,33 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
+    const monsterTable = document.getElementById("monsterTable");
     let monsterCache = [];
 
-    function renderMonster({ name, health, grd, res, tgh }) {
-      const container = document.getElementById("monsterTable");
+    function getStaticMonsters() {
+      const staticElements = document.querySelectorAll('#static-monsters .monster');
+      return Array.from(staticElements).map(el => ({
+        name: el.dataset.name,
+        health: parseInt(el.dataset.health),
+        grd: parseInt(el.dataset.grd),
+        res: parseInt(el.dataset.res),
+        tgh: parseInt(el.dataset.tgh)
+      }));
+    }
+    const staticMonsters = getStaticMonsters();
 
+    function isDuplicate(monsterA, monsterB) {
+      return (
+        monsterA.name === monsterB.name &&
+        monsterA.health === monsterB.health &&
+        monsterA.grd === monsterB.grd &&
+        monsterA.res === monsterB.res &&
+        monsterA.tgh === monsterB.tgh
+      );
+    }
+
+    function renderMonster({ name, health, grd, res, tgh }) {
       const entry = document.createElement("div");
       entry.className = "table-entry";
 
@@ -52,7 +61,7 @@
         <div><span class='label'>HP:</span><span class='content'>${health ?? "N/A"}</span></div>
       `;
 
-      container.appendChild(entry);
+      monsterTable.appendChild(entry);
     }
 
     function loadMonsters() {
@@ -73,45 +82,9 @@
         }
 
         monsterCache = unique;
-        document.getElementById("monsterTable").innerHTML = "";
+        monsterTable.innerHTML = "";
         monsterCache.forEach(renderMonster);
       });
-    }
-
-    function downloadMonsterList() {
-      let htmlContent = "<html><head><title>Open Legend Monsters</title></head><body>";
-      htmlContent += "<h1>Monster List</h1>";
-
-      monsterCache.forEach(({ name, health, grd, res, tgh }) => {
-        htmlContent += `
-          <h2>${name}</h2>
-          <p>HP: ${health ?? "N/A"}</p>
-          <p>GRD: ${grd ?? "N/A"}</p>
-          <p>RES: ${res ?? "N/A"}</p>
-          <p>TGH: ${tgh ?? "N/A"}</p>
-          <hr>
-        `;
-      });
-
-      htmlContent += "</body></html>";
-
-      const blob = new Blob([htmlContent], { type: "text/html" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "OpenLegendMonsters.html";
-      a.click();
-    }
-
-    function clearMonsterList() {
-      const refData = ref(db, "OpenLegendMonster/");
-      if (confirm("Are you sure you want to permanently delete all monsters?")) {
-        remove(refData)
-          .then(() => {
-            document.getElementById("monsterTable").innerHTML = "";
-            alert("Monster list cleared.");
-          })
-          .catch(error => alert("Error clearing list: " + error));
-      }
     }
 
     async function addUniqueMonster(monster) {
@@ -119,27 +92,69 @@
       const snapshot = await get(refData);
       const existing = snapshot.val();
 
-      const duplicate = existing && Object.values(existing).some(entry =>
-        entry.name === monster.name &&
-        entry.health === monster.health &&
-        entry.grd === monster.grd &&
-        entry.res === monster.res &&
-        entry.tgh === monster.tgh
-      );
+      const inFirebase = existing && Object.values(existing).some(m => isDuplicate(m, monster));
+      const inStatic = staticMonsters.some(m => isDuplicate(m, monster));
 
-      if (!duplicate) {
+      if (!inFirebase && !inStatic) {
         const { name, health, grd, res, tgh } = monster;
         await push(refData, { name, health, grd, res, tgh });
         alert(`${monster.name} added to permanent list.`);
       } else {
-        alert(`${monster.name} already exists in permanent list.`);
+        alert(`${monster.name} already exists (in database or static list).`);
       }
     }
 
-    document.getElementById("download-button").addEventListener("click", downloadMonsterList);
-    document.getElementById("clear-button").addEventListener("click", clearMonsterList);
-    document.addEventListener("DOMContentLoaded", loadMonsters);
-    window.addUniqueMonster = addUniqueMonster;
+    function downloadMonsterList() {
+      const htmlContent = monsterCache.map(monster => `
+        <h2>${monster.name}</h2>
+        <p>HP: ${monster.health}</p>
+        <p>GRD: ${monster.grd}</p>
+        <p>RES: ${monster.res}</p>
+        <p>TGH: ${monster.tgh}</p>
+      `).join("\n");
+
+      const blob = new Blob([`<html><body>${htmlContent}</body></html>`], { type: 'text/html' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = "OpenLegendMonsters.html";
+      link.click();
+    }
+
+    function clearMonsterList() {
+      const refData = ref(db, "OpenLegendMonster/");
+      set(refData, null).then(() => {
+        monsterCache = [];
+        monsterTable.innerHTML = "";
+        alert("Permanent list cleared.");
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadMonsters();
+
+      document.getElementById("download-list").addEventListener("click", downloadMonsterList);
+      document.getElementById("clear-list").addEventListener("click", clearMonsterList);
+    });
   </script>
+</head>
+<body>
+  <a href="group.html" class="button-link">View Initiative</a>
+  <h1>Permanent Monster List</h1>
+
+  <!-- HIDDEN STATIC MONSTERS -->
+  <div id="static-monsters" style="display: none;">
+    <div class="monster" data-name="Goblin" data-health="7" data-grd="12" data-res="10" data-tgh="8"></div>
+    <div class="monster" data-name="Orc" data-health="15" data-grd="13" data-res="11" data-tgh="10"></div>
+    <div class="monster" data-name="Skeleton" data-health="13" data-grd="13" data-res="10" data-tgh="9"></div>
+  </div>
+
+  <!-- TABLE DISPLAY -->
+  <div class="table-container" id="monsterTable"></div>
+
+  <!-- ACTION BUTTONS -->
+  <div style="margin-top: 20px;">
+    <button id="download-list">Download List</button>
+    <button id="clear-list">Clear List</button>
+  </div>
 </body>
 </html>
