@@ -3,9 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Paste & Add Monsters</title>
+  <title>Monster List</title>
   <link rel="stylesheet" href="list.css">
   <link rel="stylesheet" href="style.css">
+  <style>
+    #searchBar {
+      width: 100%;
+      max-width: 300px;
+      margin: 1em 0;
+      padding: 0.5em;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
@@ -25,16 +36,19 @@
     const db = getDatabase(app);
 
     const container = document.getElementById("monster-list");
+    const searchInput = document.getElementById("searchBar");
+
+    let allMonsters = [];
 
     function isValid(monster) {
       return monster.name && monster.health && monster.grd && monster.res && monster.tgh;
     }
 
-    function renderMonster(monster) {
-      if (!isValid(monster)) return;
-
+    function createMonsterElement(monster) {
       const entry = document.createElement("div");
       entry.className = "table-entry";
+      entry.dataset.name = monster.name.toLowerCase();
+
       entry.innerHTML = `
         <div><span class="label">Name:</span><span class="content">${monster.name}</span></div>
         <div><span class="label">HP:</span><span class="content">${monster.health}</span></div>
@@ -59,11 +73,17 @@
           res: monster.res,
           tgh: monster.tgh
         });
-
-        // alert removed
       });
 
-      container.appendChild(entry);
+      return entry;
+    }
+
+    function renderMonsters(list) {
+      container.innerHTML = '';
+      list.forEach(monster => {
+        const el = createMonsterElement(monster);
+        container.appendChild(el);
+      });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -82,15 +102,27 @@
           res: 10,
           tgh: 9
         }
+        // You can paste more monsters here
       ];
 
-      monsters.forEach(renderMonster);
+      allMonsters = monsters.filter(isValid);
+      renderMonsters(allMonsters);
+
+      searchInput.addEventListener("input", () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const filtered = allMonsters.filter(monster =>
+          monster.name.toLowerCase().includes(searchTerm)
+        );
+        renderMonsters(filtered);
+      });
     });
   </script>
 </head>
 <body>
   <a href="group.html" class="button-link">Back to Initiative</a>
-  <h2>Paste Your Monsters Below</h2>
+  <h2>Search & Add Monsters</h2>
+
+  <input type="text" id="searchBar" placeholder="Search by name..." />
 
   <div class="table-container" id="monster-list"></div>
 </body>
