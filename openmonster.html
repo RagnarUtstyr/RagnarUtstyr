@@ -11,7 +11,7 @@
   <a href="group.html" class="button-link">View Initiative</a>
   <h1>Permanent Monster List</h1>
 
-  <!-- ✅ Hidden monsters used for duplicate checks -->
+  <!-- 🔒 Static monster entries (for duplicate skipping) -->
   <div id="static-monsters" style="display: none;">
     <div class="monster" data-name="Goblin" data-health="7" data-grd="12" data-res="10" data-tgh="8"></div>
     <div class="monster" data-name="Orc" data-health="15" data-grd="13" data-res="11" data-tgh="10"></div>
@@ -27,7 +27,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, set, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
@@ -81,6 +81,8 @@
 
     function loadMonsters() {
       const refData = ref(db, "OpenLegendMonster/");
+      const staticList = getStaticMonsters();
+
       onValue(refData, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
@@ -88,11 +90,14 @@
         const seen = new Set();
         const unique = [];
 
-        for (const entry of Object.values(data)) {
-          const key = `${entry.name}|${entry.health}|${entry.grd}|${entry.res}|${entry.tgh}`;
-          if (!seen.has(key)) {
+        for (const monster of Object.values(data)) {
+          const key = `${monster.name}|${monster.health}|${monster.grd}|${monster.res}|${monster.tgh}`;
+          if (
+            !seen.has(key) &&
+            !staticList.some(staticM => isDuplicate(monster, staticM))
+          ) {
             seen.add(key);
-            unique.push(entry);
+            unique.push(monster);
           }
         }
 
@@ -100,24 +105,6 @@
         monsterTable.innerHTML = "";
         monsterCache.forEach(renderMonster);
       });
-    }
-
-    async function addUniqueMonster(monster) {
-      const refData = ref(db, "OpenLegendMonster/");
-      const snapshot = await get(refData);
-      const firebaseData = snapshot.val() || {};
-      const firebaseList = Object.values(firebaseData);
-      const staticList = getStaticMonsters();
-
-      const existsInFirebase = firebaseList.some(m => isDuplicate(m, monster));
-      const existsInStatic = staticList.some(m => isDuplicate(m, monster));
-
-      if (!existsInFirebase && !existsInStatic) {
-        await push(refData, monster);
-        alert(`${monster.name} added to permanent list.`);
-      } else {
-        alert(`${monster.name} already exists.`);
-      }
     }
 
     function downloadMonsterList() {
@@ -141,7 +128,6 @@
       set(refData, null).then(() => {
         monsterCache = [];
         monsterTable.innerHTML = "";
-        alert("Permanent list cleared.");
       });
     }
 
