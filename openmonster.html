@@ -38,7 +38,7 @@
     const db = getDatabase(app);
     let monsterCache = [];
 
-    function renderMonster(name, health, grd, res, tgh) {
+    function renderMonster({ name, health, grd, res, tgh }) {
       const container = document.getElementById("monsterTable");
 
       const entry = document.createElement("div");
@@ -61,11 +61,9 @@
         const data = snapshot.val();
         if (!data) return;
 
-        monsterCache = Object.values(data); // Store for download
+        monsterCache = Object.values(data);
         document.getElementById("monsterTable").innerHTML = "";
-        monsterCache.forEach(monster => {
-          renderMonster(monster.name, monster.health, monster.grd, monster.res, monster.tgh);
-        });
+        monsterCache.forEach(renderMonster);
       });
     }
 
@@ -73,13 +71,13 @@
       let htmlContent = "<html><head><title>Open Legend Monsters</title></head><body>";
       htmlContent += "<h1>Monster List</h1>";
 
-      monsterCache.forEach(monster => {
+      monsterCache.forEach(({ name, health, grd, res, tgh }) => {
         htmlContent += `
-          <h2>${monster.name}</h2>
-          <p>HP: ${monster.health ?? "N/A"}</p>
-          <p>GRD: ${monster.grd ?? "N/A"}</p>
-          <p>RES: ${monster.res ?? "N/A"}</p>
-          <p>TGH: ${monster.tgh ?? "N/A"}</p>
+          <h2>${name}</h2>
+          <p>HP: ${health ?? "N/A"}</p>
+          <p>GRD: ${grd ?? "N/A"}</p>
+          <p>RES: ${res ?? "N/A"}</p>
+          <p>TGH: ${tgh ?? "N/A"}</p>
           <hr>
         `;
       });
@@ -106,32 +104,29 @@
     }
 
     async function addUniqueMonster(monster) {
-  const refData = ref(db, "OpenLegendMonster/");
-  const snapshot = await get(refData);
-  const existing = snapshot.val();
+      const refData = ref(db, "OpenLegendMonster/");
+      const snapshot = await get(refData);
+      const existing = snapshot.val();
 
-  const duplicate = existing && Object.values(existing).some(entry =>
-    entry.name === monster.name &&
-    entry.health === monster.health &&
-    entry.grd === monster.grd &&
-    entry.res === monster.res &&
-    entry.tgh === monster.tgh
-    // .number (initiative) is intentionally NOT compared
-  );
+      const duplicate = existing && Object.values(existing).some(entry =>
+        entry.name === monster.name &&
+        entry.health === monster.health &&
+        entry.grd === monster.grd &&
+        entry.res === monster.res &&
+        entry.tgh === monster.tgh
+      );
 
-  if (!duplicate) {
-    await push(refData, monster);
-    alert(`${monster.name} added to permanent list.`);
-  } else {
-    alert(`${monster.name} already exists in permanent list.`);
-  }
-}
+      if (!duplicate) {
+        await push(refData, monster);
+        alert(`${monster.name} added to permanent list.`);
+      } else {
+        alert(`${monster.name} already exists in permanent list.`);
+      }
+    }
 
     document.getElementById("download-button").addEventListener("click", downloadMonsterList);
     document.getElementById("clear-button").addEventListener("click", clearMonsterList);
     document.addEventListener("DOMContentLoaded", loadMonsters);
-
-    // Exported for testing if needed elsewhere
     window.addUniqueMonster = addUniqueMonster;
   </script>
 </body>
