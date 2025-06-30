@@ -248,17 +248,17 @@ ul {
 /* Button container alignment */
 .button-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     gap: 10px;
-    width: 100%;
-    flex-wrap: wrap;
+    margin-bottom: 1em;
 }
 
 .button-container button {
-    flex: 1;
-    min-width: 120px;
-    max-width: 48%;
-    box-sizing: border-box;
+    padding: 6px 12px;
+    font-size: 14px;
+    min-width: 100px;
+    max-width: 150px;
+    white-space: nowrap;
 }
 
 /* Responsive fixes for mobile */
