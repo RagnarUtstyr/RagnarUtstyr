@@ -298,18 +298,19 @@ ul {
 }
 
 .button-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  margin-top: 1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 100%;
+    margin: 1em auto;
 }
 
 .button-container button {
-  padding: 6px 12px;
-  font-size: 14px;
-  width: 120px;
-  white-space: nowrap;
-  text-align: center;
-}
+    flex: 0 0 auto;
+    padding: 6px 12px;
+    font-size: 14px;
+    width: 120px;
+    white-space: nowrap;
+    text-align: center;
