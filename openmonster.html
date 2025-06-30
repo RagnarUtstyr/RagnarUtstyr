@@ -12,11 +12,16 @@
   <input type="text" id="search" placeholder="Search by name..." />
   <br><br>
 
+  <div class="button-container">
+    <button id="download-button">Download List</button>
+    <button id="clear-button">Clear List</button>
+  </div>
+
   <div class='table-container' id="monsterTable"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+    import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
@@ -31,8 +36,9 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    let monsterCache = [];
 
-    function renderMonster(name, health, url, grd, res, tgh) {
+    function renderMonster(name, health, grd, res, tgh) {
       const container = document.getElementById("monsterTable");
 
       const entry = document.createElement("div");
@@ -44,25 +50,7 @@
         <div><span class='label'>RES:</span><span class='content'>${res ?? "N/A"}</span></div>
         <div><span class='label'>TGH:</span><span class='content'>${tgh ?? "N/A"}</span></div>
         <div><span class='label'>HP:</span><span class='content'>${health ?? "N/A"}</span></div>
-        <div class='link-button'><a href='${url ?? "#"}' target='_blank'>View Details</a></div>
-        <div class='link-button'>
-          <button class='add-to-list-button'>Add to List</button>
-        </div>
       `;
-
-      entry.querySelector('.add-to-list-button').addEventListener('click', () => {
-        const newEntry = {
-          name,
-          number: Math.floor(Math.random() * 20) + 1,
-          health,
-          grd,
-          res,
-          tgh,
-          url
-        };
-        push(ref(db, "rankings/"), newEntry);
-        alert(`${name} added to list.`);
-      });
 
       container.appendChild(entry);
     }
@@ -72,12 +60,46 @@
       onValue(refData, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
-        Object.values(data).forEach(monster => {
-          renderMonster(monster.name, monster.health, monster.url, monster.grd, monster.res, monster.tgh);
+
+        monsterCache = Object.values(data); // Save for download
+        document.getElementById("monsterTable").innerHTML = "";
+        monsterCache.forEach(monster => {
+          renderMonster(monster.name, monster.health, monster.grd, monster.res, monster.tgh);
         });
       });
     }
 
+    function downloadMonsterList() {
+      let htmlContent = "<html><head><title>Open Legend Monsters</title></head><body>";
+      htmlContent += "<h1>Monster List</h1><ul>";
+
+      monsterCache.forEach(monster => {
+        htmlContent += `<li>${monster.name} — HP: ${monster.health ?? "N/A"}, GRD: ${monster.grd ?? "N/A"}, RES: ${monster.res ?? "N/A"}, TGH: ${monster.tgh ?? "N/A"}</li>`;
+      });
+
+      htmlContent += "</ul></body></html>";
+
+      const blob = new Blob([htmlContent], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "monster_list.html";
+      a.click();
+    }
+
+    function clearMonsterList() {
+      const refData = ref(db, "OpenLegendMonster/");
+      if (confirm("Are you sure you want to permanently delete all monsters?")) {
+        remove(refData)
+          .then(() => {
+            document.getElementById("monsterTable").innerHTML = "";
+            alert("Monster list cleared.");
+          })
+          .catch(error => alert("Error clearing list: " + error));
+      }
+    }
+
+    document.getElementById("download-button").addEventListener("click", downloadMonsterList);
+    document.getElementById("clear-button").addEventListener("click", clearMonsterList);
     document.addEventListener("DOMContentLoaded", loadMonsters);
   </script>
 </body>
