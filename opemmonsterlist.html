@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paste & Add Monsters</title>
+  <link rel="stylesheet" href="list.css">
+  <link rel="stylesheet" href="style.css">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+      authDomain: "roll202-c0b0d.firebaseapp.com",
+      databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "roll202-c0b0d",
+      storageBucket: "roll202-c0b0d.appspot.com",
+      messagingSenderId: "607661730400",
+      appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+      measurementId: "G-6X5L39W56C"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const container = document.getElementById("monster-list");
+
+    function isValid(monster) {
+      return monster.name && monster.health && monster.grd && monster.res && monster.tgh;
+    }
+
+    function renderMonster(monster) {
+      if (!isValid(monster)) return;
+
+      const entry = document.createElement("div");
+      entry.className = "table-entry";
+      entry.innerHTML = `
+        <div><span class="label">Name:</span><span class="content">${monster.name}</span></div>
+        <div><span class="label">HP:</span><span class="content">${monster.health}</span></div>
+        <div><span class="label">GRD:</span><span class="content">${monster.grd}</span></div>
+        <div><span class="label">RES:</span><span class="content">${monster.res}</span></div>
+        <div><span class="label">TGH:</span><span class="content">${monster.tgh}</span></div>
+        <div class="link-button">
+          <button>Add to Initiative</button>
+        </div>
+      `;
+
+      entry.querySelector("button").addEventListener("click", async () => {
+        const initiative = prompt("Enter initiative:");
+        if (initiative === null || isNaN(parseInt(initiative))) return;
+
+        const refList = ref(db, "rankings/");
+        await push(refList, {
+          name: monster.name,
+          number: parseInt(initiative),
+          health: monster.health,
+          grd: monster.grd,
+          res: monster.res,
+          tgh: monster.tgh
+        });
+        alert(`${monster.name} added to initiative.`);
+      });
+
+      container.appendChild(entry);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Paste your monster data here ⬇
+      const monsters = [
+        {
+          name: "Goblin",
+          health: 7,
+          grd: 12,
+          res: 10,
+          tgh: 8
+        },
+        {
+          name: "Skeleton",
+          health: 13,
+          grd: 13,
+          res: 10,
+          tgh: 9
+        }
+      ];
+
+      monsters.forEach(renderMonster);
+    });
+  </script>
+</head>
+<body>
+  <a href="group.html" class="button-link">Back to Initiative</a>
+  <h2>Paste Your Monsters Below</h2>
+
+  <div class="table-container" id="monster-list"></div>
+</body>
+</html>
