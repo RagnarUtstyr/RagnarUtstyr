@@ -27,7 +27,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
@@ -71,10 +71,10 @@
       entry.className = "table-entry";
       entry.innerHTML = `
         <div><span class='label'>Name:</span><span class='content'>${name}</span></div>
-        <div><span class='label'>GRD:</span><span class='content'>${grd ?? "N/A"}</span></div>
-        <div><span class='label'>RES:</span><span class='content'>${res ?? "N/A"}</span></div>
-        <div><span class='label'>TGH:</span><span class='content'>${tgh ?? "N/A"}</span></div>
-        <div><span class='label'>HP:</span><span class='content'>${health ?? "N/A"}</span></div>
+        <div><span class='label'>GRD:</span><span class='content'>${grd}</span></div>
+        <div><span class='label'>RES:</span><span class='content'>${res}</span></div>
+        <div><span class='label'>TGH:</span><span class='content'>${tgh}</span></div>
+        <div><span class='label'>HP:</span><span class='content'>${health}</span></div>
       `;
       monsterTable.appendChild(entry);
     }
@@ -91,11 +91,23 @@
         const unique = [];
 
         for (const monster of Object.values(data)) {
+          const isValid =
+            monster.name &&
+            monster.health !== undefined &&
+            monster.grd !== undefined &&
+            monster.res !== undefined &&
+            monster.tgh !== undefined &&
+            monster.health !== "N/A" &&
+            monster.grd !== "N/A" &&
+            monster.res !== "N/A" &&
+            monster.tgh !== "N/A";
+
+          if (!isValid) continue;
+
           const key = `${monster.name}|${monster.health}|${monster.grd}|${monster.res}|${monster.tgh}`;
-          if (
-            !seen.has(key) &&
-            !staticList.some(staticM => isDuplicate(monster, staticM))
-          ) {
+          const isDupe = staticList.some(staticM => isDuplicate(monster, staticM));
+
+          if (!seen.has(key) && !isDupe) {
             seen.add(key);
             unique.push(monster);
           }
