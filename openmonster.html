@@ -61,7 +61,18 @@
         const data = snapshot.val();
         if (!data) return;
 
-        monsterCache = Object.values(data);
+        const unique = [];
+        const seen = new Set();
+
+        for (const entry of Object.values(data)) {
+          const key = `${entry.name}|${entry.health}|${entry.grd}|${entry.res}|${entry.tgh}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            unique.push(entry);
+          }
+        }
+
+        monsterCache = unique;
         document.getElementById("monsterTable").innerHTML = "";
         monsterCache.forEach(renderMonster);
       });
@@ -117,7 +128,8 @@
       );
 
       if (!duplicate) {
-        await push(refData, monster);
+        const { name, health, grd, res, tgh } = monster;
+        await push(refData, { name, health, grd, res, tgh });
         alert(`${monster.name} added to permanent list.`);
       } else {
         alert(`${monster.name} already exists in permanent list.`);
