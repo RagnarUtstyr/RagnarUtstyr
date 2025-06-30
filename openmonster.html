@@ -106,25 +106,26 @@
     }
 
     async function addUniqueMonster(monster) {
-      const refData = ref(db, "OpenLegendMonster/");
-      const snapshot = await get(refData);
-      const existing = snapshot.val();
+  const refData = ref(db, "OpenLegendMonster/");
+  const snapshot = await get(refData);
+  const existing = snapshot.val();
 
-      const duplicate = existing && Object.values(existing).some(entry =>
-        entry.name === monster.name &&
-        entry.health === monster.health &&
-        entry.grd === monster.grd &&
-        entry.res === monster.res &&
-        entry.tgh === monster.tgh
-      );
+  const duplicate = existing && Object.values(existing).some(entry =>
+    entry.name === monster.name &&
+    entry.health === monster.health &&
+    entry.grd === monster.grd &&
+    entry.res === monster.res &&
+    entry.tgh === monster.tgh
+    // .number (initiative) is intentionally NOT compared
+  );
 
-      if (!duplicate) {
-        await push(refData, monster);
-        alert(`${monster.name} added to permanent list.`);
-      } else {
-        alert(`${monster.name} already exists in permanent list.`);
-      }
-    }
+  if (!duplicate) {
+    await push(refData, monster);
+    alert(`${monster.name} added to permanent list.`);
+  } else {
+    alert(`${monster.name} already exists in permanent list.`);
+  }
+}
 
     document.getElementById("download-button").addEventListener("click", downloadMonsterList);
     document.getElementById("clear-button").addEventListener("click", clearMonsterList);
