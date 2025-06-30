@@ -37,18 +37,21 @@ async function submitData() {
 
     if (name && !isNaN(number)) {
         try {
-            const reference = ref(db, 'rankings/');
-
             const entry = { name, number };
             if (health !== null) entry.health = health;
             if (grd !== undefined) entry.grd = grd;
             if (res !== undefined) entry.res = res;
             if (tgh !== undefined) entry.tgh = tgh;
 
-            await push(reference, entry);
-            console.log('Data submitted:', entry);
+            const rankingsRef = ref(db, 'rankings/');
+            const monsterRef = ref(db, 'OpenLegendMonster/');
 
-            // Clear inputs that exist on the page
+            // Save to both locations
+            await push(rankingsRef, entry);
+            await push(monsterRef, entry);
+            console.log('Data submitted to rankings and OpenLegendMonster:', entry);
+
+            // Clear inputs
             document.getElementById('name').value = '';
             if (numberInput) numberInput.value = '';
             if (healthInput) healthInput.value = '';

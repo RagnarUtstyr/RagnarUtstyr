@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Open Legend Monsters</title>
+  <link rel="stylesheet" href="list.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js"></script>
+</head>
+<body>
+  <a href="group.html" class="button-link">View Initiative</a>
+  <input type="text" id="search" placeholder="Search by name..." />
+  <br><br>
+
+  <div class='table-container' id="monsterTable"></div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+      authDomain: "roll202-c0b0d.firebaseapp.com",
+      databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "roll202-c0b0d",
+      storageBucket: "roll202-c0b0d.appspot.com",
+      messagingSenderId: "607661730400",
+      appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+      measurementId: "G-6X5L39W56C"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function renderMonster(name, health, url, grd, res, tgh) {
+      const container = document.getElementById("monsterTable");
+
+      const entry = document.createElement("div");
+      entry.className = "table-entry";
+
+      entry.innerHTML = `
+        <div><span class='label'>Name:</span><span class='content'>${name}</span></div>
+        <div><span class='label'>GRD:</span><span class='content'>${grd ?? "N/A"}</span></div>
+        <div><span class='label'>RES:</span><span class='content'>${res ?? "N/A"}</span></div>
+        <div><span class='label'>TGH:</span><span class='content'>${tgh ?? "N/A"}</span></div>
+        <div><span class='label'>HP:</span><span class='content'>${health ?? "N/A"}</span></div>
+        <div class='link-button'><a href='${url}' target='_blank'>View Details</a></div>
+        <div class='link-button'>
+          <button class='add-to-list-button' onclick="addToList('${name}', ${health}, '${url}', ${grd})">Add to List</button>
+        </div>
+      `;
+
+      container.appendChild(entry);
+    }
+
+    function loadMonsters() {
+      const ref = db.ref("OpenLegendMonster/");
+      ref.once("value", snapshot => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        Object.values(data).forEach(entry => {
+          renderMonster(entry.name, entry.health, entry.url ?? "#", entry.grd, entry.res, entry.tgh);
+        });
+      });
+    }
+
+    function addToList(name, health, url, grd) {
+      const newEntry = {
+        name,
+        number: Math.floor(Math.random() * 20) + 1,
+        health,
+        grd,
+        url
+      };
+      firebase.database().ref("rankings/").push(newEntry);
+      alert(name + " added to initiative list.");
+    }
+
+    document.addEventListener("DOMContentLoaded", loadMonsters);
+  </script>
+</body>
+</html>
