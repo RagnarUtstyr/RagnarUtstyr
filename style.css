@@ -247,27 +247,29 @@ ul {
   margin-right: 6px;
 }
 
-/* Button container */
+/* ========================== */
+/* Updated Button Container   */
+/* ========================== */
 .button-container {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
   width: 100%;
-  max-width: 100%;
   margin: 1em auto;
 }
 
 .button-container button {
-  flex: 0 0 auto;
-  padding: 6px 12px;
-  font-size: 14px;
-  width: 120px;
+  flex: 1; /* Updated: allow both buttons to expand equally */
+  min-width: 100px;
+  padding: 10px 15px; /* Updated: larger consistent padding */
+  font-size: 1em;
   white-space: nowrap;
   text-align: center;
 }
 
-/* Responsive for mobile */
+/* ========================== */
+
 @media (max-width: 600px) {
   .ranking-header .column,
   .ranking-body li .column {
