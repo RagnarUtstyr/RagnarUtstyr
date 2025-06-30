@@ -248,16 +248,16 @@ ul {
 /* Button container alignment */
 .button-container {
     display: flex;
-    justify-content: center;
+    justify-content: center; /* Centers the whole group */
+    align-items: center;
     gap: 10px;
-    margin-bottom: 1em;
+    margin: 1em 0;
 }
 
 .button-container button {
     padding: 6px 12px;
     font-size: 14px;
-    min-width: 100px;
-    max-width: 150px;
+    width: 120px; /* Fixed width for consistency */
     white-space: nowrap;
 }
 
