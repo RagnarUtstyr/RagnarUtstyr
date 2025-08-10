@@ -20,13 +20,17 @@ function fetchRankings() {
                 listItem.className = 'list-item';
                 if (health === 0) listItem.classList.add('defeated');
 
-                const nameCol = document.createElement('div');
-                nameCol.className = 'column name';
-                nameCol.textContent = name;
-                if (url) {
-                    nameCol.style.cursor = 'pointer';
-                    nameCol.addEventListener('click', () => window.open(url, '_blank'));
-                }
+                nameCol.style.cursor = 'pointer';
+nameCol.title = 'View defenses';
+nameCol.addEventListener('click', () => {
+  openStatsModal({
+    name,
+    grd: grd ?? 'N/A',
+    res: res ?? 'N/A',
+    tgh: tgh ?? 'N/A',
+    health: health ?? 'N/A'
+  });
+});
 
                 const hpCol = document.createElement('div');
                 hpCol.className = 'column hp';
@@ -120,6 +124,40 @@ function updateHealth(id, newHealth, input) {
             }
         })
         .catch(error => console.error('Error updating health:', error));
+}
+
+function openStatsModal({ name, grd, res, tgh, health }) {
+  const overlay = document.getElementById('stats-modal');
+  if (!overlay) return;
+
+  // Fill content
+  document.getElementById('stats-title').textContent = name;
+  document.getElementById('stat-grd').textContent = grd ?? '—';
+  document.getElementById('stat-res').textContent = res ?? '—';
+  document.getElementById('stat-tgh').textContent = tgh ?? '—';
+  document.getElementById('stat-hp').textContent  = health ?? '—';
+
+  // Show
+  overlay.hidden = false;
+
+  // One-time listeners (idempotent)
+  const closeBtn = overlay.querySelector('.close-btn');
+  const okBtn = document.getElementById('modal-ok');
+
+  const close = () => { overlay.hidden = true; };
+
+  // close on X / OK
+  closeBtn.onclick = close;
+  okBtn.onclick = close;
+
+  // close on backdrop click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  }, { once: true });
+
+  // close on Escape
+  const onKey = (e) => { if (e.key === 'Escape') { close(); window.removeEventListener('keydown', onKey); } };
+  window.addEventListener('keydown', onKey, { once: true });
 }
 
 // Function to remove an entry

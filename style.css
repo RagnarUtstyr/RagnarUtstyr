@@ -391,68 +391,35 @@ ul {
   }
 }
 
-/* ===== Tooltip patch (append-only) ===== */
-#rankingList li { overflow: visible !important; }
-
-.ranking-body .name {
-  position: relative !important;
-  overflow: visible !important;
-  cursor: help;
-}
-
-.ranking-body .name[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: 0;
-  bottom: 100%;
-  transform: translateY(-6px);
-  background: rgba(20,20,25,0.95);
-  color: #fff;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 0.9rem;
-  line-height: 1.2;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-  white-space: pre;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 120ms ease, transform 120ms ease;
-  z-index: 20;
-}
-.ranking-body .name[data-tooltip]:hover::after {
-  opacity: 1;
-  transform: translateY(-10px);
-}
-
-.ol-tooltip-bubble {
-  position: absolute;
-  top: 0; left: 0;
-  background: rgba(20,20,25,0.97);
-  color: #fff;
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 0.95rem;
-  line-height: 1.25;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.45);
-  white-space: pre;           /* keep \n line breaks */
+.ol-modal-overlay {
+  position: fixed; inset: 0;
+  display: grid; place-items: center;
+  background: rgba(0,0,0,.5);
   z-index: 1000;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity 120ms ease, transform 120ms ease;
-  pointer-events: auto;
 }
-.ol-tooltip-bubble.visible {
-  opacity: 1;
-  transform: translateY(-8px);
+.ol-modal-card {
+  position: relative;
+  width: min(500px, 92vw);
+  background: var(--card-bg, #fff);
+  color: inherit;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  padding: 1.25rem 1.25rem 1rem;
 }
-/* Optional little arrow */
-.ol-tooltip-bubble::after {
-  content: "";
-  position: absolute;
-  width: 0; height: 0;
-  border-left: 7px solid transparent;
-  border-right: 7px solid transparent;
-  border-top: 7px solid rgba(20,20,25,0.97);
-  bottom: -7px;
-  left: 14px;
+.ol-modal-card h3 { margin: 0 0 .75rem; font-size: 1.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: .75rem .75rem;
+  margin-bottom: 1rem;
+}
+.stat .label { font-weight: 600; margin-right: .25rem; }
+
+.modal-actions { display: flex; justify-content: flex-end; gap: .5rem; }
+
+.close-btn {
+  position: absolute; top: .5rem; right: .5rem;
+  border: 0; background: transparent; font-size: 1.5rem; line-height: 1;
+  cursor: pointer; color: inherit;
 }

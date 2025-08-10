@@ -1,150 +1,156 @@
-// server.js — drop-in replacement
-
-// Firebase SDK
+// Import necessary Firebase modules from the SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase config (yours)
+// Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-  authDomain: "roll202-c0b0d.firebaseapp.com",
-  databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "roll202-c0b0d",
-  storageBucket: "roll202-c0b0d.appspot.com",
-  messagingSenderId: "607661730400",
-  appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-  measurementId: "G-6X5L39W56C"
+    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+    authDomain: "roll202-c0b0d.firebaseapp.com",
+    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "roll202-c0b0d",
+    storageBucket: "roll202-c0b0d.appspot.com",
+    messagingSenderId: "607661730400",
+    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+    measurementId: "G-6X5L39W56C"
 };
 
-// Init
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ---- utils ----
-const toIntOrNull = (v) => {
-  const n = parseInt(v, 10);
-  return Number.isFinite(n) ? n : null;
-};
-const valOrNA = (v) => (v ?? v === 0 ? v : "N/A");
-
-// ---- submit ----
+// Function to submit data to Firebase
 async function submitData() {
-  const name = document.getElementById("name")?.value?.trim();
-  const numberInput = document.getElementById("initiative") || document.getElementById("number");
-  const number = numberInput ? toIntOrNull(numberInput.value) : null;
+    const name = document.getElementById('name')?.value;
+    const numberInput = document.getElementById('initiative') || document.getElementById('number');
+    const number = numberInput ? parseInt(numberInput.value) : null;
 
-  const health = toIntOrNull(document.getElementById("health")?.value);
-  const grd = toIntOrNull(document.getElementById("grd")?.value);
-  const res = toIntOrNull(document.getElementById("res")?.value);
-  const tgh = toIntOrNull(document.getElementById("tgh")?.value);
+    const healthInput = document.getElementById('health');
+    const health = healthInput && healthInput.value !== '' ? parseInt(healthInput.value) : null;
 
-  if (!name || number === null) {
-    console.log("Please enter a valid name and initiative number.");
-    return;
-  }
+    const grdInput = document.getElementById('grd');
+    const resInput = document.getElementById('res');
+    const tghInput = document.getElementById('tgh');
 
-  const entry = { name, number };
-  if (health !== null) entry.health = health;
-  if (grd !== null) entry.grd = grd;
-  if (res !== null) entry.res = res;
-  if (tgh !== null) entry.tgh = tgh;
+    const grd = grdInput ? (grdInput.value !== '' ? parseInt(grdInput.value) : null) : undefined;
+    const res = resInput ? (resInput.value !== '' ? parseInt(resInput.value) : null) : undefined;
+    const tgh = tghInput ? (tghInput.value !== '' ? parseInt(tghInput.value) : null) : undefined;
 
-  try {
-    await push(ref(db, "rankings/"), entry);
-    await push(ref(db, "OpenLegendMonster/"), entry); // keep your original behavior
+    if (name && !isNaN(number)) {
+        try {
+            const entry = { name, number };
+            if (health !== null) entry.health = health;
+            if (grd !== undefined) entry.grd = grd;
+            if (res !== undefined) entry.res = res;
+            if (tgh !== undefined) entry.tgh = tgh;
 
-    // clear inputs
-    ["name", "initiative", "number", "health", "grd", "res", "tgh"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = "";
-    });
+            const rankingsRef = ref(db, 'rankings/');
+            const monsterRef = ref(db, 'OpenLegendMonster/');
 
-    const sword = document.getElementById("sword-sound");
-    if (sword) sword.play();
-  } catch (e) {
-    console.error("Error submitting data:", e);
-  }
+            // Save to both locations
+            await push(rankingsRef, entry);
+            await push(monsterRef, entry);
+            console.log('Data submitted to rankings and OpenLegendMonster:', entry);
+
+            // Clear inputs
+            document.getElementById('name').value = '';
+            if (numberInput) numberInput.value = '';
+            if (healthInput) healthInput.value = '';
+            if (grdInput) grdInput.value = '';
+            if (resInput) resInput.value = '';
+            if (tghInput) tghInput.value = '';
+
+            // Play sword sound if available
+            const swordSound = document.getElementById('sword-sound');
+            if (swordSound) swordSound.play();
+
+        } catch (error) {
+            console.error('Error submitting data:', error);
+        }
+    } else {
+        console.log('Please enter a valid name and initiative number.');
+    }
 }
 
-// ---- tooltip helpers ----
-function setTooltip(el, grd, res, tgh) {
-  const tip = `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`;
-  el.setAttribute("data-tooltip", tip); // for styled CSS tooltip (if you append the CSS patch)
-  el.title = tip;                       // native fallback on hover
-  // click/tap fallback (works even without CSS)
-  el.addEventListener("click", (e) => {
-    e.stopPropagation();
-    alert(tip);
-  });
-}
-
-// ---- render ----
-function buildListItem({ id, name, number, health, grd, res, tgh }) {
-  const li = document.createElement("li");
-
-  // name (tooltip anchor)
-  const nameDiv = document.createElement("div");
-  nameDiv.className = "name";
-  nameDiv.textContent = name;
-  setTooltip(nameDiv, grd, res, tgh);
-  li.appendChild(nameDiv);
-
-  // hp (if present)
-  if (health !== null && health !== undefined) {
-    const healthDiv = document.createElement("div");
-    healthDiv.className = "health";
-    healthDiv.textContent = `HP: ${health}`;
-    li.appendChild(healthDiv);
-  }
-
-  // remove
-  const removeBtn = document.createElement("button");
-  removeBtn.textContent = "Remove";
-  removeBtn.addEventListener("click", () => removeEntry(id));
-  li.appendChild(removeBtn);
-
-  return li;
-}
-
-// ---- read & display ----
+// Function to fetch and display rankings
 function fetchRankings() {
-  const listRef = ref(db, "rankings/");
-  onValue(listRef, (snapshot) => {
-    const data = snapshot.val();
-    const ul = document.getElementById("rankingList");
-    if (!ul) return;
+    const reference = ref(db, 'rankings/');
+    onValue(reference, (snapshot) => {
+        const data = snapshot.val();
+        const rankingList = document.getElementById('rankingList');
+        if (!rankingList) return;
 
-    ul.innerHTML = "";
-    if (!data) return;
+        rankingList.innerHTML = '';
 
-    // FIX: correct spread (your old file had `({ id, .entry })`)
-    const rows = Object.entries(data).map(([id, entry]) => ({ id, ...entry })); // ← fixed
-    rows.sort((a, b) => (b.number ?? -Infinity) - (a.number ?? -Infinity));
+        if (data) {
+            const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
+            rankings.sort((a, b) => b.number - a.number);
 
-    rows.forEach(row => ul.appendChild(buildListItem(row)));
-  }, (err) => console.error("Error reading rankings:", err));
+            rankings.forEach(({ id, name, number, health, grd, res, tgh }) => {
+                const listItem = document.createElement('li');
+
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'name';
+                nameDiv.textContent = `${name} (GRD: ${grd ?? 'N/A'}, RES: ${res ?? 'N/A'}, TGH: ${tgh ?? 'N/A'})`;
+
+                const healthDiv = document.createElement('div');
+                healthDiv.className = 'health';
+                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.addEventListener('click', () => removeEntry(id));
+
+                listItem.appendChild(nameDiv);
+                if (healthDiv.textContent !== '') {
+                    listItem.appendChild(healthDiv);
+                }
+                listItem.appendChild(removeButton);
+
+                rankingList.appendChild(listItem);
+            });
+        } else {
+            console.log('No data available');
+        }
+    }, (error) => {
+        console.error('Error fetching data:', error);
+    });
 }
 
-// ---- remove & clear ----
+// Function to remove an entry from Firebase
 function removeEntry(id) {
-  remove(ref(db, `rankings/${id}`)).catch(err => console.error("Error removing:", err));
+    const reference = ref(db, `rankings/${id}`);
+    remove(reference)
+        .then(() => {
+            console.log(`Entry with id ${id} removed successfully`);
+        })
+        .catch((error) => {
+            console.error('Error removing entry:', error);
+        });
 }
+
+// Function to clear all entries from Firebase
 function clearAllEntries() {
-  set(ref(db, "rankings/"), null)
-    .then(() => {
-      const ul = document.getElementById("rankingList");
-      if (ul) ul.innerHTML = "";
-    })
-    .catch(err => console.error("Error clearing:", err));
+    const reference = ref(db, 'rankings/');
+    set(reference, null)
+        .then(() => {
+            console.log('All entries removed successfully');
+            const rankingList = document.getElementById('rankingList');
+            if (rankingList) rankingList.innerHTML = '';
+        })
+        .catch((error) => {
+            console.error('Error clearing all entries:', error);
+        });
 }
 
-// ---- wire up ----
-document.addEventListener("DOMContentLoaded", () => {
-  const submitBtn = document.getElementById("submit-button");
-  if (submitBtn) submitBtn.addEventListener("click", submitData);
-
-  const clearBtn = document.getElementById("clear-list-button");
-  if (clearBtn) clearBtn.addEventListener("click", clearAllEntries);
-
-  if (document.getElementById("rankingList")) fetchRankings();
+// Page setup
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('submit-button')) {
+        document.getElementById('submit-button').addEventListener('click', submitData);
+    }
+    if (document.getElementById('rankingList')) {
+        fetchRankings();
+    }
+    if (document.getElementById('clear-list-button')) {
+        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
+    }
 });

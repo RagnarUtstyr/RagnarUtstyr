@@ -76,6 +76,24 @@
     <a href="save.html" class="button-link">Go to Lists</a>
     <a href="openmonsterlist.html" class="button-link">Go to Monster List</a>
   </div>
+
+  <div id="stats-modal" class="ol-modal-overlay" hidden>
+  <div class="ol-modal-card">
+    <button class="close-btn" aria-label="Close">&times;</button>
+    <h3 id="stats-title">Stats</h3>
+
+    <div class="stats-grid">
+      <div class="stat"><span class="label">GRD:</span> <span id="stat-grd" class="value">—</span></div>
+      <div class="stat"><span class="label">RES:</span> <span id="stat-res" class="value">—</span></div>
+      <div class="stat"><span class="label">TGH:</span> <span id="stat-tgh" class="value">—</span></div>
+      <div class="stat"><span class="label">HP:</span>  <span id="stat-hp"  class="value">—</span></div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="modal-ok" class="button-link">OK</button>
+    </div>
+  </div>
+</div>
 </body>
 
 </html>
