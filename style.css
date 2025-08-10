@@ -1,11 +1,7 @@
 /* === Global === */
 * { box-sizing: border-box; }
 
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 
 body {
   background: url('background.jpg') no-repeat center center fixed;
@@ -38,10 +34,7 @@ input[type="number"] {
 }
 
 input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
 
 /* === Buttons & Links === */
@@ -88,7 +81,7 @@ a.button-link:hover { background-color: #1a3b4a; color: #fff; }
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
-  /* IMPORTANT: let tooltip overflow out of the row */
+  /* allow tooltip to escape row */
   overflow: visible;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -101,18 +94,21 @@ li .ac,
 li .number {
   text-align: center;
   white-space: nowrap;
+  /* IMPORTANT: .name must not clip the tooltip */
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
   word-break: break-word;
 }
 
-/* make it obvious the name has more info */
-li .name { cursor: help; }
+/* override just for .name so tooltip isn't clipped */
+.ranking-body .name {
+  position: relative;
+  overflow: visible;     /* <-- critical fix */
+  cursor: help;          /* shows ? cursor */
+}
 
-/* === Custom Tooltip (used by data-tooltip on .name) === */
-.ranking-body .name { position: relative; }
-
+/* === Custom Tooltip (data-tooltip) === */
 .ranking-body .name[data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;

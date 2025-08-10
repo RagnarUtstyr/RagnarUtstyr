@@ -70,7 +70,7 @@ function submitData() {
   });
 }
 
-// Build one list item (with custom tooltip via data-tooltip)
+// Build one list item (with tooltip)
 function buildListItem({ id, name, number, health, grd, res, tgh }) {
   const li = document.createElement('li');
 
@@ -81,13 +81,13 @@ function buildListItem({ id, name, number, health, grd, res, tgh }) {
   li.appendChild(initDiv);
 
   // Name (hover shows GRD/RES/TGH)
+  const tooltip = `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`;
+
   const nameDiv = document.createElement('div');
   nameDiv.className = 'name';
   nameDiv.textContent = name;
-  nameDiv.setAttribute(
-    'data-tooltip',
-    `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`
-  );
+  nameDiv.setAttribute('data-tooltip', tooltip); // styled tooltip
+  nameDiv.title = tooltip;                       // native fallback
   li.appendChild(nameDiv);
 
   // HP
