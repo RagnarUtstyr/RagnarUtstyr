@@ -268,8 +268,6 @@ ul {
   text-align: center;
 }
 
-/* ========================== */
-
 @media (max-width: 600px) {
   body {
     padding: 10px;
