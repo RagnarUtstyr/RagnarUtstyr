@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase Configuration (yours)
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
   authDomain: "roll202-c0b0d.firebaseapp.com",
@@ -14,11 +14,11 @@ const firebaseConfig = {
   measurementId: "G-6X5L39W56C"
 };
 
-// Init Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Helpers
+// Helper functions
 function valOrNA(v) {
   return (v ?? v === 0) ? v : "N/A";
 }
@@ -27,7 +27,7 @@ function toIntOrNull(v) {
   return Number.isFinite(n) ? n : null;
 }
 
-// Submit a new entry
+// Submit new entry to DB
 function submitData() {
   const nameEl   = document.getElementById('name');
   const numEl    = document.getElementById('number');
@@ -59,7 +59,7 @@ function submitData() {
 
   const listRef = ref(db, 'rankings/');
   push(listRef, entry).then(() => {
-    // clear inputs
+    // Clear form inputs
     if (nameEl) nameEl.value = '';
     if (numEl) numEl.value = '';
     if (hpEl) hpEl.value = '';
@@ -71,25 +71,28 @@ function submitData() {
   });
 }
 
-// Build one list item (with hover popup via native title)
+// Build one list item
 function buildListItem({ id, name, number, health, grd, res, tgh }) {
   const li = document.createElement('li');
-
-  // Name (shows tooltip with GRD/RES/TGH on hover)
-  const nameDiv = document.createElement('div');
-  nameDiv.className = 'name';
-  nameDiv.textContent = name;
-  nameDiv.title = `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`;
-
-  // HP
-  const healthDiv = document.createElement('div');
-  healthDiv.className = 'health';
-  healthDiv.textContent = `HP: ${valOrNA(health)}`;
 
   // Init
   const initDiv = document.createElement('div');
   initDiv.className = 'init';
   initDiv.textContent = `Init: ${valOrNA(number)}`;
+  li.appendChild(initDiv);
+
+  // Name with hover tooltip showing GRD/RES/TGH
+  const nameDiv = document.createElement('div');
+  nameDiv.className = 'name';
+  nameDiv.textContent = name;
+  nameDiv.title = `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`;
+  li.appendChild(nameDiv);
+
+  // HP
+  const healthDiv = document.createElement('div');
+  healthDiv.className = 'health';
+  healthDiv.textContent = `HP: ${valOrNA(health)}`;
+  li.appendChild(healthDiv);
 
   // Remove button
   const removeBtn = document.createElement('button');
@@ -99,23 +102,18 @@ function buildListItem({ id, name, number, health, grd, res, tgh }) {
     const entryRef = ref(db, `rankings/${id}`);
     remove(entryRef).catch(err => console.error('Error removing entry:', err));
   });
-
-  li.appendChild(initDiv);
-  li.appendChild(nameDiv);
-  li.appendChild(healthDiv);
   li.appendChild(removeBtn);
 
   return li;
 }
 
-// Fetch and render list
+// Fetch and display rankings
 function fetchRankings() {
   const listRef = ref(db, 'rankings/');
   onValue(listRef, (snapshot) => {
     const data = snapshot.val();
     const ul = document.getElementById('rankingList');
     if (!ul) return;
-
     ul.innerHTML = '';
 
     if (!data) return;
@@ -142,7 +140,7 @@ function clearAllEntries() {
     .catch(err => console.error('Error clearing all entries:', err));
 }
 
-// Wire up
+// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = document.getElementById('submit-button');
   if (submitBtn) submitBtn.addEventListener('click', submitData);
