@@ -18,131 +18,132 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Helpers
-function valOrNA(v) {
-  return (v ?? v === 0) ? v : "N/A";
-}
-function toIntOrNull(v) {
-  const n = parseInt(v, 10);
-  return Number.isFinite(n) ? n : null;
-}
+// ---- Submit ----
+async function submitData() {
+  const name = document.getElementById('name')?.value?.trim();
+  const numberInput = document.getElementById('initiative') || document.getElementById('number');
+  const number = numberInput ? parseInt(numberInput.value, 10) : null;
 
-// Submit a new entry
-function submitData() {
-  const nameEl   = document.getElementById('name');
-  const numEl    = document.getElementById('number');
-  const hpEl     = document.getElementById('health');
-  const grdEl    = document.getElementById('grd');
-  const resEl    = document.getElementById('res');
-  const tghEl    = document.getElementById('tgh');
+  const healthInput = document.getElementById('health');
+  const health = healthInput && healthInput.value !== '' ? parseInt(healthInput.value, 10) : null;
 
-  const name   = (nameEl?.value || '').trim();
-  const number = toIntOrNull(numEl?.value);
-  const health = toIntOrNull(hpEl?.value);
-  const grd    = toIntOrNull(grdEl?.value);
-  const res    = toIntOrNull(resEl?.value);
-  const tgh    = toIntOrNull(tghEl?.value);
+  const grdInput = document.getElementById('grd');
+  const resInput = document.getElementById('res');
+  const tghInput = document.getElementById('tgh');
 
-  if (!name || number === null) {
+  const grd = grdInput ? (grdInput.value !== '' ? parseInt(grdInput.value, 10) : null) : undefined;
+  const res = resInput ? (resInput.value !== '' ? parseInt(resInput.value, 10) : null) : undefined;
+  const tgh = tghInput ? (tghInput.value !== '' ? parseInt(tghInput.value, 10) : null) : undefined;
+
+  if (!name || isNaN(number)) {
     console.log('Please enter a valid name and initiative number.');
     return;
   }
 
-  const entry = {
-    name,
-    number,
-    health: health ?? 0,
-    grd: grd ?? null,
-    res: res ?? null,
-    tgh: tgh ?? null
-  };
+  try {
+    const entry = { name, number };
+    if (health !== null) entry.health = health;
+    if (grd !== undefined) entry.grd = grd;
+    if (res !== undefined) entry.res = res;
+    if (tgh !== undefined) entry.tgh = tgh;
 
-  const listRef = ref(db, 'rankings/');
-  push(listRef, entry).then(() => {
-    if (nameEl) nameEl.value = '';
-    if (numEl) numEl.value = '';
-    if (hpEl) hpEl.value = '';
-    if (grdEl) grdEl.value = '';
-    if (resEl) resEl.value = '';
-    if (tghEl) tghEl.value = '';
-  }).catch(err => {
-    console.error('Error pushing entry:', err);
-  });
+    const rankingsRef = ref(db, 'rankings/');
+    const monsterRef = ref(db, 'OpenLegendMonster/');
+
+    await push(rankingsRef, entry);
+    await push(monsterRef, entry);
+
+    // clear inputs
+    document.getElementById('name').value = '';
+    if (numberInput) numberInput.value = '';
+    if (healthInput) healthInput.value = '';
+    if (grdInput) grdInput.value = '';
+    if (resInput) resInput.value = '';
+    if (tghInput) tghInput.value = '';
+
+    const swordSound = document.getElementById('sword-sound');
+    if (swordSound) swordSound.play();
+  } catch (err) {
+    console.error('Error submitting data:', err);
+  }
 }
 
-// Build one list item (with tooltip)
+// ---- Render helpers ----
+function valOrNA(v) {
+  return (v ?? v === 0) ? v : 'N/A';
+}
+
 function buildListItem({ id, name, number, health, grd, res, tgh }) {
   const li = document.createElement('li');
 
-  // Init
-  const initDiv = document.createElement('div');
-  initDiv.className = 'init';
-  initDiv.textContent = `Init: ${valOrNA(number)}`;
-  li.appendChild(initDiv);
-
-  // Name (hover shows GRD/RES/TGH)
-  const tooltip = `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`;
+  // Name with tooltip
+  const tip = `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`;
 
   const nameDiv = document.createElement('div');
   nameDiv.className = 'name';
-  nameDiv.textContent = name;
-  nameDiv.setAttribute('data-tooltip', tooltip); // styled tooltip
-  nameDiv.title = tooltip;                       // native fallback
+  nameDiv.textContent = name;          // show only the name
+  nameDiv.setAttribute('data-tooltip', tip); // styled tooltip
+  nameDiv.title = tip;                 // native fallback
   li.appendChild(nameDiv);
 
-  // HP
-  const healthDiv = document.createElement('div');
-  healthDiv.className = 'health';
-  healthDiv.textContent = `HP: ${valOrNA(health)}`;
-  li.appendChild(healthDiv);
+  // HP (if present)
+  if (health !== null && health !== undefined) {
+    const healthDiv = document.createElement('div');
+    healthDiv.className = 'health';
+    healthDiv.textContent = `HP: ${health}`;
+    li.appendChild(healthDiv);
+  }
 
   // Remove button
   const removeBtn = document.createElement('button');
-  removeBtn.className = 'remove';
   removeBtn.textContent = 'Remove';
-  removeBtn.addEventListener('click', () => {
-    const entryRef = ref(db, `rankings/${id}`);
-    remove(entryRef).catch(err => console.error('Error removing entry:', err));
-  });
+  removeBtn.addEventListener('click', () => removeEntry(id));
   li.appendChild(removeBtn);
 
   return li;
 }
 
-// Fetch and render list
+// ---- Fetch & render ----
 function fetchRankings() {
-  const listRef = ref(db, 'rankings/');
-  onValue(listRef, (snapshot) => {
+  const reference = ref(db, 'rankings/');
+  onValue(reference, (snapshot) => {
     const data = snapshot.val();
-    const ul = document.getElementById('rankingList');
-    if (!ul) return;
+    const rankingList = document.getElementById('rankingList');
+    if (!rankingList) return;
 
-    ul.innerHTML = '';
-    if (!data) return;
+    rankingList.innerHTML = '';
 
-    const rows = Object.entries(data).map(([id, v]) => ({ id, ...v }));
-    rows.sort((a, b) => (b.number ?? -Infinity) - (a.number ?? -Infinity));
+    if (data) {
+      // FIX: spread the entry object correctly
+      const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
+      rankings.sort((a, b) => (b.number ?? -Infinity) - (a.number ?? -Infinity));
 
-    for (const row of rows) {
-      ul.appendChild(buildListItem(row));
+      rankings.forEach(row => rankingList.appendChild(buildListItem(row)));
+    } else {
+      console.log('No data available');
     }
-  }, (err) => {
-    console.error('Error reading rankings:', err);
+  }, (error) => {
+    console.error('Error fetching data:', error);
   });
 }
 
-// Clear all entries
+// ---- Remove & clear ----
+function removeEntry(id) {
+  const reference = ref(db, `rankings/${id}`);
+  remove(reference).catch(err => console.error('Error removing entry:', err));
+}
+
 function clearAllEntries() {
-  const listRef = ref(db, 'rankings/');
-  set(listRef, null)
+  const reference = ref(db, 'rankings/');
+  set(reference, null)
     .then(() => {
-      const ul = document.getElementById('rankingList');
-      if (ul) ul.innerHTML = '';
+      const rankingList = document.getElementById('rankingList');
+      if (rankingList) rankingList.innerHTML = '';
     })
     .catch(err => console.error('Error clearing all entries:', err));
 }
 
-// Wire up
+// ---- Wire up ----
 document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = document.getElementById('submit-button');
   if (submitBtn) submitBtn.addEventListener('click', submitData);
