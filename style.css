@@ -391,14 +391,13 @@ ul {
   }
 }
 
-#rankingList li {
-  overflow: visible !important;
-}
+/* ===== Tooltip patch (append-only) ===== */
+#rankingList li { overflow: visible !important; }
 
 .ranking-body .name {
   position: relative !important;
-  overflow: visible !important;  
-  cursor: help;                  
+  overflow: visible !important;
+  cursor: help;
 }
 
 .ranking-body .name[data-tooltip]::after {
@@ -420,7 +419,6 @@ ul {
   transition: opacity 120ms ease, transform 120ms ease;
   z-index: 20;
 }
-
 .ranking-body .name[data-tooltip]:hover::after {
   opacity: 1;
   transform: translateY(-10px);
