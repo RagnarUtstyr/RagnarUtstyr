@@ -77,23 +77,35 @@
     <a href="openmonsterlist.html" class="button-link">Go to Monster List</a>
   </div>
 
+  <!-- Stats Modal: opens when clicking on a Name -->
   <div id="stats-modal" class="ol-modal-overlay" hidden>
-  <div class="ol-modal-card">
-    <button class="close-btn" aria-label="Close">&times;</button>
-    <h3 id="stats-title">Stats</h3>
+    <div class="ol-modal-card" role="dialog" aria-modal="true" aria-labelledby="stats-title">
+      <button class="close-btn" aria-label="Close">&times;</button>
+      <h3 id="stats-title">Stats</h3>
 
-    <div class="stats-grid">
-      <div class="stat"><span class="label">GRD:</span> <span id="stat-grd" class="value">—</span></div>
-      <div class="stat"><span class="label">RES:</span> <span id="stat-res" class="value">—</span></div>
-      <div class="stat"><span class="label">TGH:</span> <span id="stat-tgh" class="value">—</span></div>
-      <div class="stat"><span class="label">HP:</span>  <span id="stat-hp"  class="value">—</span></div>
-    </div>
+      <div class="stats-grid">
+        <div class="stat"><span class="label">GRD:</span> <span id="stat-grd" class="value">—</span></div>
+        <div class="stat"><span class="label">RES:</span> <span id="stat-res" class="value">—</span></div>
+        <div class="stat"><span class="label">TGH:</span> <span id="stat-tgh" class="value">—</span></div>
+      </div>
 
-    <div class="modal-actions">
-      <button id="modal-ok" class="button-link">OK</button>
+      <div class="modal-actions">
+        <button id="modal-ok" class="button-link">OK</button>
+      </div>
     </div>
   </div>
-</div>
+
+  <!-- Minimal modal CSS kept inline so this file is self-contained.
+       It borrows your font/colors and plays nice with existing styles. -->
+  <style>
+    .ol-modal-overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,.5); z-index: 1000; }
+    .ol-modal-card { position: relative; width: min(480px, 92vw); background: var(--card-bg, #fff); color: inherit; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.25); padding: 1.25rem 1.25rem 1rem; font-family: inherit; }
+    .ol-modal-card h3 { margin: 0 0 .75rem; font-size: 1.25rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .75rem; margin-bottom: 1rem; }
+    .stat .label { font-weight: 600; margin-right: .25rem; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: .5rem; }
+    .close-btn { position: absolute; top: .5rem; right: .5rem; border: 0; background: transparent; font-size: 1.5rem; line-height: 1; cursor: pointer; color: inherit; }
+  </style>
 </body>
 
 </html>
