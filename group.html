@@ -126,13 +126,17 @@
   <div id="stat-modal" class="ol-modal" aria-hidden="true">
     <div class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stat-modal-title">
       <button class="ol-modal__close" id="stat-modal-close" aria-label="Close">×</button>
-      <h3 id="stat-modal-title"></h3>
+<h3 id="stat-modal-title"></h3>
+<p style="margin-top:4px;margin-bottom:10px;">
+  <span class="label">Initiative:</span>
+  <span class="value" id="stat-init"></span>
+</p>
 
-      <div class="ol-modal__stats">
-        <div><span class="label">GRD:</span><span class="value" id="stat-grd"></span></div>
-        <div><span class="label">RES:</span><span class="value" id="stat-res"></span></div>
-        <div><span class="label">TGH:</span><span class="value" id="stat-tgh"></span></div>
-      </div>
+<div class="ol-modal__stats">
+  <div><span class="label">GRD:</span><span class="value" id="stat-grd"></span></div>
+  <div><span class="label">RES:</span><span class="value" id="stat-res"></span></div>
+  <div><span class="label">TGH:</span><span class="value" id="stat-tgh"></span></div>
+</div>
 
       <a id="stat-url" class="button-link" target="_blank" rel="noopener" style="display:none;">Open details</a>
     </div>
