@@ -18,7 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Helper functions
+// Helpers
 function valOrNA(v) {
   return (v ?? v === 0) ? v : "N/A";
 }
@@ -27,7 +27,7 @@ function toIntOrNull(v) {
   return Number.isFinite(n) ? n : null;
 }
 
-// Submit new entry to DB
+// Submit a new entry
 function submitData() {
   const nameEl   = document.getElementById('name');
   const numEl    = document.getElementById('number');
@@ -59,7 +59,6 @@ function submitData() {
 
   const listRef = ref(db, 'rankings/');
   push(listRef, entry).then(() => {
-    // Clear form inputs
     if (nameEl) nameEl.value = '';
     if (numEl) numEl.value = '';
     if (hpEl) hpEl.value = '';
@@ -71,7 +70,7 @@ function submitData() {
   });
 }
 
-// Build one list item
+// Build one list item (with custom tooltip via data-tooltip)
 function buildListItem({ id, name, number, health, grd, res, tgh }) {
   const li = document.createElement('li');
 
@@ -81,11 +80,14 @@ function buildListItem({ id, name, number, health, grd, res, tgh }) {
   initDiv.textContent = `Init: ${valOrNA(number)}`;
   li.appendChild(initDiv);
 
-  // Name with hover tooltip showing GRD/RES/TGH
+  // Name (hover shows GRD/RES/TGH)
   const nameDiv = document.createElement('div');
   nameDiv.className = 'name';
   nameDiv.textContent = name;
-  nameDiv.title = `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`;
+  nameDiv.setAttribute(
+    'data-tooltip',
+    `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`
+  );
   li.appendChild(nameDiv);
 
   // HP
@@ -107,15 +109,15 @@ function buildListItem({ id, name, number, health, grd, res, tgh }) {
   return li;
 }
 
-// Fetch and display rankings
+// Fetch and render list
 function fetchRankings() {
   const listRef = ref(db, 'rankings/');
   onValue(listRef, (snapshot) => {
     const data = snapshot.val();
     const ul = document.getElementById('rankingList');
     if (!ul) return;
-    ul.innerHTML = '';
 
+    ul.innerHTML = '';
     if (!data) return;
 
     const rows = Object.entries(data).map(([id, v]) => ({ id, ...v }));
@@ -140,7 +142,7 @@ function clearAllEntries() {
     .catch(err => console.error('Error clearing all entries:', err));
 }
 
-// Event listeners
+// Wire up
 document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = document.getElementById('submit-button');
   if (submitBtn) submitBtn.addEventListener('click', submitData);

@@ -1,7 +1,5 @@
-/* === Global Fix for Overflow & Scaling === */
-* {
-  box-sizing: border-box;
-}
+/* === Global === */
+* { box-sizing: border-box; }
 
 html, body {
   width: 100%;
@@ -24,10 +22,7 @@ body {
 }
 
 /* === Typography === */
-h1, h2 {
-  color: #e3cf95;
-  text-align: center;
-}
+h1, h2 { color: #e3cf95; text-align: center; }
 
 input[type="text"],
 input[type="number"] {
@@ -47,13 +42,9 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
 
-input[type="number"] {
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-/* === Buttons === */
+/* === Buttons & Links === */
 button {
   background-color: #0b2621;
   color: #bdb382;
@@ -65,11 +56,7 @@ button {
   font-size: 1em;
   margin: 0;
 }
-
-button:hover {
-  background-color: #1a3b4a;
-  color: #237768;
-}
+button:hover { background-color: #1a3b4a; color: #237768; }
 
 a.button-link {
   display: inline-block;
@@ -80,11 +67,7 @@ a.button-link {
   border: 2px solid #2d3d73;
   border-radius: 5px;
 }
-
-a.button-link:hover {
-  background-color: #1a3b4a;
-  color: #ffffff;
-}
+a.button-link:hover { background-color: #1a3b4a; color: #fff; }
 
 /* === Ranking List === */
 #rankingList {
@@ -105,7 +88,8 @@ a.button-link:hover {
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
-  overflow: hidden;
+  /* IMPORTANT: let tooltip overflow out of the row */
+  overflow: visible;
   font-weight: 500;
   letter-spacing: 0.2px;
   gap: 10px;
@@ -123,15 +107,12 @@ li .number {
   word-break: break-word;
 }
 
-/* make it obvious the name has a tooltip */
-li .name {
-  cursor: help;
-}
+/* make it obvious the name has more info */
+li .name { cursor: help; }
 
-/* OPTIONAL: custom tooltip if you switch JS to data-tooltip */
-.ranking-body .name {
-  position: relative;
-}
+/* === Custom Tooltip (used by data-tooltip on .name) === */
+.ranking-body .name { position: relative; }
+
 .ranking-body .name[data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -145,17 +126,19 @@ li .name {
   font-size: 0.9rem;
   line-height: 1.2;
   box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-  white-space: pre;          /* keeps line breaks */
+  white-space: pre;          /* preserve \n line breaks */
   pointer-events: none;
   opacity: 0;
   transition: opacity 120ms ease, transform 120ms ease;
-  z-index: 10;
+  z-index: 20;
 }
+
 .ranking-body .name[data-tooltip]:hover::after {
   opacity: 1;
   transform: translateY(-10px);
 }
 
+/* Inputs used elsewhere */
 input.damage-input {
   width: 60px;
   padding: 5px;
@@ -167,7 +150,7 @@ input.damage-input {
   text-align: center;
 }
 
-/* You had .remove-button, but your JS uses .remove – support both */
+/* Style both .remove-button and .remove */
 .remove-button,
 button.remove {
   background-color: #a8342d;
@@ -178,13 +161,10 @@ button.remove {
   cursor: pointer;
   font-family: 'MedievalSharp', cursive;
 }
-
 .remove-button:hover,
-button.remove:hover {
-  background-color: #851f1a;
-}
+button.remove:hover { background-color: #851f1a; }
 
-/* === Main Container (Fixed for Mobile) === */
+/* === Container === */
 .container {
   width: 100%;
   max-width: 100%;
@@ -194,24 +174,13 @@ button.remove:hover {
   box-shadow: 0 0 10px #000;
   margin: 0 auto;
 }
-
-/* Restore max-width on larger screens */
 @media (min-width: 600px) {
-  .container {
-    max-width: 800px;
-    padding: 20px;
-  }
+  .container { max-width: 800px; padding: 20px; }
 }
 
 /* === Misc Lists === */
-ul {
-  padding: 0;
-}
-
-.list-item {
-  border-bottom: 1px solid #bdb382;
-  padding: 10px 0;
-}
+ul { padding: 0; }
+.list-item { border-bottom: 1px solid #bdb382; padding: 10px 0; }
 
 /* === Ranking Layout === */
 .ranking-container {
@@ -221,7 +190,6 @@ ul {
   background-color: transparent;
   border: none;
 }
-
 .ranking-header,
 .ranking-body li {
   display: flex;
@@ -231,12 +199,7 @@ ul {
   gap: 10px;
   padding: 6px 15px;
 }
-
-.ranking-body {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+.ranking-body { list-style: none; padding: 0; margin: 0; }
 
 .ranking-header .column,
 .ranking-body li .column {
@@ -246,22 +209,9 @@ ul {
   min-width: 0;
   word-break: break-word;
 }
-
-.column.name {
-  width: 40%;
-  text-align: left;
-  font-weight: bold;
-}
-
-.column.hp {
-  width: 20%;
-  text-align: center;
-}
-
-.column.dmg {
-  width: 20%;
-  text-align: right;
-}
+.column.name { width: 40%; text-align: left; font-weight: bold; }
+.column.hp { width: 20%; text-align: center; }
+.column.dmg { width: 20%; text-align: right; }
 
 /* === Defense Inputs === */
 .defense-input-row {
@@ -271,19 +221,12 @@ ul {
   margin: 10px 0;
   flex-wrap: wrap;
 }
-
-.defense-input {
-  flex: 1 1 30%;
-  display: flex;
-  flex-direction: column;
-}
-
+.defense-input { flex: 1 1 30%; display: flex; flex-direction: column; }
 .defense-input label {
   font-size: 0.9em;
   margin-bottom: 4px;
   color: #bdb382;
 }
-
 .defense-input input {
   padding: 6px;
   border: 2px solid #2d3d73;
@@ -309,11 +252,10 @@ ul {
   margin-bottom: 10px;
   color: #bdb382;
   font-family: 'MedievalSharp', serif;
-  flex-wrap: wrap; /* fixed */
+  flex-wrap: wrap;
   overflow-x: auto;
   white-space: nowrap;
 }
-
 .global-stat-selector label {
   display: flex;
   align-items: center;
@@ -321,7 +263,6 @@ ul {
   gap: 4px;
   white-space: nowrap;
 }
-
 .global-stat-selector input[type="radio"] {
   transform: scale(1.1);
   margin: 0;
@@ -337,7 +278,6 @@ ul {
   margin: 1em auto;
   min-width: 0;
 }
-
 .button-container button {
   flex: 1;
   min-width: 100px;
@@ -347,45 +287,20 @@ ul {
   text-align: center;
 }
 
-/* === Mobile Responsiveness === */
+/* === Mobile === */
 @media (max-width: 600px) {
-  body {
-    padding: 10px;
-  }
+  body { padding: 10px; }
+  h1, h2 { font-size: 1.2em; }
 
-  h1, h2 {
-    font-size: 1.2em;
-  }
+  input[type="text"], input[type="number"] { font-size: 0.95em; }
 
-  input[type="text"],
-  input[type="number"] {
-    font-size: 0.95em;
-  }
+  .defense-input-row { flex-direction: row; justify-content: space-between; flex-wrap: wrap; }
+  .defense-input { flex: 1 1 30%; }
 
-  .defense-input-row {
-    flex-direction: row;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
+  .button-container { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+  .button-container button { flex: 1 1 48%; font-size: 1em; }
 
-  .defense-input {
-    flex: 1 1 30%;
-  }
-
-  .button-container {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .button-container button {
-    flex: 1 1 48%;
-    font-size: 1em;
-  }
-
-  #submit-button,
-  #clear-list-button,
-  .button-link {
+  #submit-button, #clear-list-button, .button-link {
     width: 100%;
     text-align: center;
     margin-bottom: 10px;
@@ -400,8 +315,7 @@ ul {
     font-size: 0.9em;
   }
 
-  .ranking-header,
-  .ranking-body li {
+  .ranking-header, .ranking-body li {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -409,8 +323,7 @@ ul {
     padding: 6px 10px;
   }
 
-  .ranking-header .column,
-  .ranking-body li .column {
+  .ranking-header .column, .ranking-body li .column {
     width: 33%;
     font-size: 0.9em;
     text-align: center;
@@ -418,11 +331,6 @@ ul {
     word-break: break-word;
   }
 
-  .column.name {
-    text-align: left;
-  }
-
-  .column.dmg {
-    text-align: right;
-  }
+  .column.name { text-align: left; }
+  .column.dmg { text-align: right; }
 }
