@@ -3,11 +3,13 @@ import { getDatabase, ref, update, onValue, remove, set } from "https://www.gsta
 const db = getDatabase();
 
 /* -------------------------- Modal helpers -------------------------- */
-function openStatModal({ name, grd, res, tgh, url }) {
+function openStatModal({ name, grd, res, tgh, url, initiative }) {
   const modal = document.getElementById('stat-modal');
   if (!modal) return;
 
+  // Title + fields
   document.getElementById('stat-modal-title').textContent = name ?? '';
+  document.getElementById('stat-init').textContent = (initiative ?? 'N/A');
   document.getElementById('stat-grd').textContent = (grd ?? 'N/A');
   document.getElementById('stat-res').textContent = (res ?? 'N/A');
   document.getElementById('stat-tgh').textContent = (tgh ?? 'N/A');
@@ -57,25 +59,27 @@ function fetchRankings() {
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
     rankings.sort((a, b) => b.number - a.number);
 
-    rankings.forEach(({ id, name, grd, res, tgh, health, url }) => {
+    rankings.forEach(({ id, name, grd, res, tgh, health, url, number }) => {
       const listItem = document.createElement('li');
       listItem.className = 'list-item';
       if (health === 0) listItem.classList.add('defeated');
 
-      // Name (click to open modal with GRD/RES/TGH)
+      // Name (click to open modal with Initiative + GRD/RES/TGH)
       const nameCol = document.createElement('div');
       nameCol.className = 'column name';
       nameCol.textContent = name ?? 'Unknown';
       nameCol.style.cursor = 'pointer';
       nameCol.title = 'Show defenses (GRD / RES / TGH)';
-      nameCol.addEventListener('click', () => openStatModal({ name, grd, res, tgh, url }));
+      nameCol.addEventListener('click', () => openStatModal({
+        name, grd, res, tgh, url, initiative: number
+      }));
 
       // HP
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
       hpCol.textContent = `${health ?? 'N/A'}`;
 
-      // Damage input (we’ll compute effective damage using selected global stat)
+      // Damage input (compute effective damage using selected global stat)
       const dmgCol = document.createElement('div');
       dmgCol.className = 'column dmg';
       const dmgInput = document.createElement('input');

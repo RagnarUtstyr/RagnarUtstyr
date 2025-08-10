@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="save.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 
-  <!-- Minimal modal CSS (kept here so you don't have to edit style.css) -->
+  <!-- Minimal modal CSS (theme-matched) -->
   <style>
     .ol-modal {
       position: fixed; inset: 0;
@@ -41,8 +41,14 @@
       font-family: 'MedievalSharp', cursive;
     }
     .ol-modal__dialog h3 {
-      margin: 0 0 10px 0; color: #e3cf95;
+      margin: 0 0 8px 0; color: #e3cf95;
     }
+    .ol-meta {
+      margin: 0 0 10px 0;
+    }
+    .ol-meta .label { color: #2d3d73; font-weight: 700; margin-right: 6px; }
+    .ol-meta .value { color: #bdb382; }
+
     .ol-modal__stats > div {
       display: flex; justify-content: space-between;
       padding: 6px 0; border-bottom: 1px solid #1a3b4a;
@@ -50,6 +56,7 @@
     .ol-modal__stats > div:last-child { border-bottom: 0; }
     .ol-modal__stats .label { color: #2d3d73; font-weight: 700; }
     .ol-modal__stats .value { color: #bdb382; }
+
     .ol-modal__close {
       position: absolute; right: 10px; top: 8px;
       background: #0b2621; color: #bdb382; border: 2px solid #2d3d73;
@@ -126,19 +133,20 @@
   <div id="stat-modal" class="ol-modal" aria-hidden="true">
     <div class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stat-modal-title">
       <button class="ol-modal__close" id="stat-modal-close" aria-label="Close">×</button>
-<h3 id="stat-modal-title"></h3>
-<p style="margin-top:4px;margin-bottom:10px;">
-  <span class="label">Initiative:</span>
-  <span class="value" id="stat-init"></span>
-</p>
+      <h3 id="stat-modal-title"></h3>
 
-<div class="ol-modal__stats">
-  <div><span class="label">GRD:</span><span class="value" id="stat-grd"></span></div>
-  <div><span class="label">RES:</span><span class="value" id="stat-res"></span></div>
-  <div><span class="label">TGH:</span><span class="value" id="stat-tgh"></span></div>
-</div>
+      <p class="ol-meta">
+        <span class="label">Initiative:</span>
+        <span class="value" id="stat-init"></span>
+      </p>
 
-      <a id="stat-url" class="button-link" target="_blank" rel="noopener" style="display:none;">Open details</a>
+      <div class="ol-modal__stats">
+        <div><span class="label">GRD:</span><span class="value" id="stat-grd"></span></div>
+        <div><span class="label">RES:</span><span class="value" id="stat-res"></span></div>
+        <div><span class="label">TGH:</span><span class="value" id="stat-tgh"></span></div>
+      </div>
+
+      <a id="stat-url" class="button-link" target="_blank" rel="noopener" style="display:none; margin-top:12px;">Open details</a>
     </div>
   </div>
 </body>
