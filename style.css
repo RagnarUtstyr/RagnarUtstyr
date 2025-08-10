@@ -391,19 +391,16 @@ ul {
   }
 }
 
-/* 1) Let tooltips escape the row even if earlier CSS sets overflow: hidden */
 #rankingList li {
   overflow: visible !important;
 }
 
-/* 2) The name needs to be the tooltip anchor and must not clip it */
 .ranking-body .name {
   position: relative !important;
-  overflow: visible !important;  /* was getting clipped */
-  cursor: help;                  /* shows the ? cursor on hover */
+  overflow: visible !important;  
+  cursor: help;                  
 }
 
-/* 3) Styled tooltip for [data-tooltip] (what server.js now sets) */
 .ranking-body .name[data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -417,7 +414,7 @@ ul {
   font-size: 0.9rem;
   line-height: 1.2;
   box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-  white-space: pre;          /* preserve \n line breaks */
+  white-space: pre;
   pointer-events: none;
   opacity: 0;
   transition: opacity 120ms ease, transform 120ms ease;
