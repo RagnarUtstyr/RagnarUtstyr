@@ -1,37 +1,156 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Get the search input and the list of entries
-    const searchInput = document.getElementById('search');
-    const entries = document.querySelectorAll('.table-entry');
+// Import Firebase SDK modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-    // Add an event listener to the search box
-    searchInput.addEventListener('input', function () {
-        const query = searchInput.value.toLowerCase().trim(); // Get the search query in lowercase
-        const queryWords = query.split(/\s+/); // Split the query into individual words
+// Firebase Configuration (yours)
+const firebaseConfig = {
+  apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+  authDomain: "roll202-c0b0d.firebaseapp.com",
+  databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "roll202-c0b0d",
+  storageBucket: "roll202-c0b0d.appspot.com",
+  messagingSenderId: "607661730400",
+  appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+  measurementId: "G-6X5L39W56C"
+};
 
-        // Loop through all entries to check if they match the search query
-        entries.forEach(function (entry) {
-            // Get the content inside the relevant fields (Name, CR, Type)
-            const nameElement = entry.querySelectorAll('.content')[1]; // Name is the 2nd .content
-            const crElement = entry.querySelectorAll('.content')[2];   // CR is the 3rd .content
-            const typeElement = entry.querySelectorAll('.content')[3]; // Type is the 4th .content
+// Init Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-            // Get the text content and convert to lowercase
-            const nameText = nameElement ? nameElement.textContent.toLowerCase() : ''; 
-            const crText = crElement ? crElement.textContent.toLowerCase() : '';
-            const typeText = typeElement ? typeElement.textContent.toLowerCase() : '';
+// Helpers
+function valOrNA(v) {
+  return (v ?? v === 0) ? v : "N/A";
+}
+function toIntOrNull(v) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? n : null;
+}
 
-            // Combine all fields' text for easier comparison
-            const combinedText = `${nameText} ${crText} ${typeText}`;
+// Submit a new entry
+function submitData() {
+  const nameEl   = document.getElementById('name');
+  const numEl    = document.getElementById('number');
+  const hpEl     = document.getElementById('health');
+  const grdEl    = document.getElementById('grd');
+  const resEl    = document.getElementById('res');
+  const tghEl    = document.getElementById('tgh');
 
-            // Check if all query words are found in the combined text
-            const isMatch = queryWords.every(word => combinedText.includes(word));
+  const name   = (nameEl?.value || '').trim();
+  const number = toIntOrNull(numEl?.value);
+  const health = toIntOrNull(hpEl?.value);
+  const grd    = toIntOrNull(grdEl?.value);
+  const res    = toIntOrNull(resEl?.value);
+  const tgh    = toIntOrNull(tghEl?.value);
 
-            // Show or hide the entry based on the match
-            if (isMatch) {
-                entry.style.display = 'block'; // Show entry if all words match
-            } else {
-                entry.style.display = 'none'; // Hide entry if any word doesn't match
-            }
-        });
-    });
+  if (!name || number === null) {
+    console.log('Please enter a valid name and initiative number.');
+    return;
+  }
+
+  const entry = {
+    name,
+    number,
+    health: health ?? 0,
+    grd: grd ?? null,
+    res: res ?? null,
+    tgh: tgh ?? null
+  };
+
+  const listRef = ref(db, 'rankings/');
+  push(listRef, entry).then(() => {
+    // clear inputs
+    if (nameEl) nameEl.value = '';
+    if (numEl) numEl.value = '';
+    if (hpEl) hpEl.value = '';
+    if (grdEl) grdEl.value = '';
+    if (resEl) resEl.value = '';
+    if (tghEl) tghEl.value = '';
+  }).catch(err => {
+    console.error('Error pushing entry:', err);
+  });
+}
+
+// Build one list item (with hover popup via native title)
+function buildListItem({ id, name, number, health, grd, res, tgh }) {
+  const li = document.createElement('li');
+
+  // Name (shows tooltip with GRD/RES/TGH on hover)
+  const nameDiv = document.createElement('div');
+  nameDiv.className = 'name';
+  nameDiv.textContent = name;
+  nameDiv.title = `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`;
+
+  // HP
+  const healthDiv = document.createElement('div');
+  healthDiv.className = 'health';
+  healthDiv.textContent = `HP: ${valOrNA(health)}`;
+
+  // Init
+  const initDiv = document.createElement('div');
+  initDiv.className = 'init';
+  initDiv.textContent = `Init: ${valOrNA(number)}`;
+
+  // Remove button
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'remove';
+  removeBtn.textContent = 'Remove';
+  removeBtn.addEventListener('click', () => {
+    const entryRef = ref(db, `rankings/${id}`);
+    remove(entryRef).catch(err => console.error('Error removing entry:', err));
+  });
+
+  li.appendChild(initDiv);
+  li.appendChild(nameDiv);
+  li.appendChild(healthDiv);
+  li.appendChild(removeBtn);
+
+  return li;
+}
+
+// Fetch and render list
+function fetchRankings() {
+  const listRef = ref(db, 'rankings/');
+  onValue(listRef, (snapshot) => {
+    const data = snapshot.val();
+    const ul = document.getElementById('rankingList');
+    if (!ul) return;
+
+    ul.innerHTML = '';
+
+    if (!data) return;
+
+    const rows = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+    rows.sort((a, b) => (b.number ?? -Infinity) - (a.number ?? -Infinity));
+
+    for (const row of rows) {
+      ul.appendChild(buildListItem(row));
+    }
+  }, (err) => {
+    console.error('Error reading rankings:', err);
+  });
+}
+
+// Clear all entries
+function clearAllEntries() {
+  const listRef = ref(db, 'rankings/');
+  set(listRef, null)
+    .then(() => {
+      const ul = document.getElementById('rankingList');
+      if (ul) ul.innerHTML = '';
+    })
+    .catch(err => console.error('Error clearing all entries:', err));
+}
+
+// Wire up
+document.addEventListener('DOMContentLoaded', () => {
+  const submitBtn = document.getElementById('submit-button');
+  if (submitBtn) submitBtn.addEventListener('click', submitData);
+
+  const clearBtn = document.getElementById('clear-list-button');
+  if (clearBtn) clearBtn.addEventListener('click', clearAllEntries);
+
+  if (document.getElementById('rankingList')) {
+    fetchRankings();
+  }
 });
