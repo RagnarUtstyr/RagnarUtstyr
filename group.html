@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png" />
+  <title>Initiative</title>
+  <script type="module" src="server.js" defer></script>
+  <script type="module" src="health.js" defer></script>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="turn.css" />
+  <link rel="stylesheet" href="save.css" />
+  <script src="turn.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>Initiative</h1>
+
+    <div class="ranking-container">
+      <div class="global-stat-selector">
+        <label><input type="radio" name="globalStat" value="grd" checked> GRD</label>
+        <label><input type="radio" name="globalStat" value="res"> RES</label>
+        <label><input type="radio" name="globalStat" value="tgh"> TGH</label>
+      </div>
+
+      <div class="ranking-header">
+        <div class="column name">Name</div>
+        <div class="column hp">HP</div>
+        <div class="column dmg">DMG</div>
+      </div>
+
+      <ul id="rankingList" class="ranking-body"></ul>
+
+      <div class="button-container">
+        <button id="apply-damage-button">Apply Damage</button>
+        <button id="next-button">Next</button>
+      </div>
+    </div>
+
+    <br />
+    <button id="clear-list-button">Clear List</button>
+    <br /><br />
+
+    <h2>Submit a New Entry</h2>
+
+    <label for="name">Name:</label>
+    <input type="text" id="name" required />
+
+    <label for="initiative">Initiative:</label>
+    <input type="number" id="initiative" required />
+
+    <label for="health">Health:</label>
+    <input type="number" id="health" />
+
+    <div class="defense-input-row">
+      <div class="defense-input">
+        <label for="grd">GRD:</label>
+        <input type="number" id="grd" />
+      </div>
+      <div class="defense-input">
+        <label for="res">RES:</label>
+        <input type="number" id="res" />
+      </div>
+      <div class="defense-input">
+        <label for="tgh">TGH:</label>
+        <input type="number" id="tgh" />
+      </div>
+    </div>
+
+    <button id="submit-button">Submit</button>
+
+    <br /><br />
+    <a href="save.html" class="button-link">Go to Lists</a>
+    <a href="openmonsterlist.html" class="button-link">Go to Monster List</a>
+  </div>
+</body>
+
+</html>
