@@ -390,3 +390,42 @@ ul {
     text-align: right;
   }
 }
+.ol-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none; /* toggled via JS */
+  align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.ol-modal[aria-hidden="false"] { display: flex; }
+
+.ol-modal__dialog {
+  background: rgba(31, 29, 26, 0.95);
+  border: 1px solid #1a3b4a;
+  border-radius: 10px;
+  padding: 18px 20px 16px;
+  min-width: 280px; max-width: 420px;
+  box-shadow: 0 0 20px #000;
+  color: #bdb382;
+}
+
+.ol-modal__dialog h3 {
+  margin: 0 0 10px 0; color: #e3cf95;
+}
+
+.ol-modal__stats > div {
+  display: flex; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px solid #1a3b4a;
+}
+.ol-modal__stats > div:last-child { border-bottom: 0; }
+
+.ol-modal__stats .label { color: #2d3d73; font-weight: 700; }
+.ol-modal__stats .value { color: #bdb382; }
+
+.ol-modal__close {
+  position: absolute; right: 10px; top: 8px;
+  background: #0b2621; color: #bdb382; border: 2px solid #2d3d73;
+  border-radius: 6px; width: 32px; height: 32px; line-height: 28px;
+  font-size: 20px; cursor: pointer;
+}
+.ol-modal__close:hover { background: #1a3b4a; color: #237768; }

@@ -6,13 +6,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png" />
   <title>Initiative</title>
+
+  <!-- Scripts -->
   <script type="module" src="server.js" defer></script>
   <script type="module" src="health.js" defer></script>
+  <script src="turn.js" defer></script>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="turn.css" />
   <link rel="stylesheet" href="save.css" />
-  <script src="turn.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
+
+  <!-- Minimal modal CSS (kept here so you don't have to edit style.css) -->
+  <style>
+    .ol-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .ol-modal[aria-hidden="false"] { display: flex; }
+
+    .ol-modal__dialog {
+      position: relative;
+      background: rgba(31, 29, 26, 0.95);
+      border: 1px solid #1a3b4a;
+      border-radius: 10px;
+      padding: 18px 20px 16px;
+      min-width: 280px; max-width: 420px;
+      box-shadow: 0 0 20px #000;
+      color: #bdb382;
+      font-family: 'MedievalSharp', cursive;
+    }
+    .ol-modal__dialog h3 {
+      margin: 0 0 10px 0; color: #e3cf95;
+    }
+    .ol-modal__stats > div {
+      display: flex; justify-content: space-between;
+      padding: 6px 0; border-bottom: 1px solid #1a3b4a;
+    }
+    .ol-modal__stats > div:last-child { border-bottom: 0; }
+    .ol-modal__stats .label { color: #2d3d73; font-weight: 700; }
+    .ol-modal__stats .value { color: #bdb382; }
+    .ol-modal__close {
+      position: absolute; right: 10px; top: 8px;
+      background: #0b2621; color: #bdb382; border: 2px solid #2d3d73;
+      border-radius: 6px; width: 32px; height: 32px; line-height: 28px;
+      font-size: 20px; cursor: pointer;
+    }
+    .ol-modal__close:hover { background: #1a3b4a; color: #237768; }
+  </style>
 </head>
 
 <body>
@@ -75,6 +120,22 @@
     <br /><br />
     <a href="save.html" class="button-link">Go to Lists</a>
     <a href="openmonsterlist.html" class="button-link">Go to Monster List</a>
+  </div>
+
+  <!-- Stats Modal -->
+  <div id="stat-modal" class="ol-modal" aria-hidden="true">
+    <div class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stat-modal-title">
+      <button class="ol-modal__close" id="stat-modal-close" aria-label="Close">×</button>
+      <h3 id="stat-modal-title"></h3>
+
+      <div class="ol-modal__stats">
+        <div><span class="label">GRD:</span><span class="value" id="stat-grd"></span></div>
+        <div><span class="label">RES:</span><span class="value" id="stat-res"></span></div>
+        <div><span class="label">TGH:</span><span class="value" id="stat-tgh"></span></div>
+      </div>
+
+      <a id="stat-url" class="button-link" target="_blank" rel="noopener" style="display:none;">Open details</a>
+    </div>
   </div>
 </body>
 
