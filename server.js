@@ -1,156 +1,154 @@
-// Import necessary Firebase modules from the SDK
+// Import Firebase SDK modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-    authDomain: "roll202-c0b0d.firebaseapp.com",
-    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "roll202-c0b0d",
-    storageBucket: "roll202-c0b0d.appspot.com",
-    messagingSenderId: "607661730400",
-    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-    measurementId: "G-6X5L39W56C"
+  apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+  authDomain: "roll202-c0b0d.firebaseapp.com",
+  databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "roll202-c0b0d",
+  storageBucket: "roll202-c0b0d.appspot.com",
+  messagingSenderId: "607661730400",
+  appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+  measurementId: "G-6X5L39W56C"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Function to submit data to Firebase
-async function submitData() {
-    const name = document.getElementById('name')?.value;
-    const numberInput = document.getElementById('initiative') || document.getElementById('number');
-    const number = numberInput ? parseInt(numberInput.value) : null;
-
-    const healthInput = document.getElementById('health');
-    const health = healthInput && healthInput.value !== '' ? parseInt(healthInput.value) : null;
-
-    const grdInput = document.getElementById('grd');
-    const resInput = document.getElementById('res');
-    const tghInput = document.getElementById('tgh');
-
-    const grd = grdInput ? (grdInput.value !== '' ? parseInt(grdInput.value) : null) : undefined;
-    const res = resInput ? (resInput.value !== '' ? parseInt(resInput.value) : null) : undefined;
-    const tgh = tghInput ? (tghInput.value !== '' ? parseInt(tghInput.value) : null) : undefined;
-
-    if (name && !isNaN(number)) {
-        try {
-            const entry = { name, number };
-            if (health !== null) entry.health = health;
-            if (grd !== undefined) entry.grd = grd;
-            if (res !== undefined) entry.res = res;
-            if (tgh !== undefined) entry.tgh = tgh;
-
-            const rankingsRef = ref(db, 'rankings/');
-            const monsterRef = ref(db, 'OpenLegendMonster/');
-
-            // Save to both locations
-            await push(rankingsRef, entry);
-            await push(monsterRef, entry);
-            console.log('Data submitted to rankings and OpenLegendMonster:', entry);
-
-            // Clear inputs
-            document.getElementById('name').value = '';
-            if (numberInput) numberInput.value = '';
-            if (healthInput) healthInput.value = '';
-            if (grdInput) grdInput.value = '';
-            if (resInput) resInput.value = '';
-            if (tghInput) tghInput.value = '';
-
-            // Play sword sound if available
-            const swordSound = document.getElementById('sword-sound');
-            if (swordSound) swordSound.play();
-
-        } catch (error) {
-            console.error('Error submitting data:', error);
-        }
-    } else {
-        console.log('Please enter a valid name and initiative number.');
-    }
+// Helper functions
+function valOrNA(v) {
+  return (v ?? v === 0) ? v : "N/A";
+}
+function toIntOrNull(v) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? n : null;
 }
 
-// Function to fetch and display rankings
+// Submit new entry to DB
+function submitData() {
+  const nameEl   = document.getElementById('name');
+  const numEl    = document.getElementById('number');
+  const hpEl     = document.getElementById('health');
+  const grdEl    = document.getElementById('grd');
+  const resEl    = document.getElementById('res');
+  const tghEl    = document.getElementById('tgh');
+
+  const name   = (nameEl?.value || '').trim();
+  const number = toIntOrNull(numEl?.value);
+  const health = toIntOrNull(hpEl?.value);
+  const grd    = toIntOrNull(grdEl?.value);
+  const res    = toIntOrNull(resEl?.value);
+  const tgh    = toIntOrNull(tghEl?.value);
+
+  if (!name || number === null) {
+    console.log('Please enter a valid name and initiative number.');
+    return;
+  }
+
+  const entry = {
+    name,
+    number,
+    health: health ?? 0,
+    grd: grd ?? null,
+    res: res ?? null,
+    tgh: tgh ?? null
+  };
+
+  const listRef = ref(db, 'rankings/');
+  push(listRef, entry).then(() => {
+    // Clear form inputs
+    if (nameEl) nameEl.value = '';
+    if (numEl) numEl.value = '';
+    if (hpEl) hpEl.value = '';
+    if (grdEl) grdEl.value = '';
+    if (resEl) resEl.value = '';
+    if (tghEl) tghEl.value = '';
+  }).catch(err => {
+    console.error('Error pushing entry:', err);
+  });
+}
+
+// Build one list item
+function buildListItem({ id, name, number, health, grd, res, tgh }) {
+  const li = document.createElement('li');
+
+  // Init
+  const initDiv = document.createElement('div');
+  initDiv.className = 'init';
+  initDiv.textContent = `Init: ${valOrNA(number)}`;
+  li.appendChild(initDiv);
+
+  // Name with hover tooltip showing GRD/RES/TGH
+  const nameDiv = document.createElement('div');
+  nameDiv.className = 'name';
+  nameDiv.textContent = name;
+  nameDiv.title = `GRD: ${valOrNA(grd)}\nRES: ${valOrNA(res)}\nTGH: ${valOrNA(tgh)}`;
+  li.appendChild(nameDiv);
+
+  // HP
+  const healthDiv = document.createElement('div');
+  healthDiv.className = 'health';
+  healthDiv.textContent = `HP: ${valOrNA(health)}`;
+  li.appendChild(healthDiv);
+
+  // Remove button
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'remove';
+  removeBtn.textContent = 'Remove';
+  removeBtn.addEventListener('click', () => {
+    const entryRef = ref(db, `rankings/${id}`);
+    remove(entryRef).catch(err => console.error('Error removing entry:', err));
+  });
+  li.appendChild(removeBtn);
+
+  return li;
+}
+
+// Fetch and display rankings
 function fetchRankings() {
-    const reference = ref(db, 'rankings/');
-    onValue(reference, (snapshot) => {
-        const data = snapshot.val();
-        const rankingList = document.getElementById('rankingList');
-        if (!rankingList) return;
+  const listRef = ref(db, 'rankings/');
+  onValue(listRef, (snapshot) => {
+    const data = snapshot.val();
+    const ul = document.getElementById('rankingList');
+    if (!ul) return;
+    ul.innerHTML = '';
 
-        rankingList.innerHTML = '';
+    if (!data) return;
 
-        if (data) {
-            const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number);
+    const rows = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+    rows.sort((a, b) => (b.number ?? -Infinity) - (a.number ?? -Infinity));
 
-            rankings.forEach(({ id, name, number, health, grd, res, tgh }) => {
-                const listItem = document.createElement('li');
-
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
-                nameDiv.textContent = `${name} (GRD: ${grd ?? 'N/A'}, RES: ${res ?? 'N/A'}, TGH: ${tgh ?? 'N/A'})`;
-
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.addEventListener('click', () => removeEntry(id));
-
-                listItem.appendChild(nameDiv);
-                if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv);
-                }
-                listItem.appendChild(removeButton);
-
-                rankingList.appendChild(listItem);
-            });
-        } else {
-            console.log('No data available');
-        }
-    }, (error) => {
-        console.error('Error fetching data:', error);
-    });
+    for (const row of rows) {
+      ul.appendChild(buildListItem(row));
+    }
+  }, (err) => {
+    console.error('Error reading rankings:', err);
+  });
 }
 
-// Function to remove an entry from Firebase
-function removeEntry(id) {
-    const reference = ref(db, `rankings/${id}`);
-    remove(reference)
-        .then(() => {
-            console.log(`Entry with id ${id} removed successfully`);
-        })
-        .catch((error) => {
-            console.error('Error removing entry:', error);
-        });
-}
-
-// Function to clear all entries from Firebase
+// Clear all entries
 function clearAllEntries() {
-    const reference = ref(db, 'rankings/');
-    set(reference, null)
-        .then(() => {
-            console.log('All entries removed successfully');
-            const rankingList = document.getElementById('rankingList');
-            if (rankingList) rankingList.innerHTML = '';
-        })
-        .catch((error) => {
-            console.error('Error clearing all entries:', error);
-        });
+  const listRef = ref(db, 'rankings/');
+  set(listRef, null)
+    .then(() => {
+      const ul = document.getElementById('rankingList');
+      if (ul) ul.innerHTML = '';
+    })
+    .catch(err => console.error('Error clearing all entries:', err));
 }
 
-// Page setup
+// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('submit-button')) {
-        document.getElementById('submit-button').addEventListener('click', submitData);
-    }
-    if (document.getElementById('rankingList')) {
-        fetchRankings();
-    }
-    if (document.getElementById('clear-list-button')) {
-        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
-    }
+  const submitBtn = document.getElementById('submit-button');
+  if (submitBtn) submitBtn.addEventListener('click', submitData);
+
+  const clearBtn = document.getElementById('clear-list-button');
+  if (clearBtn) clearBtn.addEventListener('click', clearAllEntries);
+
+  if (document.getElementById('rankingList')) {
+    fetchRankings();
+  }
 });
