@@ -62,6 +62,8 @@ function fetchRankings() {
     rankings.forEach(({ id, name, grd, res, tgh, health, url, number }) => {
       const listItem = document.createElement('li');
       listItem.className = 'list-item';
+
+      // Mark defeated ONLY if health is explicitly 0
       if (health === 0) listItem.classList.add('defeated');
 
       // Name (click to open modal with Initiative + GRD/RES/TGH)
@@ -74,12 +76,12 @@ function fetchRankings() {
         name, grd, res, tgh, url, initiative: number
       }));
 
-      // HP
+      // HP column
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
-      hpCol.textContent = `${health ?? 'N/A'}`;
+      hpCol.textContent = (health === null || health === undefined) ? 'N/A' : `${health}`;
 
-      // Damage input (compute effective damage using selected global stat)
+      // Damage input
       const dmgCol = document.createElement('div');
       dmgCol.className = 'column dmg';
       const dmgInput = document.createElement('input');
@@ -87,18 +89,24 @@ function fetchRankings() {
       dmgInput.placeholder = 'DMG';
       dmgInput.className = 'damage-input';
       dmgInput.dataset.entryId = id;
-      dmgInput.dataset.health = health ?? 0;
+
+      // Store stats for damage calc
       dmgInput.dataset.grd = grd ?? 0;
       dmgInput.dataset.res = res ?? 0;
       dmgInput.dataset.tgh = tgh ?? 0;
+
+      // Only set dataset.health if health is actually provided
+      if (health !== null && health !== undefined) {
+        dmgInput.dataset.health = health;
+      }
       dmgCol.appendChild(dmgInput);
 
       listItem.appendChild(nameCol);
       listItem.appendChild(hpCol);
       listItem.appendChild(dmgCol);
 
-      // Remove button only if at 0 HP
-      if ((health ?? 0) === 0) {
+      // Remove button ONLY if health is explicitly 0 (not N/A)
+      if (health === 0) {
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
         removeButton.className = 'remove-button';
@@ -117,6 +125,12 @@ function applyDamageToAll() {
   const selectedStat = document.querySelector('input[name="globalStat"]:checked')?.value ?? 'grd';
 
   inputs.forEach(input => {
+    // Skip entries that don't have a health value yet (players from index.html)
+    if (!('health' in input.dataset)) {
+      input.value = ''; // clear any typed value
+      return;
+    }
+
     const id = input.dataset.entryId;
     const currentHealth = parseInt(input.dataset.health);
     const rawDamage = parseInt(input.value);
@@ -153,6 +167,8 @@ function updateHealth(id, newHealth, inputEl) {
 
       if (newHealth <= 0) {
         listItem.classList.add('defeated');
+
+        // Add remove button if missing
         let removeButton = listItem.querySelector('.remove-button');
         if (!removeButton) {
           removeButton = document.createElement('button');
@@ -163,6 +179,8 @@ function updateHealth(id, newHealth, inputEl) {
         }
       } else {
         listItem.classList.remove('defeated');
+        // If you want to hide/remove the button when HP goes back above 0, uncomment:
+        // listItem.querySelector('.remove-button')?.remove();
       }
     })
     .catch(err => console.error('Error updating health:', err));
