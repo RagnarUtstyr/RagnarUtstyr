@@ -148,7 +148,13 @@
 
       <a id="stat-url" class="button-link" target="_blank" rel="noopener" style="display:none; margin-top:12px;">Open details</a>
 
-      <!-- ADDED: Delete button that removes the current entry -->
+      <!-- NEW: Heal controls -->
+      <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+        <input id="stat-heal-amount" type="number" placeholder="Heal amount" style="flex:1; padding:6px 8px;">
+        <button id="stat-heal" class="remove-button">Heal</button>
+      </div>
+
+      <!-- NEW: Delete button -->
       <button id="stat-delete" class="remove-button" style="margin-top:12px;">Delete from list</button>
     </div>
   </div>

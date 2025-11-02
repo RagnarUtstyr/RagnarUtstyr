@@ -56,14 +56,14 @@ function fetchRankings() {
 
     if (!data) return;
 
-    // NOTE: Keeping your original mapping form as-is
+    // FIX: spread entry properly
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
     rankings.sort((a, b) => b.number - a.number);
 
     rankings.forEach(({ id, name, grd, res, tgh, health, url, number }) => {
       const listItem = document.createElement('li');
       listItem.className = 'list-item';
-      listItem.dataset.entryId = id; // keep id on the row too
+      listItem.dataset.entryId = id; // keep id on the row
 
       // Mark defeated ONLY if health is explicitly 0
       if (health === 0) listItem.classList.add('defeated');
@@ -74,9 +74,10 @@ function fetchRankings() {
       nameCol.textContent = name ?? 'Unknown';
       nameCol.style.cursor = 'pointer';
       nameCol.title = 'Show defenses (GRD / RES / TGH)';
-      nameCol.addEventListener('click', () => openStatModal({
-        name, grd, res, tgh, url, initiative: number
-      }));
+      nameCol.addEventListener('click', () => {
+        __currentEntryId = id; // remember target for modal actions
+        openStatModal({ name, grd, res, tgh, url, initiative: number });
+      });
 
       // HP column
       const hpCol = document.createElement('div');
@@ -101,6 +102,13 @@ function fetchRankings() {
       if (health !== null && health !== undefined) {
         dmgInput.dataset.health = health;
       }
+
+      // Optional: clicking the input can also open the modal & set current id
+      dmgInput.addEventListener('click', () => {
+        __currentEntryId = id;
+        openStatModal({ name, grd, res, tgh, url, initiative: number });
+      });
+
       dmgCol.appendChild(dmgInput);
 
       listItem.appendChild(nameCol);
@@ -129,8 +137,7 @@ function applyDamageToAll() {
   inputs.forEach(input => {
     // Skip entries that don't have a health value yet (players from index.html)
     if (!('health' in input.dataset)) {
-      input.value = '';
-      // clear any typed value
+      input.value = ''; // clear any typed value
       return;
     }
 
@@ -204,47 +211,53 @@ function clearList() {
   set(reference, null).catch(err => console.error('Error clearing list:', err));
 }
 
-/* ===================== ADDED: delete-from-modal wiring ===================== */
-/** Tracks the last entry (by id) the user clicked (name, row, or damage input) */
-let __lastClickedEntryId = null;
+/* ===================== Modal actions: Delete & Heal ===================== */
+// Track which entry the modal refers to (set when opening it)
+let __currentEntryId = null;
 
-// Remember the most recently interacted entry id anywhere in the list
-document.addEventListener('click', (ev) => {
-  const el = ev.target;
-  // Prefer the damage input's data-entry-id
-  const dmg = el?.closest?.('.damage-input');
-  if (dmg?.dataset?.entryId) {
-    __lastClickedEntryId = dmg.dataset.entryId;
-    return;
-  }
-  // Fallback: any list item row with data-entry-id
-  const row = el?.closest?.('.list-item');
-  if (row?.dataset?.entryId) {
-    __lastClickedEntryId = row.dataset.entryId;
-  }
-});
-
-// Handle Delete in the modal
 document.addEventListener('DOMContentLoaded', () => {
+  // DELETE from modal
   const delBtn = document.getElementById('stat-delete');
   if (delBtn) {
     delBtn.addEventListener('click', () => {
-      if (!__lastClickedEntryId) return;
+      if (!__currentEntryId) return;
       if (!confirm('Delete this entry from the list?')) return;
 
-      // Try to remove the corresponding row from DOM if present
-      const row = document.querySelector(`.list-item[data-entry-id="${__lastClickedEntryId}"]`);
-      removeEntry(__lastClickedEntryId, row || undefined);
+      const row = document.querySelector(`.list-item[data-entry-id="${__currentEntryId}"]`);
+      removeEntry(__currentEntryId, row || undefined);
 
       // Close the modal
       const modal = document.getElementById('stat-modal');
       modal?.setAttribute('aria-hidden', 'true');
 
-      __lastClickedEntryId = null;
+      __currentEntryId = null;
+    });
+  }
+
+  // HEAL from modal (adds to HP; ignores GRD/RES/TGH)
+  const healBtn = document.getElementById('stat-heal');
+  const healAmtInput = document.getElementById('stat-heal-amount');
+
+  if (healBtn && healAmtInput) {
+    healBtn.addEventListener('click', () => {
+      if (!__currentEntryId) return;
+      const amount = parseInt(healAmtInput.value, 10);
+      if (isNaN(amount) || amount <= 0) return;
+
+      const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
+      if (!dmgInput || !('health' in dmgInput.dataset)) {
+        alert('This entry has no HP set yet.');
+        return;
+      }
+
+      const current = parseInt(dmgInput.dataset.health, 10) || 0;
+      const updated = current + amount; // ADD to HP, ignore defenses
+      updateHealth(__currentEntryId, updated, dmgInput);
+
+      healAmtInput.value = '';
     });
   }
 });
-/* =================== /ADDED: delete-from-modal wiring =================== */
 
 /* -------------------------- Wire up buttons ------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
