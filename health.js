@@ -56,12 +56,14 @@ function fetchRankings() {
 
     if (!data) return;
 
+    // NOTE: Keeping your original mapping form as-is
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
     rankings.sort((a, b) => b.number - a.number);
 
     rankings.forEach(({ id, name, grd, res, tgh, health, url, number }) => {
       const listItem = document.createElement('li');
       listItem.className = 'list-item';
+      listItem.dataset.entryId = id; // keep id on the row too
 
       // Mark defeated ONLY if health is explicitly 0
       if (health === 0) listItem.classList.add('defeated');
@@ -127,7 +129,8 @@ function applyDamageToAll() {
   inputs.forEach(input => {
     // Skip entries that don't have a health value yet (players from index.html)
     if (!('health' in input.dataset)) {
-      input.value = ''; // clear any typed value
+      input.value = '';
+      // clear any typed value
       return;
     }
 
@@ -200,6 +203,48 @@ function clearList() {
   const reference = ref(db, 'rankings/');
   set(reference, null).catch(err => console.error('Error clearing list:', err));
 }
+
+/* ===================== ADDED: delete-from-modal wiring ===================== */
+/** Tracks the last entry (by id) the user clicked (name, row, or damage input) */
+let __lastClickedEntryId = null;
+
+// Remember the most recently interacted entry id anywhere in the list
+document.addEventListener('click', (ev) => {
+  const el = ev.target;
+  // Prefer the damage input's data-entry-id
+  const dmg = el?.closest?.('.damage-input');
+  if (dmg?.dataset?.entryId) {
+    __lastClickedEntryId = dmg.dataset.entryId;
+    return;
+  }
+  // Fallback: any list item row with data-entry-id
+  const row = el?.closest?.('.list-item');
+  if (row?.dataset?.entryId) {
+    __lastClickedEntryId = row.dataset.entryId;
+  }
+});
+
+// Handle Delete in the modal
+document.addEventListener('DOMContentLoaded', () => {
+  const delBtn = document.getElementById('stat-delete');
+  if (delBtn) {
+    delBtn.addEventListener('click', () => {
+      if (!__lastClickedEntryId) return;
+      if (!confirm('Delete this entry from the list?')) return;
+
+      // Try to remove the corresponding row from DOM if present
+      const row = document.querySelector(`.list-item[data-entry-id="${__lastClickedEntryId}"]`);
+      removeEntry(__lastClickedEntryId, row || undefined);
+
+      // Close the modal
+      const modal = document.getElementById('stat-modal');
+      modal?.setAttribute('aria-hidden', 'true');
+
+      __lastClickedEntryId = null;
+    });
+  }
+});
+/* =================== /ADDED: delete-from-modal wiring =================== */
 
 /* -------------------------- Wire up buttons ------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
