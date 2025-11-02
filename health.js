@@ -56,7 +56,7 @@ function fetchRankings() {
 
     if (!data) return;
 
-    // FIX: spread entry properly
+    // Spread entry properly
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
     rankings.sort((a, b) => b.number - a.number);
 
@@ -103,11 +103,8 @@ function fetchRankings() {
         dmgInput.dataset.health = health;
       }
 
-      // Optional: clicking the input can also open the modal & set current id
-      dmgInput.addEventListener('click', () => {
-        __currentEntryId = id;
-        openStatModal({ name, grd, res, tgh, url, initiative: number });
-      });
+      // IMPORTANT: Do NOT open modal on DMG input click anymore
+      // (Removed the listener that previously opened the modal here.)
 
       dmgCol.appendChild(dmgInput);
 
@@ -171,16 +168,16 @@ function updateHealth(id, newHealth, inputEl) {
   update(reference, { health: newHealth })
     .then(() => {
       const listItem = inputEl.closest('.list-item');
-      const hpCol = listItem.querySelector('.column.hp');
-      hpCol.textContent = `${newHealth}`;
+      const hpCol = listItem?.querySelector('.column.hp');
+      if (hpCol) hpCol.textContent = `${newHealth}`;
       inputEl.dataset.health = newHealth;
 
       if (newHealth <= 0) {
-        listItem.classList.add('defeated');
+        listItem?.classList.add('defeated');
 
         // Add remove button if missing
-        let removeButton = listItem.querySelector('.remove-button');
-        if (!removeButton) {
+        let removeButton = listItem?.querySelector('.remove-button');
+        if (!removeButton && listItem) {
           removeButton = document.createElement('button');
           removeButton.textContent = 'Remove';
           removeButton.className = 'remove-button';
@@ -188,9 +185,9 @@ function updateHealth(id, newHealth, inputEl) {
           listItem.appendChild(removeButton);
         }
       } else {
-        listItem.classList.remove('defeated');
+        listItem?.classList.remove('defeated');
         // If you want to hide/remove the button when HP goes back above 0, uncomment:
-        // listItem.querySelector('.remove-button')?.remove();
+        // listItem?.querySelector('.remove-button')?.remove();
       }
     })
     .catch(err => console.error('Error updating health:', err));
