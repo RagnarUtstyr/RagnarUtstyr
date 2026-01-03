@@ -429,3 +429,17 @@ ul {
   font-size: 20px; cursor: pointer;
 }
 .ol-modal__close:hover { background: #1a3b4a; color: #237768; }
+
+/* === Round Counter === */
+.ranking-container {
+  position: relative; /* needed so the counter can sit top-left inside it */
+}
+
+#round-counter {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  font-size: 1.1em;
+  color: #e3cf95;
+  font-weight: bold;
+}

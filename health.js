@@ -205,7 +205,12 @@ function removeEntry(id, listItem) {
 
 function clearList() {
   const reference = ref(db, 'rankings/');
-  set(reference, null).catch(err => console.error('Error clearing list:', err));
+  set(reference, null)
+    .then(() => {
+      // Reset the round counter ONLY when "Clear List" is pressed
+      window.resetRoundCounter?.();
+    })
+    .catch(err => console.error('Error clearing list:', err));
 }
 
 /* ===================== Modal actions: Delete & Heal ===================== */
