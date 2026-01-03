@@ -126,6 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
         nextButton.addEventListener('click', moveToNextEntry);
     }
 
+    // ADDED: Reset Round button (does NOT clear list)
+    const resetRoundButton = document.getElementById('reset-round-button');
+    if (resetRoundButton) {
+        resetRoundButton.addEventListener('click', () => {
+            window.resetRoundCounter?.();
+        });
+    }
+
     // Attach event listener to "Previous" button (if applicable)
     const prevButton = document.getElementById('prev-button');
     if (prevButton) {
@@ -134,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Ensure the first item is highlighted when the page loads
     highlightCurrentEntry();
-    window.updateRoundDisplay?.();
+    window.updateRoundDisplay?.(); // (optional but recommended if you added updateRoundDisplay earlier)
 
     // Ensure the highlight stays visible even when the DOM changes
     ensureHighlightAlwaysVisible();
