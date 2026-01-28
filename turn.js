@@ -13,6 +13,16 @@ window.resetRoundCounter = function resetRoundCounter() {
     window.updateRoundDisplay();
 };
 
+/* ===================== ADDED: tracker highlight event support ===================== */
+/**
+ * health.js listens to this to decrement countdowns when an entry is reached again.
+ * We dispatch a single event whenever the highlighted row changes:
+ *   window event: "tracker:highlightChange"
+ *   detail: { previousId, currentId, index, roundCounter }
+ */
+let __trackerPrevEntryId = null;
+/* =================== /ADDED: tracker highlight event support =================== */
+
 function highlightCurrentEntry() {
     const listItems = document.querySelectorAll('#rankingList li');
 
@@ -30,7 +40,25 @@ function highlightCurrentEntry() {
     listItems.forEach(item => item.classList.remove('highlighted'));
 
     // Highlight the current item
-    listItems[currentHighlightIndex].classList.add('highlighted');
+    const currentItem = listItems[currentHighlightIndex];
+    currentItem.classList.add('highlighted');
+
+    /* ===================== ADDED: emit highlight change event ===================== */
+    const currentId = currentItem?.dataset?.entryId ?? null;
+    const previousId = __trackerPrevEntryId;
+
+    // Fire only if we have at least a currentId (we do if health.js created rows)
+    window.dispatchEvent(new CustomEvent('tracker:highlightChange', {
+        detail: {
+            previousId,
+            currentId,
+            index: currentHighlightIndex,
+            roundCounter: window.roundCounter ?? 1
+        }
+    }));
+
+    __trackerPrevEntryId = currentId;
+    /* =================== /ADDED: emit highlight change event =================== */
 }
 
 function moveToNextEntry() {
@@ -78,6 +106,11 @@ function refreshHighlightAfterRemoval() {
     // If there are no items left, reset
     if (listItems.length === 0) {
         currentHighlightIndex = 0;
+
+        /* ===================== ADDED: reset tracker previous id ===================== */
+        __trackerPrevEntryId = null;
+        /* =================== /ADDED: reset tracker previous id =================== */
+
         return;
     }
 
@@ -131,6 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resetRoundButton) {
         resetRoundButton.addEventListener('click', () => {
             window.resetRoundCounter?.();
+
+            /* ===================== ADDED: keep highlight event consistent on reset ===================== */
+            // Re-dispatch current highlight so countdown UI stays in sync after round reset.
+            highlightCurrentEntry();
+            /* =================== /ADDED: keep highlight event consistent on reset =================== */
         });
     }
 
