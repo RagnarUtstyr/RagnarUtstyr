@@ -16,14 +16,24 @@ window.resetRoundCounter = function resetRoundCounter() {
 /* ===================== ADDED: tracker highlight event support ===================== */
 /**
  * health.js listens to this to decrement countdowns when an entry is reached again.
- * We dispatch a single event whenever the highlighted row changes:
+ * We dispatch a single event whenever the highlighted row changes due to NAVIGATION.
+ *
  *   window event: "tracker:highlightChange"
- *   detail: { previousId, currentId, index, roundCounter }
+ *   detail: { previousId, currentId, index, roundCounter, reason }
+ *
+ * reason:
+ *  - "next" / "prev" -> user navigation (countdown should tick)
+ *  - "sync"          -> highlight re-application due to DOM changes (countdown should NOT tick)
  */
 let __trackerPrevEntryId = null;
 /* =================== /ADDED: tracker highlight event support =================== */
 
-function highlightCurrentEntry() {
+/**
+ * highlightCurrentEntry controls whether to dispatch the "tracker:highlightChange" event.
+ * - emitEvent = true only for true user navigation (next/prev)
+ * - emitEvent = false for re-sync highlights (MutationObserver, initial load, removal refresh)
+ */
+function highlightCurrentEntry(emitEvent = false, reason = "sync") {
     const listItems = document.querySelectorAll('#rankingList li');
 
     // If there are no items, exit the function
@@ -33,7 +43,7 @@ function highlightCurrentEntry() {
 
     // Ensure currentHighlightIndex is within bounds
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1); // Stay within bounds
+        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1);
     }
 
     // Remove highlight from all items
@@ -43,109 +53,97 @@ function highlightCurrentEntry() {
     const currentItem = listItems[currentHighlightIndex];
     currentItem.classList.add('highlighted');
 
-    /* ===================== ADDED: emit highlight change event ===================== */
-    const currentId = currentItem?.dataset?.entryId ?? null;
-    const previousId = __trackerPrevEntryId;
+    /* ===================== ADDED: emit highlight change event (navigation only) ===================== */
+    if (emitEvent) {
+        const currentId = currentItem?.dataset?.entryId ?? null;
+        const previousId = __trackerPrevEntryId;
 
-    // Fire only if we have at least a currentId (we do if health.js created rows)
-    window.dispatchEvent(new CustomEvent('tracker:highlightChange', {
-        detail: {
-            previousId,
-            currentId,
-            index: currentHighlightIndex,
-            roundCounter: window.roundCounter ?? 1
+        // Only dispatch if we actually have a currentId and it changed
+        if (currentId && currentId !== previousId) {
+            window.dispatchEvent(new CustomEvent('tracker:highlightChange', {
+                detail: {
+                    previousId,
+                    currentId,
+                    index: currentHighlightIndex,
+                    roundCounter: window.roundCounter ?? 1,
+                    reason
+                }
+            }));
         }
-    }));
 
-    __trackerPrevEntryId = currentId;
+        __trackerPrevEntryId = currentId;
+    } else {
+        // Keep prev id in sync without triggering countdown ticks
+        const currentId = currentItem?.dataset?.entryId ?? null;
+        if (currentId) __trackerPrevEntryId = currentId;
+    }
     /* =================== /ADDED: emit highlight change event =================== */
 }
 
 function moveToNextEntry() {
     const listItems = document.querySelectorAll('#rankingList li');
+    if (listItems.length === 0) return;
 
-    // If there are no items, exit the function
-    if (listItems.length === 0) {
-        return;
-    }
-
-    // If we're currently on the last item, wrapping will start a new round
     const wasLast = currentHighlightIndex === listItems.length - 1;
 
-    // Move to the next item, or loop back to the first if at the end
     currentHighlightIndex = (currentHighlightIndex + 1) % listItems.length;
 
-    // If we wrapped from last back to first, increment the round counter
     if (wasLast && currentHighlightIndex === 0) {
         window.roundCounter = (window.roundCounter ?? 1) + 1;
         window.updateRoundDisplay?.();
     }
 
-    // Apply the new highlight
-    highlightCurrentEntry();
+    // NAVIGATION highlight: emit event so countdown ticks once
+    highlightCurrentEntry(true, "next");
 }
 
 function moveToPreviousEntry() {
     const listItems = document.querySelectorAll('#rankingList li');
+    if (listItems.length === 0) return;
 
-    // If there are no items, exit the function
-    if (listItems.length === 0) {
-        return;
-    }
-
-    // Move to the previous item, or loop to the last if at the beginning
     currentHighlightIndex = (currentHighlightIndex - 1 + listItems.length) % listItems.length;
 
-    // Apply the new highlight
-    highlightCurrentEntry();
+    // NAVIGATION highlight: emit event so countdown ticks once
+    highlightCurrentEntry(true, "prev");
 }
 
 function refreshHighlightAfterRemoval() {
     const listItems = document.querySelectorAll('#rankingList li');
 
-    // If there are no items left, reset
     if (listItems.length === 0) {
         currentHighlightIndex = 0;
-
-        /* ===================== ADDED: reset tracker previous id ===================== */
         __trackerPrevEntryId = null;
-        /* =================== /ADDED: reset tracker previous id =================== */
-
         return;
     }
 
-    // If the current highlighted item was removed, adjust the index
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1); // Stay within bounds
+        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1);
     }
 
-    // Apply highlight to the new current item
-    highlightCurrentEntry();
+    // Re-sync highlight: do NOT emit event (avoid countdown ticking)
+    highlightCurrentEntry(false, "sync");
 }
 
 function removeEntry(listItem) {
     const listItems = document.querySelectorAll('#rankingList li');
     const indexToRemove = Array.from(listItems).indexOf(listItem);
 
-    // Remove the DOM element
     listItem.remove();
 
-    // Adjust the highlight index if the highlighted item was removed
     if (currentHighlightIndex >= indexToRemove) {
-        currentHighlightIndex = Math.max(0, currentHighlightIndex - 1); // Move the highlight up if needed
+        currentHighlightIndex = Math.max(0, currentHighlightIndex - 1);
     }
 
-    // Refresh the highlight after removal
     refreshHighlightAfterRemoval();
 }
 
 // Ensure that highlighting is always applied after DOM changes or button clicks
 function ensureHighlightAlwaysVisible() {
     const observer = new MutationObserver(() => {
-        highlightCurrentEntry(); // Reapply highlight after any DOM changes
+        // Re-sync highlight after DOM changes: do NOT emit event (avoid countdown ticking)
+        highlightCurrentEntry(false, "sync");
     });
 
-    // Observe the list for any changes (additions, deletions, etc.)
     const listElement = document.getElementById('rankingList');
     if (listElement) {
         observer.observe(listElement, { childList: true, subtree: false });
@@ -153,35 +151,25 @@ function ensureHighlightAlwaysVisible() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Attach event listener to "Next" button
     const nextButton = document.getElementById('next-button');
-    if (nextButton) {
-        nextButton.addEventListener('click', moveToNextEntry);
-    }
+    if (nextButton) nextButton.addEventListener('click', moveToNextEntry);
 
-    // ADDED: Reset Round button (does NOT clear list)
     const resetRoundButton = document.getElementById('reset-round-button');
     if (resetRoundButton) {
         resetRoundButton.addEventListener('click', () => {
             window.resetRoundCounter?.();
 
-            /* ===================== ADDED: keep highlight event consistent on reset ===================== */
-            // Re-dispatch current highlight so countdown UI stays in sync after round reset.
-            highlightCurrentEntry();
-            /* =================== /ADDED: keep highlight event consistent on reset =================== */
+            // Re-sync highlight; no countdown tick
+            highlightCurrentEntry(false, "sync");
         });
     }
 
-    // Attach event listener to "Previous" button (if applicable)
     const prevButton = document.getElementById('prev-button');
-    if (prevButton) {
-        prevButton.addEventListener('click', moveToPreviousEntry);
-    }
+    if (prevButton) prevButton.addEventListener('click', moveToPreviousEntry);
 
-    // Ensure the first item is highlighted when the page loads
-    highlightCurrentEntry();
-    window.updateRoundDisplay?.(); // (optional but recommended if you added updateRoundDisplay earlier)
+    // Initial highlight: do NOT emit event (avoid countdown ticking at page load)
+    highlightCurrentEntry(false, "sync");
+    window.updateRoundDisplay?.();
 
-    // Ensure the highlight stays visible even when the DOM changes
     ensureHighlightAlwaysVisible();
 });
