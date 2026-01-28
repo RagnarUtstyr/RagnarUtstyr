@@ -23,7 +23,7 @@ function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemainin
     link.removeAttribute('href');
   }
 
-  /* ===================== ADDED: Countdown modal binding ===================== */
+  /* ===================== Countdown modal binding ===================== */
   const remainingEl = document.getElementById('stat-countdown-remaining');
   const inputEl = document.getElementById('stat-countdown-amount');
   if (remainingEl) {
@@ -38,7 +38,7 @@ function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemainin
     }
   }
   if (inputEl) inputEl.value = '';
-  /* =================== /ADDED: Countdown modal binding =================== */
+  /* =================== /Countdown modal binding =================== */
 
   modal.setAttribute('aria-hidden', 'false');
 }
@@ -62,16 +62,76 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ===================== ADDED: Countdown state cache ===================== */
+/* ===================== Countdown state cache ===================== */
 /**
- * We keep the latest countdown fields for each entry here
- * so we can decrement when "tracker:highlightChange" fires.
+ * We keep the latest countdown fields for each entry here so we can decrement
+ * when "tracker:highlightChange" fires.
  */
 const __countdownById = new Map(); // id -> { remaining, active, ended }
 function __getCountdownState(id) {
   return __countdownById.get(id) || { remaining: null, active: false, ended: false };
 }
-/* =================== /ADDED: Countdown state cache =================== */
+function __setCountdownState(id, state) {
+  __countdownById.set(id, {
+    remaining: (typeof state.remaining === 'number') ? state.remaining : null,
+    active: !!state.active,
+    ended: !!state.ended
+  });
+}
+/* =================== /Countdown state cache =================== */
+
+/* ===================== ADDED: Row/UI helpers for countdown ===================== */
+function __rowFor(id) {
+  return document.querySelector(`.list-item[data-entry-id="${id}"]`);
+}
+
+function __updateCountdownBadge(row, state) {
+  if (!row) return;
+  const nameCol = row.querySelector('.column.name');
+  if (!nameCol) return;
+
+  let badge = nameCol.querySelector('.countdown-badge');
+
+  // If no countdown at all, remove badge
+  const hasSomething =
+    (state.active && typeof state.remaining === 'number' && state.remaining > 0) ||
+    state.ended;
+
+  if (!hasSomething) {
+    badge?.remove();
+    return;
+  }
+
+  // Ensure badge exists
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.className = 'countdown-badge';
+    nameCol.appendChild(badge);
+  }
+
+  if (state.ended) badge.textContent = `CD: ENDED`;
+  else badge.textContent = `CD: ${state.remaining}`;
+}
+
+function __applyRowCountdownClasses(entryId, state) {
+  const row = __rowFor(entryId);
+  if (!row) return;
+
+  // Green while active
+  if (state.active && typeof state.remaining === 'number' && state.remaining > 0) {
+    row.classList.add('countdown-active');
+  } else {
+    row.classList.remove('countdown-active');
+  }
+
+  // Orange style toggled when highlighted (handled in tracker listener)
+  if (!state.ended) {
+    row.classList.remove('countdown-expired');
+  }
+
+  __updateCountdownBadge(row, state);
+}
+/* =================== /ADDED: Row/UI helpers for countdown =================== */
 
 /* --------------------- Initiative list rendering -------------------- */
 function fetchRankings() {
@@ -93,7 +153,7 @@ function fetchRankings() {
 
     rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded }) => {
       // Cache countdown for tracker events
-      __countdownById.set(id, {
+      __setCountdownState(id, {
         remaining: (typeof countdownRemaining === 'number') ? countdownRemaining : null,
         active: !!countdownActive,
         ended: !!countdownEnded
@@ -106,12 +166,8 @@ function fetchRankings() {
       // Mark defeated ONLY if health is explicitly 0
       if (health === 0) listItem.classList.add('defeated');
 
-      /* ===================== ADDED: Apply countdown row color ===================== */
-      // Green if countdown is active and remaining > 0
-      if (countdownActive && typeof countdownRemaining === 'number' && countdownRemaining > 0) {
-        listItem.classList.add('countdown-active');
-      }
-      /* =================== /ADDED: Apply countdown row color =================== */
+      // Apply countdown classes from state
+      __applyRowCountdownClasses(id, __getCountdownState(id));
 
       // Name (click to open modal with Initiative + GRD/RES/TGH)
       const nameCol = document.createElement('div');
@@ -121,28 +177,14 @@ function fetchRankings() {
       nameCol.title = 'Show defenses (GRD / RES / TGH)';
       nameCol.addEventListener('click', () => {
         __currentEntryId = id; // remember target for modal actions
+        const s = __getCountdownState(id);
         openStatModal({
           name, grd, res, tgh, url, initiative: number,
-          countdownRemaining,
-          countdownActive,
-          countdownEnded
+          countdownRemaining: s.remaining,
+          countdownActive: s.active,
+          countdownEnded: s.ended
         });
       });
-
-      /* ===================== ADDED: small countdown badge next to name ===================== */
-      // This is optional UI; it does not affect behavior.
-      if (countdownActive && typeof countdownRemaining === 'number' && countdownRemaining > 0) {
-        const badge = document.createElement('span');
-        badge.className = 'countdown-badge';
-        badge.textContent = `CD: ${countdownRemaining}`;
-        nameCol.appendChild(badge);
-      } else if (countdownEnded) {
-        const badge = document.createElement('span');
-        badge.className = 'countdown-badge';
-        badge.textContent = `CD: ENDED`;
-        nameCol.appendChild(badge);
-      }
-      /* =================== /ADDED: small countdown badge next to name =================== */
 
       // HP column
       const hpCol = document.createElement('div');
@@ -168,9 +210,6 @@ function fetchRankings() {
         dmgInput.dataset.health = health;
       }
 
-      // IMPORTANT: Do NOT open modal on DMG input click anymore
-      // (Removed the listener that previously opened the modal here.)
-
       dmgCol.appendChild(dmgInput);
 
       listItem.appendChild(nameCol);
@@ -187,6 +226,9 @@ function fetchRankings() {
       }
 
       rankingList.appendChild(listItem);
+
+      // If there is a badge needed, add it now (after nameCol exists)
+      __updateCountdownBadge(listItem, __getCountdownState(id));
     });
   });
 }
@@ -251,8 +293,6 @@ function updateHealth(id, newHealth, inputEl) {
         }
       } else {
         listItem?.classList.remove('defeated');
-        // If you want to hide/remove the button when HP goes back above 0, uncomment:
-        // listItem?.querySelector('.remove-button')?.remove();
       }
     })
     .catch(err => console.error('Error updating health:', err));
@@ -264,6 +304,7 @@ function removeEntry(id, listItem) {
   remove(reference)
     .then(() => {
       listItem?.remove();
+      __countdownById.delete(id);
     })
     .catch(err => console.error('Error removing entry:', err));
 }
@@ -272,14 +313,13 @@ function clearList() {
   const reference = ref(db, 'rankings/');
   set(reference, null)
     .then(() => {
-      // Reset the round counter ONLY when "Clear List" is pressed
       window.resetRoundCounter?.();
+      __countdownById.clear();
     })
     .catch(err => console.error('Error clearing list:', err));
 }
 
 /* ===================== Modal actions: Delete & Heal ===================== */
-// Track which entry the modal refers to (set when opening it)
 let __currentEntryId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -290,10 +330,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!__currentEntryId) return;
       if (!confirm('Delete this entry from the list?')) return;
 
-      const row = document.querySelector(`.list-item[data-entry-id="${__currentEntryId}"]`);
+      const row = __rowFor(__currentEntryId);
       removeEntry(__currentEntryId, row || undefined);
 
-      // Close the modal
       const modal = document.getElementById('stat-modal');
       modal?.setAttribute('aria-hidden', 'true');
 
@@ -301,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // HEAL from modal (adds to HP; ignores GRD/RES/TGH)
+  // HEAL from modal
   const healBtn = document.getElementById('stat-heal');
   const healAmtInput = document.getElementById('stat-heal-amount');
 
@@ -318,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const current = parseInt(dmgInput.dataset.health, 10) || 0;
-      const updated = current + amount; // ADD to HP, ignore defenses
+      const updated = current + amount;
       updateHealth(__currentEntryId, updated, dmgInput);
 
       healAmtInput.value = '';
@@ -326,10 +365,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ===================== ADDED: Countdown helpers & modal actions ===================== */
+/* ===================== Countdown helpers & modal actions ===================== */
 function setCountdown(id, turns) {
   const reference = ref(db, `rankings/${id}`);
-  // Use explicit fields so it's easy to query/update without nested objects
+
+  // Optimistic local update (so it keeps working even with modal closed)
+  __setCountdownState(id, { remaining: turns, active: true, ended: false });
+  __applyRowCountdownClasses(id, __getCountdownState(id));
+
   return update(reference, {
     countdownActive: true,
     countdownRemaining: turns,
@@ -339,7 +382,11 @@ function setCountdown(id, turns) {
 
 function clearCountdown(id) {
   const reference = ref(db, `rankings/${id}`);
-  // Setting to null removes the field in Firebase RTDB
+
+  // Optimistic local update
+  __setCountdownState(id, { remaining: null, active: false, ended: false });
+  __applyRowCountdownClasses(id, __getCountdownState(id));
+
   return update(reference, {
     countdownActive: null,
     countdownRemaining: null,
@@ -379,9 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-/* =================== /ADDED: Countdown helpers & modal actions =================== */
 
-/* ===================== ADDED: Tracker-driven countdown decrement ===================== */
+/* ===================== Tracker-driven countdown decrement ===================== */
 /**
  * Behavior:
  * - Each time the tracker highlights an entry again, if countdownActive && remaining > 0:
@@ -392,23 +438,6 @@ document.addEventListener('DOMContentLoaded', () => {
  * - After tracker moves away from an orange-ended entry:
  *     countdown fields are cleared and row returns to normal
  */
-function __applyRowCountdownClasses(entryId, state) {
-  const row = document.querySelector(`.list-item[data-entry-id="${entryId}"]`);
-  if (!row) return;
-
-  // Green while active
-  if (state.active && typeof state.remaining === 'number' && state.remaining > 0) {
-    row.classList.add('countdown-active');
-  } else {
-    row.classList.remove('countdown-active');
-  }
-
-  // Orange class is only applied while highlighted (we toggle below)
-  if (!state.ended) {
-    row.classList.remove('countdown-expired');
-  }
-}
-
 async function __decrementCountdownIfNeeded(entryId) {
   const state = __getCountdownState(entryId);
   if (!state.active) return;
@@ -416,11 +445,12 @@ async function __decrementCountdownIfNeeded(entryId) {
   if (state.remaining <= 0) return;
 
   const nextRemaining = state.remaining - 1;
-
   const reference = ref(db, `rankings/${entryId}`);
 
-  // If countdown reaches 0, end it (orange will show when highlighted)
+  // Optimistically update local cache + row immediately (THIS is what makes it keep working with modal closed)
   if (nextRemaining <= 0) {
+    __setCountdownState(entryId, { remaining: 0, active: false, ended: true });
+    __applyRowCountdownClasses(entryId, __getCountdownState(entryId));
     await update(reference, {
       countdownRemaining: 0,
       countdownActive: false,
@@ -429,7 +459,9 @@ async function __decrementCountdownIfNeeded(entryId) {
     return;
   }
 
-  // Otherwise continue active
+  __setCountdownState(entryId, { remaining: nextRemaining, active: true, ended: false });
+  __applyRowCountdownClasses(entryId, __getCountdownState(entryId));
+
   await update(reference, {
     countdownRemaining: nextRemaining,
     countdownActive: true,
@@ -442,7 +474,7 @@ async function __cleanupEndedCountdownIfNeeded(entryId) {
   const state = __getCountdownState(entryId);
   if (!state.ended) return;
 
-  // Once we move past the ended entry, return it to normal by clearing fields
+  // Clear ended state when we move off it
   try {
     await clearCountdown(entryId);
   } catch (err) {
@@ -455,16 +487,15 @@ window.addEventListener('tracker:highlightChange', async (e) => {
   const previousId = e?.detail?.previousId ?? null;
   const currentId = e?.detail?.currentId ?? null;
 
-  // 1) If we just moved away from an "ended" countdown entry, clean it up
+  // If we just moved away from an ended countdown entry, clean it up
   if (previousId && previousId !== currentId) {
     await __cleanupEndedCountdownIfNeeded(previousId);
 
-    // Remove orange class once it's no longer highlighted
-    const prevRow = document.querySelector(`.list-item[data-entry-id="${previousId}"]`);
+    const prevRow = __rowFor(previousId);
     if (prevRow) prevRow.classList.remove('countdown-expired');
   }
 
-  // 2) If the newly highlighted entry has an active countdown, decrement it
+  // If the newly highlighted entry has an active countdown, decrement it
   if (currentId) {
     try {
       await __decrementCountdownIfNeeded(currentId);
@@ -472,16 +503,16 @@ window.addEventListener('tracker:highlightChange', async (e) => {
       console.error('Error decrementing countdown:', err);
     }
 
-    // 3) If it is ended, show orange while highlighted
+    // If it is ended, show orange while highlighted
     const currentState = __getCountdownState(currentId);
-    const row = document.querySelector(`.list-item[data-entry-id="${currentId}"]`);
+    const row = __rowFor(currentId);
     if (row) {
       if (currentState.ended) row.classList.add('countdown-expired');
       else row.classList.remove('countdown-expired');
     }
   }
 });
-/* =================== /ADDED: Tracker-driven countdown decrement =================== */
+/* =================== /Tracker-driven countdown decrement =================== */
 
 /* -------------------------- Wire up buttons ------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
