@@ -41,12 +41,46 @@ function closeStatModal() {
   modal.setAttribute('aria-hidden', 'true');
 }
 
+/* -------------------------- NEW: HP modal helpers -------------------------- */
+function openHpModal(currentHp) {
+  const modal = document.getElementById('hp-modal');
+  if (!modal) return;
+
+  const input = document.getElementById('hp-set-amount');
+  if (input) {
+    input.value = (currentHp ?? currentHp === 0) ? currentHp : '';
+    setTimeout(() => {
+      input.focus();
+      input.select();
+    }, 0);
+  }
+
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeHpModal() {
+  const modal = document.getElementById('hp-modal');
+  if (!modal) return;
+  modal.setAttribute('aria-hidden', 'true');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('stat-modal');
   if (modal) {
     document.getElementById('stat-modal-close')?.addEventListener('click', closeStatModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeStatModal(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStatModal(); });
+  }
+
+  const hpModal = document.getElementById('hp-modal');
+  if (hpModal) {
+    document.getElementById('hp-modal-close')?.addEventListener('click', closeHpModal);
+    hpModal.addEventListener('click', (e) => { if (e.target === hpModal) closeHpModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && hpModal.getAttribute('aria-hidden') === 'false') {
+        closeHpModal();
+      }
+    });
   }
 });
 
@@ -156,6 +190,12 @@ function fetchRankings() {
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
       hpCol.textContent = (health === null || health === undefined) ? 'N/A' : `${health}`;
+      hpCol.style.cursor = 'pointer';
+      hpCol.title = 'Set HP';
+      hpCol.addEventListener('click', () => {
+        __currentEntryId = id;
+        openHpModal(health);
+      });
 
       const dmgCol = document.createElement('div');
       dmgCol.className = 'column dmg';
@@ -301,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     healBtn.addEventListener('click', () => {
       if (!__currentEntryId) return;
       const amount = parseInt(healAmtInput.value, 10);
-      if (isNaN(amount) || amount <= 0) return;
+      if (isNaN(amount) || amount === 0) return;
 
       const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
       if (!dmgInput || !('health' in dmgInput.dataset)) {
@@ -310,9 +350,39 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const current = parseInt(dmgInput.dataset.health, 10) || 0;
-      updateHealth(__currentEntryId, current + amount, dmgInput);
+      const newHealth = Math.max(current + amount, 0);
+      updateHealth(__currentEntryId, newHealth, dmgInput);
 
       healAmtInput.value = '';
+    });
+  }
+});
+
+/* ===================== NEW: HP modal Set action ===================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const setBtn = document.getElementById('hp-set-button');
+  const hpInput = document.getElementById('hp-set-amount');
+
+  if (setBtn && hpInput) {
+    setBtn.addEventListener('click', () => {
+      if (!__currentEntryId) return;
+
+      const amount = parseInt(hpInput.value, 10);
+      if (isNaN(amount) || amount < 0) return;
+
+      const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
+      if (!dmgInput) return;
+
+      updateHealth(__currentEntryId, amount, dmgInput);
+      hpInput.value = '';
+      closeHpModal();
+    });
+
+    hpInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        setBtn.click();
+      }
     });
   }
 });

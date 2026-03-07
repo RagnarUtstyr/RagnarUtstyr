@@ -126,6 +126,19 @@
       <button id="stat-delete" class="remove-button" style="margin-top:12px;">Delete from list</button>
     </div>
   </div>
+
+  <!-- NEW: HP Modal -->
+  <div id="hp-modal" class="ol-modal" aria-hidden="true">
+    <div class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="hp-modal-title">
+      <button class="ol-modal__close" id="hp-modal-close" aria-label="Close">×</button>
+      <h3 id="hp-modal-title">Set HP</h3>
+
+      <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+        <input id="hp-set-amount" type="number" placeholder="Set HP" style="flex:1; padding:6px 8px;">
+        <button id="hp-set-button" class="remove-button">Set</button>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
