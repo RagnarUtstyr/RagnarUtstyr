@@ -475,124 +475,166 @@ ul {
   pointer-events: none;
 }
 
-/* Reduce cumulative horizontal padding pushing UI right */
-body {
-  padding-left: 10px !important;
-  padding-right: 10px !important;
-}
-
-.container {
-  padding-left: 12px !important;
-  padding-right: 12px !important;
-}
-
-.ranking-container {
-  padding-left: 6px !important;
-  padding-right: 6px !important;
-}
-
-/* Remove list indentation that can shift layout */
-#rankingList,
-.ranking-body {
-  padding-left: 0 !important;
-  margin-left: 0 !important;
-}
-
-/* Reduce row padding so rows aren't cramped */
-#rankingList li,
-.ranking-body li,
-.ranking-header {
-  padding-left: 6px !important;
-  padding-right: 6px !important;
-  gap: 8px !important;
-}
-
-/* Improve column breathing room */
-.column.name {
-  width: 46% !important;
-}
-
-.column.hp {
-  width: 18% !important;
-}
-
-.column.dmg {
-  width: 26% !important;
-}
-
-/* Smaller DMG input to free horizontal space */
-input.damage-input {
-  width: 50px !important;
-  min-width: 50px !important;
-  max-width: 50px !important;
-}
-
-/* Move round counter back into normal flow */
-#round-counter {
-  position: static !important;
-  display: block;
-  width: 100%;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-/* Ensure selector stays centered */
-.global-stat-selector {
-  justify-content: center !important;
-}
-
-/* =========================================================
-   Mobile improvements
-   ========================================================= */
-
 @media (max-width: 600px) {
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
 
   body {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
+    padding: 6px !important;
   }
 
   .container {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 !important;
+    padding: 8px !important;
   }
 
   .ranking-container {
-    padding-left: 2px !important;
-    padding-right: 2px !important;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 !important;
+    padding: 4px 0 !important;
   }
 
+  /* round counter should flow naturally */
+  #round-counter {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin: 0 0 8px 0 !important;
+  }
+
+  .global-stat-selector {
+    justify-content: center !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+    overflow-x: visible !important;
+    white-space: normal !important;
+  }
+
+  /* IMPORTANT:
+     stop rows from clipping horizontally */
   #rankingList li,
-  .ranking-body li,
+  .ranking-body li {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.8fr) minmax(42px, 0.7fr) auto;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    padding: 6px 4px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    gap: 6px !important;
+    overflow: visible !important;
+    flex-wrap: unset !important;
+  }
+
   .ranking-header {
-    padding-left: 4px !important;
-    padding-right: 4px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.8fr) minmax(42px, 0.7fr) auto;
+    align-items: center;
+    width: 100%;
+    padding: 6px 4px !important;
     gap: 6px !important;
   }
 
+  /* columns must be allowed to shrink */
+  .ranking-header .column,
+  .ranking-body li .column,
+  .column {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100%;
+  }
+
   .column.name {
-    width: 50% !important;
+    text-align: left !important;
+    white-space: normal !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
   }
 
   .column.hp {
-    width: 16% !important;
+    text-align: center !important;
+    white-space: nowrap !important;
   }
 
   .column.dmg {
-    width: 30% !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+  }
+
+  /* this is another key fix:
+     remove global nowrap from row text on mobile */
+  li .name,
+  li .health,
+  li .ac,
+  li .number {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    min-width: 0 !important;
   }
 
   input.damage-input {
-    width: 46px !important;
-    min-width: 46px !important;
-    max-width: 46px !important;
-    font-size: 0.9em;
-    padding: 3px;
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    padding: 3px 2px !important;
+    font-size: 0.9em !important;
+    margin: 0 !important;
   }
 
-  /* Allow remove button to wrap below row instead of squashing columns */
-  #rankingList li {
-    flex-wrap: wrap;
+  /* defeated rows with Remove button */
+  #rankingList li .remove-button {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 6px;
   }
 
+  .button-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100%;
+    margin: 10px 0 0 0 !important;
+  }
+
+  .button-container button {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  #submit-button,
+  #clear-list-button,
+  #reset-round-button,
+  .button-link {
+    width: 100% !important;
+    margin-right: 0 !important;
+    text-align: center;
+  }
+
+  .defense-input-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .defense-input {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+
+  .ol-modal__dialog {
+    min-width: 0 !important;
+    width: calc(100% - 12px) !important;
+    max-width: 100% !important;
+  }
 }
