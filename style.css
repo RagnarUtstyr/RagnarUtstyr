@@ -638,3 +638,31 @@ ul {
     max-width: 100% !important;
   }
 }
+
+.defense-input-row {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: nowrap !important;
+}
+
+.defense-input {
+  flex: 1 1 0 !important;
+  min-width: 0;
+}
+
+/* Slightly smaller fields on phones so all 3 fit */
+@media (max-width: 600px) {
+
+  .defense-input-row {
+    gap: 6px !important;
+  }
+
+  .defense-input input {
+    padding: 5px;
+    font-size: 0.9em;
+  }
+
+}
