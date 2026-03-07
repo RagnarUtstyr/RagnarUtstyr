@@ -666,3 +666,27 @@ ul {
   }
 
 }
+
+@media (max-width: 600px) {
+
+  /* rebalance column widths */
+  .column.name {
+    width: 44% !important;
+  }
+
+  .column.hp {
+    width: 22% !important;
+    text-align: center !important;
+  }
+
+  .column.dmg {
+    width: 28% !important;
+  }
+
+  /* ensure countdown badge does not push layout */
+  .countdown-badge {
+    margin-left: 4px;
+    font-size: 11px;
+  }
+
+}
