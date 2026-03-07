@@ -668,25 +668,54 @@ ul {
 }
 
 @media (max-width: 600px) {
+  .ranking-header,
+  .ranking-body li,
+  #rankingList li {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.5fr) minmax(52px, 0.7fr) minmax(56px, 0.9fr);
+    align-items: center !important;
+    justify-content: stretch !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    gap: 6px !important;
+  }
 
-  /* rebalance column widths */
+  .ranking-header .column,
+  .ranking-body li .column,
+  #rankingList li .column {
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
   .column.name {
-    width: 44% !important;
+    grid-column: 1;
+    text-align: left !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .column.hp {
-    width: 22% !important;
+    grid-column: 2;
     text-align: center !important;
+    justify-self: center !important;
   }
 
   .column.dmg {
-    width: 28% !important;
+    grid-column: 3;
+    text-align: right !important;
+    justify-self: end !important;
   }
 
-  /* ensure countdown badge does not push layout */
+  input.damage-input {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    margin: 0 !important;
+  }
+
   .countdown-badge {
-    margin-left: 4px;
-    font-size: 11px;
+    margin-left: 4px !important;
+    font-size: 11px !important;
   }
-
 }
