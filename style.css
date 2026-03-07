@@ -474,3 +474,116 @@ ul {
   user-select: none;
   pointer-events: none;
 }
+
+.global-stat-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.global-stat-selector label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.global-stat-selector input[type="radio"] {
+  width: auto;
+  margin: 0;
+}
+
+#round-counter {
+  position: static !important;
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 0 0 12px 0;
+}
+
+/* Mobile-specific cleanup */
+@media (max-width: 600px) {
+  body {
+    padding: 8px;
+    align-items: stretch;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 10px;
+  }
+
+  .ranking-container {
+    width: 100%;
+    margin: 0;
+    padding: 8px 0;
+  }
+
+  .ranking-header,
+  .ranking-body li,
+  #rankingList li {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 6px;
+    padding-right: 6px;
+    gap: 6px;
+  }
+
+  .column.name {
+    width: 44%;
+  }
+
+  .column.hp {
+    width: 18%;
+  }
+
+  .column.dmg {
+    width: 24%;
+  }
+
+  input.damage-input {
+    width: 52px;
+    min-width: 52px;
+    max-width: 52px;
+    padding: 4px;
+    font-size: 0.95em;
+  }
+
+  .button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .button-container button,
+  #clear-list-button,
+  #reset-round-button,
+  #submit-button,
+  a.button-link {
+    width: 100%;
+    margin-right: 0;
+    text-align: center;
+  }
+
+  .defense-input-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .defense-input {
+    flex: 1 1 100%;
+  }
+
+  .ol-modal__dialog {
+    width: 100%;
+    max-width: 100%;
+  }
+}
