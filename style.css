@@ -475,186 +475,124 @@ ul {
   pointer-events: none;
 }
 
-.global-stat-selector {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  text-align: center;
-  margin-bottom: 8px;
+/* Reduce cumulative horizontal padding pushing UI right */
+body {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
 }
 
-.global-stat-selector label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  white-space: nowrap;
+.container {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
 }
 
-.global-stat-selector input[type="radio"] {
-  width: auto;
-  margin: 0;
+.ranking-container {
+  padding-left: 6px !important;
+  padding-right: 6px !important;
 }
 
+/* Remove list indentation that can shift layout */
+#rankingList,
+.ranking-body {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* Reduce row padding so rows aren't cramped */
+#rankingList li,
+.ranking-body li,
+.ranking-header {
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  gap: 8px !important;
+}
+
+/* Improve column breathing room */
+.column.name {
+  width: 46% !important;
+}
+
+.column.hp {
+  width: 18% !important;
+}
+
+.column.dmg {
+  width: 26% !important;
+}
+
+/* Smaller DMG input to free horizontal space */
+input.damage-input {
+  width: 50px !important;
+  min-width: 50px !important;
+  max-width: 50px !important;
+}
+
+/* Move round counter back into normal flow */
 #round-counter {
   position: static !important;
   display: block;
   width: 100%;
   text-align: center;
-  margin: 0 0 12px 0;
+  margin-bottom: 10px;
 }
 
-/* Mobile-specific cleanup */
+/* Ensure selector stays centered */
+.global-stat-selector {
+  justify-content: center !important;
+}
+
+/* =========================================================
+   Mobile improvements
+   ========================================================= */
+
 @media (max-width: 600px) {
-  /* Make the ranking section stack in a cleaner order */
-  .ranking-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin: 0;
-    padding: 6px 4px 8px 4px !important;
-  }
 
-  /* Put GRD/RES/TGH first, then round counter, then header/list/buttons */
-  .global-stat-selector {
-    order: 1;
-    width: 100%;
-    justify-content: center !important;
-    align-items: center;
-    gap: 10px;
-    margin: 0 0 6px 0 !important;
-    padding: 0 2px;
-    overflow-x: visible !important;
-    white-space: normal !important;
-  }
-
-  #round-counter {
-    order: 2;
-    position: static !important;
-    top: auto !important;
-    left: auto !important;
-    width: 100%;
-    display: block;
-    text-align: center;
-    margin: 0 0 10px 0 !important;
-    font-size: 1rem;
-  }
-
-  .ranking-header {
-    order: 3;
-  }
-
-  #rankingList,
-  .ranking-body {
-    order: 4;
-    width: 100%;
-  }
-
-  .button-container {
-    order: 5;
-  }
-
-  /* Reduce the overall "pushed right" feeling */
   body {
-    padding: 6px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
   }
 
   .container {
-    width: 100%;
-    max-width: 100%;
-    margin: 0 !important;
-    padding: 10px 8px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
   }
 
-  /* Tighten list container padding */
-  .ranking-header,
+  .ranking-container {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
+
+  #rankingList li,
   .ranking-body li,
-  #rankingList li {
-    width: 100%;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+  .ranking-header {
     padding-left: 4px !important;
     padding-right: 4px !important;
-    gap: 4px !important;
-  }
-
-  /* Better column sizing for small screens */
-  .ranking-header .column,
-  .ranking-body li .column {
-    min-width: 0;
-    font-size: 0.92em;
+    gap: 6px !important;
   }
 
   .column.name {
-    width: 48% !important;
-    text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 50% !important;
   }
 
   .column.hp {
     width: 16% !important;
-    text-align: center;
   }
 
   .column.dmg {
     width: 30% !important;
-    text-align: right;
   }
 
-  /* Make the DMG input smaller so rows breathe */
   input.damage-input {
     width: 46px !important;
     min-width: 46px !important;
     max-width: 46px !important;
-    padding: 3px 2px !important;
-    font-size: 0.9em !important;
+    font-size: 0.9em;
+    padding: 3px;
   }
 
-  /* If a defeated row gets a Remove button, let it wrap nicely */
+  /* Allow remove button to wrap below row instead of squashing columns */
   #rankingList li {
     flex-wrap: wrap;
   }
 
-  .remove-button {
-    margin-top: 6px;
-  }
-
-  /* Buttons full width on mobile */
-  .button-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    margin: 10px 0 0 0 !important;
-  }
-
-  .button-container button,
-  #clear-list-button,
-  #reset-round-button,
-  #submit-button,
-  a.button-link {
-    width: 100%;
-    margin-right: 0 !important;
-    text-align: center;
-  }
-
-  /* Form fields below the list */
-  .defense-input-row {
-    flex-direction: column !important;
-    gap: 8px;
-  }
-
-  .defense-input {
-    flex: 1 1 100% !important;
-  }
-
-  /* Modal should fit screen better too */
-  .ol-modal__dialog {
-    width: calc(100% - 16px);
-    max-width: 100%;
-    min-width: 0;
-  }
 }
