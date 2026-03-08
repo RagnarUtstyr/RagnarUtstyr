@@ -595,3 +595,20 @@ input.damage-input {
     font-size: 11px;
   }
 }
+
+.top-track-button {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    background: #2d3d73;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    z-index: 1000;
+}
+
+.top-track-button:hover {
+    background: #3f53a3;
+}
