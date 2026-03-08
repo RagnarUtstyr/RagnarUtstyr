@@ -66,8 +66,9 @@
     }
 
     .entry-card {
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
+      column-gap: 10px;
     }
 
     .entry-open {
@@ -77,6 +78,8 @@
       border: none;
       padding: 0;
       color: #e3cf95;
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
 
     .entry-open:hover {
@@ -112,13 +115,15 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .tracker-boxes {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(20px, 20px));
       gap: 8px;
       align-items: center;
+      justify-content: start;
     }
 
     .tracker-boxes input[type="checkbox"] {
@@ -126,6 +131,28 @@
       height: 20px;
       accent-color: #2d3d73;
       pointer-events: none;
+      margin: 0;
+    }
+
+    .button-small {
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      line-height: 1.1;
+    }
+
+    .button-ghost-small {
+      background: transparent;
+      border: 1px solid #2d3d73;
+      color: #e3cf95;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      line-height: 1.1;
+      border-radius: 6px;
+    }
+
+    .button-ghost-small:hover {
+      color: #fff;
+      border-color: #e3cf95;
     }
 
     .muted {
@@ -145,12 +172,50 @@
     }
 
     @media (max-width: 640px) {
+      .track-shell {
+        padding: 14px;
+      }
+
       .track-form,
       .tracker-form,
-      .entry-card,
       .tracker-card {
         grid-template-columns: 1fr;
       }
+
+      .entry-card {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+      }
+
+      .tracker-controls {
+        justify-content: flex-start;
+      }
+
+      .tracker-boxes {
+        grid-template-columns: repeat(10, 20px);
+        gap: 6px;
+      }
+
+      .tracker-boxes input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+      }
+
+      #back-btn,
+      .remove-button,
+      .deduct-btn,
+      .add-btn,
+      .delete-tracker-btn,
+      #create-entry-btn,
+      #create-tracker-btn {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+      }
+
+      .track-title {
+        font-size: 1.5rem;
+      }
+    }
 
       .tracker-controls {
         justify-content: space-between;
@@ -180,7 +245,7 @@
     <section id="detail-view" class="hidden">
       <div class="track-header">
         <div>
-          <button id="back-btn" class="button-link" type="button">← Back</button>
+          <button id="back-btn" class="button-ghost-small" type="button">← Back</button>
           <h1 id="detail-title" class="track-title" style="margin-top:12px;">Trackers</h1>
           <p class="track-subtitle">Add trackers with a name and number of checkboxes.</p>
         </div>
@@ -318,7 +383,7 @@
         li.className = "entry-card";
         li.innerHTML = `
           <button class="entry-open" type="button">${escapeHtml(entry.name || "Untitled")}</button>
-          <button class="remove-button" type="button">Delete</button>
+          <button class="remove-button button-small" type="button">Delete</button>
         `;
 
         li.querySelector(".entry-open").addEventListener("click", () => {
