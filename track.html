@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+        activeTrackerUnsubscribe();
+      }
+
+      activeTrackerUnsubscribe = onValue(trackersRef(entryId), (snapshot) => {
+        renderTrackerList(snapshot.val());
+      });
+    }
+
+    async function restoreFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const entryId = params.get("entry");
+      if (!entryId) return;
+
+      const snapshot = await get(ref(db, `trackEntries/${entryId}`));
+      if (!snapshot.exists()) return;
+      const entry = snapshot.val();
+      openEntry(entryId, entry.name || "Trackers");
+    }
+
+    onValue(entryRef(), (snapshot) => {
+      renderEntryList(snapshot.val());
+    });
+
+    document.getElementById("create-entry-btn").addEventListener("click", createEntry);
+    document.getElementById("create-entry-btn").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createEntry();
+    });
+
+    document.getElementById("entry-name").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createEntry();
+    });
+
+    document.getElementById("create-tracker-btn").addEventListener("click", createTracker);
+    document.getElementById("tracker-name").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createTracker();
+    });
+    document.getElementById("tracker-amount").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createTracker();
+    });
+
+    document.getElementById("back-btn").addEventListener("click", goToList);
+    window.addEventListener("popstate", () => {
+      const params = new URLSearchParams(window.location.search);
+      const entryId = params.get("entry");
+      if (!entryId) {
+        goToList();
+      }
+    });
+
+    restoreFromUrl();
+  </script>
+</body>
+</html>
