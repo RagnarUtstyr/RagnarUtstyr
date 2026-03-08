@@ -596,19 +596,24 @@ input.damage-input {
   }
 }
 
-.top-track-button {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    padding: 8px 14px;
-    font-size: 0.9rem;
-    background: #2d3d73;
-    color: white;
-    border-radius: 6px;
-    text-decoration: none;
-    z-index: 1000;
+.container {
+    position: relative;
 }
 
-.top-track-button:hover {
-    background: #3f53a3;
+.tracker-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    background: transparent;
+    border: 1px solid #2d3d73;
+    border-radius: 6px;
+    color: #e3cf95;
+    text-decoration: none;
+}
+
+.tracker-button:hover {
+    color: white;
+    border-color: #e3cf95;
 }
