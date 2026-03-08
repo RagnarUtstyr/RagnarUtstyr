@@ -132,6 +132,12 @@
       accent-color: #2d3d73;
       pointer-events: none;
       margin: 0;
+      filter: grayscale(0.15);
+    }
+
+    .tracker-boxes input[type="checkbox"]:checked {
+      accent-color: #57b26a;
+      filter: none;
     }
 
     .button-small {
@@ -257,6 +263,10 @@
         <input type="number" id="tracker-amount" min="1" placeholder="Amount" />
         <button id="create-tracker-btn" type="button">Add tracker</button>
       </div>
+      <label class="muted" style="display:flex;align-items:center;gap:8px;margin:-6px 0 18px 0;">
+        <input type="checkbox" id="tracker-start-full" />
+        Start fully checked
+      </label>
 
       <ul id="tracker-list" class="tracker-list"></ul>
       <div id="tracker-empty" class="empty-state">No trackers yet for this entry.</div>
@@ -339,18 +349,20 @@
       const amountInput = document.getElementById("tracker-amount");
       const name = nameInput.value.trim();
       const amount = parseInt(amountInput.value, 10);
+      const startFull = document.getElementById("tracker-start-full").checked;
 
       if (!name || Number.isNaN(amount) || amount < 1) return;
 
       await push(trackersRef(currentEntryId), {
         name,
         amount,
-        value: 0,
+        value: startFull ? amount : 0,
         createdAt: Date.now()
       });
 
       nameInput.value = "";
       amountInput.value = "";
+      document.getElementById("tracker-start-full").checked = false;
       nameInput.focus();
     }
 
