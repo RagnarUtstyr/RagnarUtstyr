@@ -1,4 +1,417 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trackers</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .track-shell {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(31, 29, 26, 0.88);
+      border-radius: 12px;
+      box-shadow: 0 0 12px #000;
+    }
+
+    .track-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .track-title {
+      margin: 0;
+    }
+
+    .track-subtitle {
+      margin: 0;
+      opacity: 0.85;
+    }
+
+    .track-form,
+    .tracker-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tracker-form {
+      grid-template-columns: 1.3fr 110px auto;
+    }
+
+    .entry-list,
+    .tracker-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .entry-card,
+    .tracker-card {
+      display: grid;
+      gap: 10px;
+      background: rgba(11, 41, 36, 0.85);
+      border: 1px solid #1a3b4a;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .entry-card {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    .entry-open {
+      font-size: 1.05rem;
+      text-align: left;
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: #e3cf95;
+    }
+
+    .entry-open:hover {
+      color: #ffffff;
+      background: transparent;
+    }
+
+    .tracker-card {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .tracker-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .tracker-name {
+      font-weight: bold;
+      color: #e3cf95;
+      font-size: 1.05rem;
+    }
+
+    .tracker-progress {
+      color: #bdb382;
+    }
+
+    .tracker-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tracker-boxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tracker-boxes input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #2d3d73;
+      pointer-events: none;
+    }
+
+    .muted {
+      opacity: 0.75;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .empty-state {
+      padding: 14px;
+      border: 1px dashed #2d3d73;
+      border-radius: 8px;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    @media (max-width: 640px) {
+      .track-form,
+      .tracker-form,
+      .entry-card,
+      .tracker-card {
+        grid-template-columns: 1fr;
+      }
+
+      .tracker-controls {
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="track-shell">
+    <section id="list-view">
+      <div class="track-header">
+        <div>
+          <h1 class="track-title">Tracker Lists</h1>
+          <p class="track-subtitle">Create a name, then open it to manage custom trackers.</p>
+        </div>
+      </div>
+
+      <div class="track-form">
+        <input type="text" id="entry-name" placeholder="Enter name" />
+        <button id="create-entry-btn" type="button">Create</button>
+      </div>
+
+      <ul id="entry-list" class="entry-list"></ul>
+      <div id="entry-empty" class="empty-state">No entries yet.</div>
+    </section>
+
+    <section id="detail-view" class="hidden">
+      <div class="track-header">
+        <div>
+          <button id="back-btn" class="button-link" type="button">← Back</button>
+          <h1 id="detail-title" class="track-title" style="margin-top:12px;">Trackers</h1>
+          <p class="track-subtitle">Add trackers with a name and number of checkboxes.</p>
+        </div>
+      </div>
+
+      <div class="tracker-form">
+        <input type="text" id="tracker-name" placeholder="Tracker name" />
+        <input type="number" id="tracker-amount" min="1" placeholder="Amount" />
+        <button id="create-tracker-btn" type="button">Add tracker</button>
+      </div>
+
+      <ul id="tracker-list" class="tracker-list"></ul>
+      <div id="tracker-empty" class="empty-state">No trackers yet for this entry.</div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      update,
+      remove,
+      onValue,
+      get
+    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+      authDomain: "roll202-c0b0d.firebaseapp.com",
+      databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "roll202-c0b0d",
+      storageBucket: "roll202-c0b0d.appspot.com",
+      messagingSenderId: "607661730400",
+      appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+      measurementId: "G-6X5L39W56C"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const listView = document.getElementById("list-view");
+    const detailView = document.getElementById("detail-view");
+    const entryListEl = document.getElementById("entry-list");
+    const trackerListEl = document.getElementById("tracker-list");
+    const entryEmptyEl = document.getElementById("entry-empty");
+    const trackerEmptyEl = document.getElementById("tracker-empty");
+    const detailTitleEl = document.getElementById("detail-title");
+
+    let currentEntryId = null;
+    let activeTrackerUnsubscribe = null;
+    let activeEntryName = "";
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function entryRef() {
+      return ref(db, "trackEntries");
+    }
+
+    function trackersRef(entryId) {
+      return ref(db, `trackEntries/${entryId}/trackers`);
+    }
+
+    async function createEntry() {
+      const input = document.getElementById("entry-name");
+      const name = input.value.trim();
+      if (!name) return;
+
+      const newRef = await push(entryRef(), {
+        name,
+        createdAt: Date.now()
+      });
+
+      input.value = "";
+      openEntry(newRef.key, name);
+    }
+
+    async function createTracker() {
+      if (!currentEntryId) return;
+
+      const nameInput = document.getElementById("tracker-name");
+      const amountInput = document.getElementById("tracker-amount");
+      const name = nameInput.value.trim();
+      const amount = parseInt(amountInput.value, 10);
+
+      if (!name || Number.isNaN(amount) || amount < 1) return;
+
+      await push(trackersRef(currentEntryId), {
+        name,
+        amount,
+        value: 0,
+        createdAt: Date.now()
+      });
+
+      nameInput.value = "";
+      amountInput.value = "";
+      nameInput.focus();
+    }
+
+    async function changeTrackerValue(trackerId, nextValue) {
+      if (!currentEntryId) return;
+      const trackerReference = ref(db, `trackEntries/${currentEntryId}/trackers/${trackerId}`);
+      const snapshot = await get(trackerReference);
+      if (!snapshot.exists()) return;
+
+      const tracker = snapshot.val();
+      const bounded = Math.max(0, Math.min(Number(tracker.amount) || 0, nextValue));
+      await update(trackerReference, { value: bounded });
+    }
+
+    async function deleteTracker(trackerId) {
+      if (!currentEntryId) return;
+      await remove(ref(db, `trackEntries/${currentEntryId}/trackers/${trackerId}`));
+    }
+
+    function renderEntryList(data) {
+      entryListEl.innerHTML = "";
+      const entries = data
+        ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
+        : [];
+
+      entries.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      entryEmptyEl.classList.toggle("hidden", entries.length > 0);
+
+      for (const entry of entries) {
+        const li = document.createElement("li");
+        li.className = "entry-card";
+        li.innerHTML = `
+          <button class="entry-open" type="button">${escapeHtml(entry.name || "Untitled")}</button>
+          <button class="remove-button" type="button">Delete</button>
+        `;
+
+        li.querySelector(".entry-open").addEventListener("click", () => {
+          openEntry(entry.id, entry.name || "Untitled");
+        });
+
+        li.querySelector(".remove-button").addEventListener("click", async () => {
+          const confirmed = window.confirm(`Delete ${entry.name || "this entry"}?`);
+          if (!confirmed) return;
+          await remove(ref(db, `trackEntries/${entry.id}`));
+          if (currentEntryId === entry.id) {
+            goToList();
+          }
+        });
+
+        entryListEl.appendChild(li);
+      }
+    }
+
+    function buildCheckboxes(amount, value) {
+      const total = Math.max(0, Number(amount) || 0);
+      const checked = Math.max(0, Math.min(total, Number(value) || 0));
+      let html = "";
+      for (let i = 0; i < total; i += 1) {
+        html += `<input type="checkbox" ${i < checked ? "checked" : ""} disabled />`;
+      }
+      return html || '<span class="muted">No boxes</span>';
+    }
+
+    function renderTrackerList(data) {
+      trackerListEl.innerHTML = "";
+      const trackers = data
+        ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
+        : [];
+
+      trackers.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      trackerEmptyEl.classList.toggle("hidden", trackers.length > 0);
+
+      for (const tracker of trackers) {
+        const li = document.createElement("li");
+        li.className = "tracker-card";
+        li.innerHTML = `
+          <div>
+            <div class="tracker-top">
+              <span class="tracker-name">${escapeHtml(tracker.name || "Tracker")}</span>
+              <span class="tracker-progress">${Number(tracker.value) || 0} / ${Number(tracker.amount) || 0}</span>
+            </div>
+            <div class="tracker-boxes">${buildCheckboxes(tracker.amount, tracker.value)}</div>
+          </div>
+          <div class="tracker-controls">
+            <button type="button" class="deduct-btn">Deduct</button>
+            <button type="button" class="add-btn">Add</button>
+            <button type="button" class="remove-button delete-tracker-btn">Delete</button>
+          </div>
+        `;
+
+        li.querySelector(".deduct-btn").addEventListener("click", () => {
+          changeTrackerValue(tracker.id, (Number(tracker.value) || 0) - 1);
+        });
+
+        li.querySelector(".add-btn").addEventListener("click", () => {
+          changeTrackerValue(tracker.id, (Number(tracker.value) || 0) + 1);
+        });
+
+        li.querySelector(".delete-tracker-btn").addEventListener("click", () => {
+          deleteTracker(tracker.id);
+        });
+
+        trackerListEl.appendChild(li);
+      }
+    }
+
+    function goToList() {
+      currentEntryId = null;
+      activeEntryName = "";
+      detailView.classList.add("hidden");
+      listView.classList.remove("hidden");
+      history.pushState({}, "", window.location.pathname);
+      if (activeTrackerUnsubscribe) {
+        activeTrackerUnsubscribe();
+        activeTrackerUnsubscribe = null;
+      }
+    }
+
+    function openEntry(entryId, entryName = "Trackers") {
+      currentEntryId = entryId;
+      activeEntryName = entryName;
+      detailTitleEl.textContent = entryName;
+      listView.classList.add("hidden");
+      detailView.classList.remove("hidden");
+      history.pushState({}, "", `${window.location.pathname}?entry=${encodeURIComponent(entryId)}`);
+
+      if (activeTrackerUnsubscribe) {
         activeTrackerUnsubscribe();
       }
 
