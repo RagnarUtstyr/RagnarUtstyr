@@ -215,7 +215,15 @@ li .number {
   word-break: break-word;
 }
 
-.ranking-header,
+/* FIX: make desktop header use the same grid sizing as desktop rows */
+.ranking-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(72px, 0.5fr) minmax(80px, 0.6fr);
+  align-items: center;
+  gap: 8px 10px;
+  padding: 6px 15px;
+}
+
 .ranking-body li {
   display: flex;
   flex-direction: row;
@@ -254,6 +262,21 @@ li .number {
 .column.dmg {
   width: 20%;
   text-align: right;
+}
+
+/* extra header alignment for desktop/larger screens */
+.ranking-header .column.name {
+  text-align: left;
+}
+
+.ranking-header .column.hp {
+  text-align: center;
+  justify-self: center;
+}
+
+.ranking-header .column.dmg {
+  text-align: right;
+  justify-self: end;
 }
 
 input.damage-input {
@@ -597,25 +620,25 @@ input.damage-input {
 }
 
 .container {
-    position: relative;
+  position: relative;
 }
 
 .tracker-button {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    padding: 6px 12px;
-    font-size: 0.85rem;
-    background: transparent;
-    border: 1px solid #2d3d73;
-    border-radius: 6px;
-    color: #e3cf95;
-    text-decoration: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  background: transparent;
+  border: 1px solid #2d3d73;
+  border-radius: 6px;
+  color: #e3cf95;
+  text-decoration: none;
 }
 
 .tracker-button:hover {
-    color: white;
-    border-color: #e3cf95;
+  color: white;
+  border-color: #e3cf95;
 }
 
 .ol-modal__dialog--wide {
@@ -688,7 +711,6 @@ input.damage-input {
   flex-direction: column;
   align-items: flex-start;
 }
-
 
 /* === Bane row layout: keep Name / HP / DMG on one line, banes underneath === */
 #rankingList li.list-item {
