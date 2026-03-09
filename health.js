@@ -1,18 +1,45 @@
 import { getDatabase, ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
-import { BANES } from "banes.js";
+import { BANES } from "./banes.js";
 
 const db = getDatabase();
 let __currentEntryId = null;
+const __countdownById = new Map();
+
+function __getCountdownState(id) {
+  return __countdownById.get(id) || { remaining: null, active: false, ended: false };
+}
+
+function __setCountdownState(id, state) {
+  __countdownById.set(id, {
+    remaining: typeof state.remaining === 'number' ? state.remaining : null,
+    active: !!state.active,
+    ended: !!state.ended
+  });
+}
+
+function __rowFor(id) {
+  return document.querySelector(`.list-item[data-entry-id="${id}"]`);
+}
+
+function __sanitizeKey(value) {
+  return String(value ?? '').replace(/[.#$\[\]/]/g, '_');
+}
+
+function __normalizeBanes(banes) {
+  if (!banes) return [];
+  if (Array.isArray(banes)) return banes.filter(Boolean);
+  return Object.values(banes).filter(Boolean);
+}
 
 function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded }) {
   const modal = document.getElementById('stat-modal');
   if (!modal) return;
 
   document.getElementById('stat-modal-title').textContent = name ?? '';
-  document.getElementById('stat-init').textContent = (initiative ?? 'N/A');
-  document.getElementById('stat-grd').textContent = (grd ?? 'N/A');
-  document.getElementById('stat-res').textContent = (res ?? 'N/A');
-  document.getElementById('stat-tgh').textContent = (tgh ?? 'N/A');
+  document.getElementById('stat-init').textContent = initiative ?? 'N/A';
+  document.getElementById('stat-grd').textContent = grd ?? 'N/A';
+  document.getElementById('stat-res').textContent = res ?? 'N/A';
+  document.getElementById('stat-tgh').textContent = tgh ?? 'N/A';
 
   const link = document.getElementById('stat-url');
   if (url) {
@@ -60,116 +87,12 @@ function closeHpModal() {
   document.getElementById('hp-modal')?.setAttribute('aria-hidden', 'true');
 }
 
-function openBanePickerModal() {
-  if (!__currentEntryId) return;
-
-  const modal = document.getElementById('bane-picker-modal');
-  const list = document.getElementById('bane-picker-list');
-  if (!modal || !list) return;
-
-  list.innerHTML = '';
-
-  BANES.forEach((bane) => {
-    const row = document.createElement('div');
-    row.className = 'bane-picker-row';
-
-    const left = document.createElement('div');
-    left.className = 'bane-picker-left';
-
-    const icon = document.createElement('img');
-    icon.className = 'bane-icon';
-    icon.src = bane.icon;
-    icon.alt = bane.name;
-
-    const name = document.createElement('span');
-    name.textContent = bane.name;
-
-    const addBtn = document.createElement('button');
-    addBtn.type = 'button';
-    addBtn.textContent = 'Add';
-    addBtn.addEventListener('click', async () => {
-      try {
-        const key = bane.name.replace(/[.#$\[\]/]/g, '_');
-        await update(ref(db, `rankings/${__currentEntryId}/banes`), {
-          [key]: {
-            name: bane.name,
-            url: bane.url,
-            icon: bane.icon
-          }
-        });
-      } catch (err) {
-        console.error('Error adding bane:', err);
-      }
-    });
-
-    left.appendChild(icon);
-    left.appendChild(name);
-    row.appendChild(left);
-    row.appendChild(addBtn);
-    list.appendChild(row);
-  });
-
-  modal.setAttribute('aria-hidden', 'false');
-}
-
 function closeBanePickerModal() {
   document.getElementById('bane-picker-modal')?.setAttribute('aria-hidden', 'true');
 }
 
-function openBanesModal(banes, titleText = 'Banes') {
-  const modal = document.getElementById('banes-modal');
-  const list = document.getElementById('banes-modal-list');
-  const title = document.getElementById('banes-modal-title');
-  if (!modal || !list) return;
-
-  list.innerHTML = '';
-  if (title) title.textContent = titleText;
-
-  banes.forEach((bane) => {
-    const row = document.createElement('div');
-    row.className = 'bane-picker-row bane-picker-row--link';
-    row.addEventListener('click', () => {
-      if (bane.url) window.open(bane.url, '_blank', 'noopener');
-    });
-
-    const left = document.createElement('div');
-    left.className = 'bane-picker-left';
-
-    const icon = document.createElement('img');
-    icon.className = 'bane-icon';
-    icon.src = bane.icon;
-    icon.alt = bane.name;
-
-    const name = document.createElement('span');
-    name.textContent = bane.name;
-
-    left.appendChild(icon);
-    left.appendChild(name);
-    row.appendChild(left);
-    list.appendChild(row);
-  });
-
-  modal.setAttribute('aria-hidden', 'false');
-}
-
 function closeBanesModal() {
   document.getElementById('banes-modal')?.setAttribute('aria-hidden', 'true');
-}
-
-const __countdownById = new Map();
-function __getCountdownState(id) {
-  return __countdownById.get(id) || { remaining: null, active: false, ended: false };
-}
-function __setCountdownState(id, state) {
-  __countdownById.set(id, {
-    remaining: (typeof state.remaining === 'number') ? state.remaining : null,
-    active: !!state.active,
-    ended: !!state.ended
-  });
-}
-
-function __rowFor(id) {
-  return document.querySelector(`.list-item[data-entry-id="${id}"]`);
 }
 
 function __updateCountdownBadge(row, state) {
@@ -178,10 +101,7 @@ function __updateCountdownBadge(row, state) {
   if (!nameCol) return;
 
   let badge = nameCol.querySelector('.countdown-badge');
-
-  const hasSomething =
-    (state.active && typeof state.remaining === 'number' && state.remaining > 0) ||
-    state.ended;
+  const hasSomething = (state.active && typeof state.remaining === 'number' && state.remaining > 0) || state.ended;
 
   if (!hasSomething) {
     badge?.remove();
@@ -208,30 +128,96 @@ function __applyRowCountdownClasses(entryId, state) {
   }
 
   if (!state.ended) row.classList.remove('countdown-expired');
-
   __updateCountdownBadge(row, state);
 }
 
-function buildBaneChips(banes) {
-  const baneArray = banes ? Object.values(banes) : [];
-  if (!baneArray.length) return null;
+function renderBanePicker() {
+  const list = document.getElementById('bane-picker-list');
+  if (!list) return;
 
-  const wrap = document.createElement('div');
-  wrap.className = 'row-banes';
+  list.innerHTML = '';
 
-  baneArray.forEach((bane) => {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = 'bane-chip';
-    chip.textContent = bane.name;
-    chip.addEventListener('click', (e) => {
-      e.stopPropagation();
+  BANES.forEach((bane) => {
+    const row = document.createElement('div');
+    row.className = 'bane-picker-row';
+
+    const left = document.createElement('div');
+    left.className = 'bane-picker-left';
+
+    const icon = document.createElement('img');
+    icon.className = 'bane-icon';
+    icon.src = bane.icon;
+    icon.alt = bane.name;
+
+    const name = document.createElement('span');
+    name.className = 'bane-picker-name';
+    name.textContent = bane.name;
+
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.textContent = 'Add';
+    addBtn.addEventListener('click', async () => {
+      if (!__currentEntryId) return;
+      const entryRef = ref(db, `rankings/${__currentEntryId}/banes`);
+      const key = __sanitizeKey(bane.name);
+      try {
+        await update(entryRef, {
+          [key]: {
+            name: bane.name,
+            url: bane.url,
+            icon: bane.icon
+          }
+        });
+      } catch (err) {
+        console.error('Error adding bane:', err);
+      }
+    });
+
+    left.appendChild(icon);
+    left.appendChild(name);
+    row.appendChild(left);
+    row.appendChild(addBtn);
+    list.appendChild(row);
+  });
+}
+
+function openBanePickerModal() {
+  if (!__currentEntryId) return;
+  renderBanePicker();
+  document.getElementById('bane-picker-modal')?.setAttribute('aria-hidden', 'false');
+}
+
+function openBanesModal(banes, titleText = 'Banes') {
+  const modal = document.getElementById('banes-modal');
+  const title = document.getElementById('banes-modal-title');
+  const list = document.getElementById('banes-modal-list');
+  if (!modal || !list) return;
+
+  list.innerHTML = '';
+  if (title) title.textContent = titleText;
+
+  banes.forEach((bane) => {
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'banes-modal-row';
+    row.addEventListener('click', () => {
       if (bane.url) window.open(bane.url, '_blank', 'noopener');
     });
-    wrap.appendChild(chip);
+
+    const icon = document.createElement('img');
+    icon.className = 'bane-icon';
+    icon.src = bane.icon;
+    icon.alt = bane.name;
+
+    const name = document.createElement('span');
+    name.textContent = bane.name;
+
+    row.appendChild(icon);
+    row.appendChild(name);
+    list.appendChild(row);
   });
 
-  return wrap;
+  modal.setAttribute('aria-hidden', 'false');
 }
 
 function fetchRankings() {
@@ -240,32 +226,37 @@ function fetchRankings() {
     const data = snapshot.val();
     const rankingList = document.querySelector('.ranking-body');
     if (!rankingList) return;
-    rankingList.innerHTML = '';
 
+    rankingList.innerHTML = '';
     __countdownById.clear();
     if (!data) return;
 
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-    rankings.sort((a, b) => b.number - a.number);
+    rankings.sort((a, b) => (b.number ?? 0) - (a.number ?? 0));
 
     rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded, banes }) => {
       __setCountdownState(id, {
-        remaining: (typeof countdownRemaining === 'number') ? countdownRemaining : null,
+        remaining: typeof countdownRemaining === 'number' ? countdownRemaining : null,
         active: !!countdownActive,
         ended: !!countdownEnded
       });
 
+      const baneArray = __normalizeBanes(banes);
+
       const listItem = document.createElement('li');
       listItem.className = 'list-item';
       listItem.dataset.entryId = id;
-
       if (health === 0) listItem.classList.add('defeated');
 
       const nameCol = document.createElement('div');
       nameCol.className = 'column name';
-      nameCol.style.cursor = 'pointer';
-      nameCol.title = 'Show defenses (GRD / RES / TGH)';
-      nameCol.addEventListener('click', () => {
+
+      const nameMain = document.createElement('div');
+      nameMain.className = 'name-main';
+      nameMain.textContent = name ?? 'Unknown';
+      nameMain.style.cursor = 'pointer';
+      nameMain.title = 'Show defenses (GRD / RES / TGH)';
+      nameMain.addEventListener('click', () => {
         __currentEntryId = id;
         const s = __getCountdownState(id);
         openStatModal({
@@ -280,14 +271,48 @@ function fetchRankings() {
           countdownEnded: s.ended
         });
       });
+      nameCol.appendChild(nameMain);
 
-      const nameText = document.createElement('div');
-      nameText.className = 'name-text';
-      nameText.textContent = name ?? 'Unknown';
-      nameCol.appendChild(nameText);
+      if (baneArray.length > 0) {
+        const baneWrap = document.createElement('div');
+        baneWrap.className = 'row-banes';
 
-      const baneChips = buildBaneChips(banes);
-      if (baneChips) nameCol.appendChild(baneChips);
+        baneArray.forEach((bane) => {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'bane-chip';
+          chip.title = bane.name;
+
+          const chipIcon = document.createElement('img');
+          chipIcon.className = 'bane-chip-icon';
+          chipIcon.src = bane.icon;
+          chipIcon.alt = bane.name;
+
+          const chipLabel = document.createElement('span');
+          chipLabel.textContent = bane.name;
+
+          chip.appendChild(chipIcon);
+          chip.appendChild(chipLabel);
+          chip.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (bane.url) window.open(bane.url, '_blank', 'noopener');
+          });
+          baneWrap.appendChild(chip);
+        });
+
+        nameCol.appendChild(baneWrap);
+
+        const banesBtn = document.createElement('button');
+        banesBtn.type = 'button';
+        banesBtn.className = 'view-banes-button';
+        banesBtn.textContent = 'Banes';
+        banesBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          __currentEntryId = id;
+          openBanesModal(baneArray, `${name ?? 'Unknown'} - Banes`);
+        });
+        nameCol.appendChild(banesBtn);
+      }
 
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
@@ -315,19 +340,6 @@ function fetchRankings() {
       listItem.appendChild(nameCol);
       listItem.appendChild(hpCol);
       listItem.appendChild(dmgCol);
-
-      const baneArray = banes ? Object.values(banes) : [];
-      if (baneArray.length > 0) {
-        const banesBtn = document.createElement('button');
-        banesBtn.type = 'button';
-        banesBtn.className = 'banes-button';
-        banesBtn.textContent = 'Banes';
-        banesBtn.addEventListener('click', () => {
-          __currentEntryId = id;
-          openBanesModal(baneArray, `${name ?? 'Unknown'} - Banes`);
-        });
-        listItem.appendChild(banesBtn);
-      }
 
       if (health === 0) {
         const removeButton = document.createElement('button');
@@ -358,7 +370,7 @@ function applyDamageToAll() {
     const rawDamage = parseInt(input.value, 10);
     const statValue = parseInt(input.dataset[selectedStat], 10);
 
-    if (isNaN(rawDamage) || isNaN(currentHealth) || isNaN(statValue)) {
+    if (Number.isNaN(rawDamage) || Number.isNaN(currentHealth) || Number.isNaN(statValue)) {
       input.value = '';
       return;
     }
@@ -400,7 +412,7 @@ function updateHealth(id, newHealth, inputEl) {
         listItem?.classList.remove('defeated');
       }
     })
-    .catch(err => console.error('Error updating health:', err));
+    .catch((err) => console.error('Error updating health:', err));
 }
 
 function removeEntry(id, listItem) {
@@ -409,7 +421,7 @@ function removeEntry(id, listItem) {
       listItem?.remove();
       __countdownById.delete(id);
     })
-    .catch(err => console.error('Error removing entry:', err));
+    .catch((err) => console.error('Error removing entry:', err));
 }
 
 function clearList() {
@@ -418,12 +430,11 @@ function clearList() {
       window.resetRoundCounter?.();
       __countdownById.clear();
     })
-    .catch(err => console.error('Error clearing list:', err));
+    .catch((err) => console.error('Error clearing list:', err));
 }
 
 function setCountdown(id, turns) {
   const reference = ref(db, `rankings/${id}`);
-
   __setCountdownState(id, { remaining: turns, active: true, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
 
@@ -436,7 +447,6 @@ function setCountdown(id, turns) {
 
 function clearCountdown(id) {
   const reference = ref(db, `rankings/${id}`);
-
   __setCountdownState(id, { remaining: null, active: false, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
 
@@ -459,7 +469,6 @@ async function __decrementCountdownIfNeeded(entryId) {
   if (nextRemaining <= 0) {
     __setCountdownState(entryId, { remaining: 0, active: false, ended: true });
     __applyRowCountdownClasses(entryId, __getCountdownState(entryId));
-
     await update(reference, {
       countdownRemaining: 0,
       countdownActive: false,
@@ -470,7 +479,6 @@ async function __decrementCountdownIfNeeded(entryId) {
 
   __setCountdownState(entryId, { remaining: nextRemaining, active: true, ended: false });
   __applyRowCountdownClasses(entryId, __getCountdownState(entryId));
-
   await update(reference, {
     countdownRemaining: nextRemaining,
     countdownActive: true,
@@ -519,10 +527,10 @@ window.addEventListener('tracker:highlightChange', async (e) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('stat-modal');
-  if (modal) {
+  const statModal = document.getElementById('stat-modal');
+  if (statModal) {
     document.getElementById('stat-modal-close')?.addEventListener('click', closeStatModal);
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeStatModal(); });
+    statModal.addEventListener('click', (e) => { if (e.target === statModal) closeStatModal(); });
   }
 
   const hpModal = document.getElementById('hp-modal');
@@ -545,10 +553,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    closeStatModal();
-    closeHpModal();
-    closeBanePickerModal();
-    closeBanesModal();
+    if (banesModal?.getAttribute('aria-hidden') === 'false') closeBanesModal();
+    else if (banePickerModal?.getAttribute('aria-hidden') === 'false') closeBanePickerModal();
+    else if (hpModal?.getAttribute('aria-hidden') === 'false') closeHpModal();
+    else if (statModal?.getAttribute('aria-hidden') === 'false') closeStatModal();
   });
 
   document.getElementById('stat-delete')?.addEventListener('click', () => {
@@ -567,7 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
     healBtn.addEventListener('click', () => {
       if (!__currentEntryId) return;
       const amount = parseInt(healAmtInput.value, 10);
-      if (isNaN(amount) || amount === 0) return;
+      if (Number.isNaN(amount) || amount === 0) return;
 
       const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
       if (!dmgInput || !('health' in dmgInput.dataset)) {
@@ -582,14 +590,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const setBtn = document.getElementById('hp-set-button');
+  const hpSetBtn = document.getElementById('hp-set-button');
   const hpInput = document.getElementById('hp-set-amount');
-  if (setBtn && hpInput) {
-    setBtn.addEventListener('click', () => {
+  if (hpSetBtn && hpInput) {
+    hpSetBtn.addEventListener('click', () => {
       if (!__currentEntryId) return;
-
       const amount = parseInt(hpInput.value, 10);
-      if (isNaN(amount) || amount < 0) return;
+      if (Number.isNaN(amount) || amount < 0) return;
 
       const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
       if (!dmgInput) return;
@@ -602,39 +609,39 @@ document.addEventListener('DOMContentLoaded', () => {
     hpInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        setBtn.click();
+        hpSetBtn.click();
       }
     });
   }
 
-  const countdownSetBtn = document.getElementById('stat-countdown-set');
-  const countdownClearBtn = document.getElementById('stat-countdown-clear');
-  const countdownAmtInput = document.getElementById('stat-countdown-amount');
-
-  if (countdownSetBtn && countdownAmtInput) {
-    countdownSetBtn.addEventListener('click', async () => {
+  const setBtn = document.getElementById('stat-countdown-set');
+  const clearBtn = document.getElementById('stat-countdown-clear');
+  const amtInput = document.getElementById('stat-countdown-amount');
+  if (setBtn && amtInput) {
+    setBtn.addEventListener('click', async () => {
       if (!__currentEntryId) return;
-
-      const turns = parseInt(countdownAmtInput.value, 10);
-      if (isNaN(turns) || turns <= 0) return;
+      const turns = parseInt(amtInput.value, 10);
+      if (Number.isNaN(turns) || turns <= 0) return;
 
       try {
         await setCountdown(__currentEntryId, turns);
-        countdownAmtInput.value = '';
+        amtInput.value = '';
       } catch (err) {
         console.error('Error setting countdown:', err);
       }
     });
   }
 
-  countdownClearBtn?.addEventListener('click', async () => {
-    if (!__currentEntryId) return;
-    try {
-      await clearCountdown(__currentEntryId);
-    } catch (err) {
-      console.error('Error clearing countdown:', err);
-    }
-  });
+  if (clearBtn) {
+    clearBtn.addEventListener('click', async () => {
+      if (!__currentEntryId) return;
+      try {
+        await clearCountdown(__currentEntryId);
+      } catch (err) {
+        console.error('Error clearing countdown:', err);
+      }
+    });
+  }
 
   document.getElementById('stat-add-bane')?.addEventListener('click', openBanePickerModal);
   document.getElementById('apply-damage-button')?.addEventListener('click', applyDamageToAll);
