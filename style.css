@@ -215,7 +215,6 @@ li .number {
   word-break: break-word;
 }
 
-/* FIX: make desktop header use the same grid sizing as desktop rows */
 .ranking-header {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(72px, 0.5fr) minmax(80px, 0.6fr);
@@ -264,21 +263,6 @@ li .number {
   text-align: right;
 }
 
-/* extra header alignment for desktop/larger screens */
-.ranking-header .column.name {
-  text-align: left;
-}
-
-.ranking-header .column.hp {
-  text-align: center;
-  justify-self: center;
-}
-
-.ranking-header .column.dmg {
-  text-align: right;
-  justify-self: end;
-}
-
 input.damage-input {
   width: 60px;
   padding: 5px;
@@ -288,6 +272,42 @@ input.damage-input {
   color: #b68558;
   font-size: 1em;
   text-align: center;
+}
+
+/* === Desktop/Larger-screen alignment fix === */
+@media (min-width: 601px) {
+  .ranking-header > .column.name {
+    text-align: left;
+    justify-self: start;
+  }
+
+  .ranking-header > .column.hp {
+    text-align: center;
+    justify-self: center;
+    width: auto;
+  }
+
+  .ranking-header > .column.dmg {
+    text-align: right;
+    justify-self: end;
+    width: auto;
+  }
+
+  #rankingList li.list-item > .column.name {
+    justify-self: start;
+  }
+
+  #rankingList li.list-item > .column.hp {
+    text-align: center;
+    justify-self: center;
+    width: auto;
+  }
+
+  #rankingList li.list-item > .column.dmg {
+    text-align: right;
+    justify-self: end;
+    width: auto;
+  }
 }
 
 /* === Defeated Style === */
