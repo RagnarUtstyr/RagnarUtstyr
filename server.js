@@ -1,6 +1,6 @@
 // Import necessary Firebase modules from the SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -22,18 +22,18 @@ const db = getDatabase(app);
 async function submitData() {
     const name = document.getElementById('name')?.value;
     const numberInput = document.getElementById('initiative') || document.getElementById('number');
-    const number = numberInput ? parseInt(numberInput.value) : null;
+    const number = numberInput ? parseInt(numberInput.value, 10) : null;
 
     const healthInput = document.getElementById('health');
-    const health = healthInput && healthInput.value !== '' ? parseInt(healthInput.value) : null;
+    const health = healthInput && healthInput.value !== '' ? parseInt(healthInput.value, 10) : null;
 
     const grdInput = document.getElementById('grd');
     const resInput = document.getElementById('res');
     const tghInput = document.getElementById('tgh');
 
-    const grd = grdInput ? (grdInput.value !== '' ? parseInt(grdInput.value) : null) : undefined;
-    const res = resInput ? (resInput.value !== '' ? parseInt(resInput.value) : null) : undefined;
-    const tgh = tghInput ? (tghInput.value !== '' ? parseInt(tghInput.value) : null) : undefined;
+    const grd = grdInput ? (grdInput.value !== '' ? parseInt(grdInput.value, 10) : null) : undefined;
+    const res = resInput ? (resInput.value !== '' ? parseInt(resInput.value, 10) : null) : undefined;
+    const tgh = tghInput ? (tghInput.value !== '' ? parseInt(tghInput.value, 10) : null) : undefined;
 
     if (name && !isNaN(number)) {
         try {
@@ -46,12 +46,10 @@ async function submitData() {
             const rankingsRef = ref(db, 'rankings/');
             const monsterRef = ref(db, 'OpenLegendMonster/');
 
-            // Save to both locations
             await push(rankingsRef, entry);
             await push(monsterRef, entry);
             console.log('Data submitted to rankings and OpenLegendMonster:', entry);
 
-            // Clear inputs
             document.getElementById('name').value = '';
             if (numberInput) numberInput.value = '';
             if (healthInput) healthInput.value = '';
@@ -59,10 +57,8 @@ async function submitData() {
             if (resInput) resInput.value = '';
             if (tghInput) tghInput.value = '';
 
-            // Play sword sound if available
             const swordSound = document.getElementById('sword-sound');
             if (swordSound) swordSound.play();
-
         } catch (error) {
             console.error('Error submitting data:', error);
         }
@@ -71,64 +67,7 @@ async function submitData() {
     }
 }
 
-// Function to fetch and display rankings
-function fetchRankings() {
-    const reference = ref(db, 'rankings/');
-    onValue(reference, (snapshot) => {
-        const data = snapshot.val();
-        const rankingList = document.getElementById('rankingList');
-        if (!rankingList) return;
-
-        rankingList.innerHTML = '';
-
-        if (data) {
-            const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number);
-
-            rankings.forEach(({ id, name, number, health, grd, res, tgh }) => {
-                const listItem = document.createElement('li');
-
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
-                nameDiv.textContent = `${name} (GRD: ${grd ?? 'N/A'}, RES: ${res ?? 'N/A'}, TGH: ${tgh ?? 'N/A'})`;
-
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.addEventListener('click', () => removeEntry(id));
-
-                listItem.appendChild(nameDiv);
-                if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv);
-                }
-                listItem.appendChild(removeButton);
-
-                rankingList.appendChild(listItem);
-            });
-        } else {
-            console.log('No data available');
-        }
-    }, (error) => {
-        console.error('Error fetching data:', error);
-    });
-}
-
-// Function to remove an entry from Firebase
-function removeEntry(id) {
-    const reference = ref(db, `rankings/${id}`);
-    remove(reference)
-        .then(() => {
-            console.log(`Entry with id ${id} removed successfully`);
-        })
-        .catch((error) => {
-            console.error('Error removing entry:', error);
-        });
-}
-
-// Function to clear all entries from Firebase
+// Kept here in case other pages still use it directly.
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
     set(reference, null)
@@ -143,14 +82,15 @@ function clearAllEntries() {
 }
 
 // Page setup
+// Important: this file should only handle submission on group.html.
+// health.js is the only file that should render the ranking list.
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('submit-button')) {
         document.getElementById('submit-button').addEventListener('click', submitData);
     }
-    if (document.getElementById('rankingList')) {
-        fetchRankings();
-    }
-    if (document.getElementById('clear-list-button')) {
-        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
-    }
+
+    // Leave the clear button to health.js on the initiative page.
+    // If another page needs it and does not load health.js, it can opt in here later.
 });
+
+export { clearAllEntries };
