@@ -688,3 +688,108 @@ input.damage-input {
   flex-direction: column;
   align-items: flex-start;
 }
+
+
+/* === Bane row layout: keep Name / HP / DMG on one line, banes underneath === */
+#rankingList li.list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(72px, 0.5fr) minmax(80px, 0.6fr);
+  align-items: center;
+  gap: 8px 10px;
+  overflow: visible;
+}
+
+#rankingList li.list-item > .column.name {
+  grid-column: 1;
+  display: block;
+}
+
+#rankingList li.list-item > .column.hp {
+  grid-column: 2;
+}
+
+#rankingList li.list-item > .column.dmg {
+  grid-column: 3;
+}
+
+#rankingList li.list-item > .row-banes {
+  grid-column: 1 / -1;
+}
+
+#rankingList li.list-item > .remove-button {
+  grid-column: 1 / -1;
+}
+
+.row-banes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.bane-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #2d3d73;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.bane-icon-button:hover {
+  background: rgba(26, 59, 74, 0.9);
+}
+
+.bane-row-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+}
+
+.banes-button {
+  margin-left: 4px;
+  padding: 5px 10px;
+  font-size: 0.85em;
+}
+
+.bane-picker-open {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  text-align: left;
+}
+
+.bane-picker-open:hover {
+  background: transparent;
+  color: #ffffff;
+}
+
+@media (max-width: 600px) {
+  #rankingList li.list-item {
+    grid-template-columns: minmax(0, 1.5fr) minmax(52px, 0.7fr) minmax(56px, 0.9fr);
+  }
+
+  .row-banes {
+    gap: 5px;
+  }
+
+  .bane-icon-button {
+    width: 26px;
+    height: 26px;
+  }
+
+  .bane-row-icon {
+    width: 20px;
+    height: 20px;
+  }
+}

@@ -144,7 +144,7 @@ function closeBanesModal() {
   document.getElementById('banes-modal')?.setAttribute('aria-hidden', 'true');
 }
 
-function openBanesModal(banes, titleText = 'Banes') {
+function openBanesModal(entryId, banes, titleText = 'Banes') {
   const modal = document.getElementById('banes-modal');
   const list = document.getElementById('banes-modal-list');
   const title = document.getElementById('banes-modal-title');
@@ -154,9 +154,12 @@ function openBanesModal(banes, titleText = 'Banes') {
   if (title) title.textContent = titleText;
 
   __normalizeBanes(banes).forEach((bane) => {
-    const row = document.createElement('button');
-    row.type = 'button';
-    row.className = 'bane-picker-row bane-picker-row--link';
+    const row = document.createElement('div');
+    row.className = 'bane-picker-row';
+
+    const leftButton = document.createElement('button');
+    leftButton.type = 'button';
+    leftButton.className = 'bane-picker-open';
 
     const left = document.createElement('div');
     left.className = 'bane-picker-left';
@@ -171,12 +174,28 @@ function openBanesModal(banes, titleText = 'Banes') {
 
     left.appendChild(icon);
     left.appendChild(name);
-    row.appendChild(left);
-
-    row.addEventListener('click', () => {
+    leftButton.appendChild(left);
+    leftButton.addEventListener('click', () => {
       if (bane.url) window.open(bane.url, '_blank', 'noopener');
     });
 
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = 'Remove';
+    removeBtn.className = 'remove-button';
+    removeBtn.style.marginTop = '0';
+    removeBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const key = __sanitizeBaneKey(bane.name);
+      try {
+        await remove(ref(db, `rankings/${entryId}/banes/${key}`));
+      } catch (err) {
+        console.error('Error removing bane:', err);
+      }
+    });
+
+    row.appendChild(leftButton);
+    row.appendChild(removeBtn);
     list.appendChild(row);
   });
 
@@ -322,36 +341,6 @@ function fetchRankings() {
       });
 
       const baneArray = __normalizeBanes(banes);
-      if (baneArray.length > 0) {
-        const baneWrap = document.createElement('div');
-        baneWrap.className = 'row-banes';
-
-        baneArray.forEach((bane) => {
-          const chip = document.createElement('button');
-          chip.type = 'button';
-          chip.className = 'bane-chip';
-
-          const icon = document.createElement('img');
-          icon.className = 'bane-chip__icon';
-          icon.src = bane.icon || 'icons/banes/test.png';
-          icon.alt = bane.name || 'Bane';
-
-          const label = document.createElement('span');
-          label.textContent = bane.name || 'Unknown';
-
-          chip.appendChild(icon);
-          chip.appendChild(label);
-
-          chip.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (bane.url) window.open(bane.url, '_blank', 'noopener');
-          });
-
-          baneWrap.appendChild(chip);
-        });
-
-        nameCol.appendChild(baneWrap);
-      }
 
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
@@ -384,18 +373,42 @@ function fetchRankings() {
       listItem.appendChild(hpCol);
       listItem.appendChild(dmgCol);
 
-      const baneArrayForButton = __normalizeBanes(banes);
-      if (baneArrayForButton.length > 0) {
+      if (baneArray.length > 0) {
+        const baneWrap = document.createElement('div');
+        baneWrap.className = 'row-banes';
+
+        baneArray.forEach((bane) => {
+          const iconButton = document.createElement('button');
+          iconButton.type = 'button';
+          iconButton.className = 'bane-icon-button';
+          iconButton.title = bane.name || 'Bane';
+          iconButton.setAttribute('aria-label', bane.name || 'Bane');
+
+          const icon = document.createElement('img');
+          icon.className = 'bane-row-icon';
+          icon.src = bane.icon || 'icons/banes/test.png';
+          icon.alt = bane.name || 'Bane';
+
+          iconButton.appendChild(icon);
+          iconButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (bane.url) window.open(bane.url, '_blank', 'noopener');
+          });
+
+          baneWrap.appendChild(iconButton);
+        });
+
         const banesButton = document.createElement('button');
         banesButton.type = 'button';
         banesButton.textContent = 'Banes';
-        banesButton.className = 'remove-button';
-        banesButton.style.marginTop = '0';
+        banesButton.className = 'banes-button';
         banesButton.addEventListener('click', () => {
           __currentEntryId = id;
-          openBanesModal(baneArrayForButton, `${name ?? 'Unknown'} - Banes`);
+          openBanesModal(id, baneArray, `${name ?? 'Unknown'} - Banes`);
         });
-        listItem.appendChild(banesButton);
+        baneWrap.appendChild(banesButton);
+
+        listItem.appendChild(baneWrap);
       }
 
       if (health === 0) {
