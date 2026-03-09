@@ -1,11 +1,16 @@
 import { getDatabase, ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { BANES, normalizeStoredBanes } from "./banes.js";
 
 const db = getDatabase();
+let __currentEntryId = null;
+let __currentEntryBanes = [];
+const __banesByEntryId = new Map();
 
-/* -------------------------- Modal helpers -------------------------- */
-function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded }) {
+function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded, banes = [] }) {
   const modal = document.getElementById('stat-modal');
   if (!modal) return;
+
+  __currentEntryBanes = normalizeStoredBanes(banes);
 
   document.getElementById('stat-modal-title').textContent = name ?? '';
   document.getElementById('stat-init').textContent = (initiative ?? 'N/A');
@@ -41,7 +46,6 @@ function closeStatModal() {
   modal.setAttribute('aria-hidden', 'true');
 }
 
-/* -------------------------- NEW: HP modal helpers -------------------------- */
 function openHpModal(currentHp) {
   const modal = document.getElementById('hp-modal');
   if (!modal) return;
@@ -64,28 +68,194 @@ function closeHpModal() {
   modal.setAttribute('aria-hidden', 'true');
 }
 
+function openBanePickerModal() {
+  const modal = document.getElementById('bane-picker-modal');
+  if (!modal) return;
+  renderBanePickerList();
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeBanePickerModal() {
+  document.getElementById('bane-picker-modal')?.setAttribute('aria-hidden', 'true');
+}
+
+function openBanesModal(entryId) {
+  const modal = document.getElementById('banes-modal');
+  if (!modal) return;
+  renderBanesModalList(entryId);
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeBanesModal() {
+  document.getElementById('banes-modal')?.setAttribute('aria-hidden', 'true');
+}
+
+function createBaneIcon(icon, fallback = '✦') {
+  const holder = document.createElement('span');
+  holder.className = 'bane-chip__icon';
+
+  if (icon) {
+    const img = document.createElement('img');
+    img.src = icon;
+    img.alt = '';
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+    holder.appendChild(img);
+  } else {
+    holder.textContent = fallback;
+  }
+
+  return holder;
+}
+
+function renderEntryBanes(container, banes) {
+  if (!container) return;
+  container.innerHTML = '';
+  normalizeStoredBanes(banes).forEach((bane) => {
+    const chip = document.createElement('span');
+    chip.className = 'bane-chip';
+    chip.appendChild(createBaneIcon(bane.icon));
+
+    const text = document.createElement('span');
+    text.textContent = bane.name;
+    chip.appendChild(text);
+    container.appendChild(chip);
+  });
+}
+
+function renderBanePickerList() {
+  const container = document.getElementById('bane-picker-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const currentNames = new Set(normalizeStoredBanes(__currentEntryBanes).map((bane) => bane.name));
+
+  BANES.forEach((bane) => {
+    const row = document.createElement('div');
+    row.className = 'bane-row';
+
+    const icon = createBaneIcon(bane.icon);
+    icon.className = 'bane-row__icon';
+
+    const name = document.createElement('div');
+    name.className = 'bane-row__name';
+    name.textContent = bane.name;
+
+    const addButton = document.createElement('button');
+    addButton.type = 'button';
+    addButton.textContent = currentNames.has(bane.name) ? 'Added' : 'Add';
+    addButton.disabled = currentNames.has(bane.name);
+    addButton.addEventListener('click', async () => {
+      await addBaneToCurrentEntry(bane);
+    });
+
+    row.appendChild(icon);
+    row.appendChild(name);
+    row.appendChild(addButton);
+    container.appendChild(row);
+  });
+}
+
+function renderBanesModalList(entryId) {
+  const container = document.getElementById('banes-modal-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const banes = normalizeStoredBanes(__banesByEntryId.get(entryId));
+  if (!banes.length) {
+    const empty = document.createElement('p');
+    empty.className = 'bane-empty';
+    empty.textContent = 'No banes added yet.';
+    container.appendChild(empty);
+    return;
+  }
+
+  banes.forEach((bane) => {
+    const row = document.createElement('div');
+    row.className = 'bane-row bane-row__link';
+    row.tabIndex = 0;
+    row.title = `Open ${bane.name}`;
+
+    const icon = createBaneIcon(bane.icon);
+    icon.className = 'bane-row__icon';
+
+    const name = document.createElement('div');
+    name.className = 'bane-row__name';
+    name.textContent = bane.name;
+
+    const openLink = () => {
+      if (bane.url) window.open(bane.url, '_blank', 'noopener');
+    };
+
+    row.addEventListener('click', openLink);
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openLink();
+      }
+    });
+
+    row.appendChild(icon);
+    row.appendChild(name);
+    container.appendChild(row);
+  });
+}
+
+async function saveBanesForEntry(id, banes) {
+  const normalized = normalizeStoredBanes(banes);
+  __banesByEntryId.set(id, normalized);
+  await update(ref(db, `rankings/${id}`), { banes: normalized });
+}
+
+async function addBaneToCurrentEntry(bane) {
+  if (!__currentEntryId) return;
+  const next = normalizeStoredBanes([...( __banesByEntryId.get(__currentEntryId) || []), bane]);
+  await saveBanesForEntry(__currentEntryId, next);
+  __currentEntryBanes = next;
+  renderBanePickerList();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('stat-modal');
   if (modal) {
     document.getElementById('stat-modal-close')?.addEventListener('click', closeStatModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeStatModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStatModal(); });
   }
 
   const hpModal = document.getElementById('hp-modal');
   if (hpModal) {
     document.getElementById('hp-modal-close')?.addEventListener('click', closeHpModal);
     hpModal.addEventListener('click', (e) => { if (e.target === hpModal) closeHpModal(); });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && hpModal.getAttribute('aria-hidden') === 'false') {
-        closeHpModal();
-      }
-    });
   }
+
+  const pickerModal = document.getElementById('bane-picker-modal');
+  if (pickerModal) {
+    document.getElementById('bane-picker-close')?.addEventListener('click', closeBanePickerModal);
+    pickerModal.addEventListener('click', (e) => { if (e.target === pickerModal) closeBanePickerModal(); });
+  }
+
+  const banesModal = document.getElementById('banes-modal');
+  if (banesModal) {
+    document.getElementById('banes-modal-close')?.addEventListener('click', closeBanesModal);
+    banesModal.addEventListener('click', (e) => { if (e.target === banesModal) closeBanesModal(); });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    closeStatModal();
+    closeHpModal();
+    closeBanePickerModal();
+    closeBanesModal();
+  });
+
+  document.getElementById('stat-add-bane')?.addEventListener('click', () => {
+    if (!__currentEntryId) return;
+    openBanePickerModal();
+  });
 });
 
-/* ===================== Countdown state cache ===================== */
-const __countdownById = new Map(); // id -> { remaining, active, ended }
+const __countdownById = new Map();
 function __getCountdownState(id) {
   return __countdownById.get(id) || { remaining: null, active: false, ended: false };
 }
@@ -96,7 +266,6 @@ function __setCountdownState(id, state) {
     ended: !!state.ended
   });
 }
-/* =================== /Countdown state cache =================== */
 
 function __rowFor(id) {
   return document.querySelector(`.list-item[data-entry-id="${id}"]`);
@@ -104,11 +273,10 @@ function __rowFor(id) {
 
 function __updateCountdownBadge(row, state) {
   if (!row) return;
-  const nameCol = row.querySelector('.column.name');
-  if (!nameCol) return;
+  const nameMain = row.querySelector('.name-main');
+  if (!nameMain) return;
 
-  let badge = nameCol.querySelector('.countdown-badge');
-
+  let badge = nameMain.querySelector('.countdown-badge');
   const hasSomething =
     (state.active && typeof state.remaining === 'number' && state.remaining > 0) ||
     state.ended;
@@ -121,11 +289,10 @@ function __updateCountdownBadge(row, state) {
   if (!badge) {
     badge = document.createElement('span');
     badge.className = 'countdown-badge';
-    nameCol.appendChild(badge);
+    nameMain.appendChild(badge);
   }
 
-  if (state.ended) badge.textContent = `CD: ENDED`;
-  else badge.textContent = `CD: ${state.remaining}`;
+  badge.textContent = state.ended ? 'CD: ENDED' : `CD: ${state.remaining}`;
 }
 
 function __applyRowCountdownClasses(entryId, state) {
@@ -139,11 +306,9 @@ function __applyRowCountdownClasses(entryId, state) {
   }
 
   if (!state.ended) row.classList.remove('countdown-expired');
-
   __updateCountdownBadge(row, state);
 }
 
-/* --------------------- Initiative list rendering -------------------- */
 function fetchRankings() {
   const reference = ref(db, 'rankings/');
   onValue(reference, (snapshot) => {
@@ -153,39 +318,56 @@ function fetchRankings() {
     rankingList.innerHTML = '';
 
     __countdownById.clear();
+    __banesByEntryId.clear();
     if (!data) return;
 
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
     rankings.sort((a, b) => b.number - a.number);
 
-    rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded }) => {
+    rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded, banes }) => {
       __setCountdownState(id, {
         remaining: (typeof countdownRemaining === 'number') ? countdownRemaining : null,
         active: !!countdownActive,
         ended: !!countdownEnded
       });
+      const normalizedBanes = normalizeStoredBanes(banes);
+      __banesByEntryId.set(id, normalizedBanes);
 
       const listItem = document.createElement('li');
       listItem.className = 'list-item';
       listItem.dataset.entryId = id;
-
       if (health === 0) listItem.classList.add('defeated');
 
       const nameCol = document.createElement('div');
       nameCol.className = 'column name';
-      nameCol.textContent = name ?? 'Unknown';
       nameCol.style.cursor = 'pointer';
       nameCol.title = 'Show defenses (GRD / RES / TGH)';
       nameCol.addEventListener('click', () => {
         __currentEntryId = id;
+        __currentEntryBanes = normalizedBanes;
         const s = __getCountdownState(id);
         openStatModal({
           name, grd, res, tgh, url, initiative: number,
           countdownRemaining: s.remaining,
           countdownActive: s.active,
-          countdownEnded: s.ended
+          countdownEnded: s.ended,
+          banes: normalizedBanes
         });
       });
+
+      const nameMain = document.createElement('div');
+      nameMain.className = 'name-main';
+      const nameText = document.createElement('span');
+      nameText.className = 'name-main__text';
+      nameText.textContent = name ?? 'Unknown';
+      nameMain.appendChild(nameText);
+
+      const entryBanes = document.createElement('div');
+      entryBanes.className = 'entry-banes';
+      renderEntryBanes(entryBanes, normalizedBanes);
+
+      nameCol.appendChild(nameMain);
+      nameCol.appendChild(entryBanes);
 
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
@@ -207,16 +389,25 @@ function fetchRankings() {
       dmgInput.dataset.grd = grd ?? 0;
       dmgInput.dataset.res = res ?? 0;
       dmgInput.dataset.tgh = tgh ?? 0;
-
       if (health !== null && health !== undefined) {
         dmgInput.dataset.health = health;
       }
-
       dmgCol.appendChild(dmgInput);
+
+      const banesButton = document.createElement('button');
+      banesButton.type = 'button';
+      banesButton.className = 'list-banes-button';
+      banesButton.textContent = 'Banes';
+      banesButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        __currentEntryId = id;
+        openBanesModal(id);
+      });
 
       listItem.appendChild(nameCol);
       listItem.appendChild(hpCol);
       listItem.appendChild(dmgCol);
+      listItem.appendChild(banesButton);
 
       if (health === 0) {
         const removeButton = document.createElement('button');
@@ -227,14 +418,11 @@ function fetchRankings() {
       }
 
       rankingList.appendChild(listItem);
-
-      // Apply countdown classes + badge AFTER nameCol exists
       __applyRowCountdownClasses(id, __getCountdownState(id));
     });
   });
 }
 
-/* ------------------------- Damage application ----------------------- */
 function applyDamageToAll() {
   const inputs = document.querySelectorAll('.damage-input');
   const selectedStat = document.querySelector('input[name="globalStat"]:checked')?.value ?? 'grd';
@@ -295,13 +483,13 @@ function updateHealth(id, newHealth, inputEl) {
     .catch(err => console.error('Error updating health:', err));
 }
 
-/* ---------------------------- Utilities ----------------------------- */
 function removeEntry(id, listItem) {
   const reference = ref(db, `rankings/${id}`);
   remove(reference)
     .then(() => {
       listItem?.remove();
       __countdownById.delete(id);
+      __banesByEntryId.delete(id);
     })
     .catch(err => console.error('Error removing entry:', err));
 }
@@ -312,12 +500,10 @@ function clearList() {
     .then(() => {
       window.resetRoundCounter?.();
       __countdownById.clear();
+      __banesByEntryId.clear();
     })
     .catch(err => console.error('Error clearing list:', err));
 }
-
-/* ===================== Modal actions: Delete & Heal ===================== */
-let __currentEntryId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   const delBtn = document.getElementById('stat-delete');
@@ -328,7 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const row = __rowFor(__currentEntryId);
       removeEntry(__currentEntryId, row || undefined);
-
       document.getElementById('stat-modal')?.setAttribute('aria-hidden', 'true');
       __currentEntryId = null;
     });
@@ -336,7 +521,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const healBtn = document.getElementById('stat-heal');
   const healAmtInput = document.getElementById('stat-heal-amount');
-
   if (healBtn && healAmtInput) {
     healBtn.addEventListener('click', () => {
       if (!__currentEntryId) return;
@@ -352,13 +536,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const current = parseInt(dmgInput.dataset.health, 10) || 0;
       const newHealth = Math.max(current + amount, 0);
       updateHealth(__currentEntryId, newHealth, dmgInput);
-
       healAmtInput.value = '';
     });
   }
 });
 
-/* ===================== NEW: HP modal Set action ===================== */
 document.addEventListener('DOMContentLoaded', () => {
   const setBtn = document.getElementById('hp-set-button');
   const hpInput = document.getElementById('hp-set-amount');
@@ -366,7 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (setBtn && hpInput) {
     setBtn.addEventListener('click', () => {
       if (!__currentEntryId) return;
-
       const amount = parseInt(hpInput.value, 10);
       if (isNaN(amount) || amount < 0) return;
 
@@ -387,10 +568,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ===================== Countdown helpers & modal actions ===================== */
 function setCountdown(id, turns) {
   const reference = ref(db, `rankings/${id}`);
-
   __setCountdownState(id, { remaining: turns, active: true, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
 
@@ -403,7 +582,6 @@ function setCountdown(id, turns) {
 
 function clearCountdown(id) {
   const reference = ref(db, `rankings/${id}`);
-
   __setCountdownState(id, { remaining: null, active: false, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
 
@@ -422,7 +600,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (setBtn && amtInput) {
     setBtn.addEventListener('click', async () => {
       if (!__currentEntryId) return;
-
       const turns = parseInt(amtInput.value, 10);
       if (isNaN(turns) || turns <= 0) return;
 
@@ -447,7 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ===================== Tracker-driven countdown decrement ===================== */
 async function __decrementCountdownIfNeeded(entryId) {
   const state = __getCountdownState(entryId);
   if (!state.active) return;
@@ -490,21 +666,18 @@ async function __cleanupEndedCountdownIfNeeded(entryId) {
   }
 }
 
-// ✅ ONLY TICK on real navigation events ("next" / "prev")
 window.addEventListener('tracker:highlightChange', async (e) => {
   const previousId = e?.detail?.previousId ?? null;
   const currentId = e?.detail?.currentId ?? null;
-  const reason = e?.detail?.reason ?? "sync";
+  const reason = e?.detail?.reason ?? 'sync';
 
-  // If we just moved away from ended entry, clean it up (only on navigation too)
-  if ((reason === "next" || reason === "prev") && previousId && previousId !== currentId) {
+  if ((reason === 'next' || reason === 'prev') && previousId && previousId !== currentId) {
     await __cleanupEndedCountdownIfNeeded(previousId);
     const prevRow = __rowFor(previousId);
     if (prevRow) prevRow.classList.remove('countdown-expired');
   }
 
-  // TICK ONLY on next/prev
-  if (currentId && (reason === "next" || reason === "prev")) {
+  if (currentId && (reason === 'next' || reason === 'prev')) {
     try {
       await __decrementCountdownIfNeeded(currentId);
     } catch (err) {
@@ -512,7 +685,6 @@ window.addEventListener('tracker:highlightChange', async (e) => {
     }
   }
 
-  // Orange display while highlighted (purely visual)
   if (currentId) {
     const currentState = __getCountdownState(currentId);
     const row = __rowFor(currentId);
@@ -522,12 +694,9 @@ window.addEventListener('tracker:highlightChange', async (e) => {
     }
   }
 });
-/* =================== /Tracker-driven countdown decrement =================== */
 
-/* -------------------------- Wire up buttons ------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   fetchRankings();
-
   document.getElementById('apply-damage-button')?.addEventListener('click', applyDamageToAll);
   document.getElementById('clear-list-button')?.addEventListener('click', clearList);
 });
