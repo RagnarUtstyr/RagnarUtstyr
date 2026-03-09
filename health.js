@@ -1,5 +1,5 @@
 import { getDatabase, ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
-import { BANES } from "./banes.js";
+import { BANES } from "banes.js";
 
 const db = getDatabase();
 let __currentEntryId = null;
