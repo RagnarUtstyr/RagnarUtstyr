@@ -7,10 +7,12 @@
   <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png" />
   <title>Initiative</title>
 
+  <!-- Scripts -->
   <script type="module" src="server.js" defer></script>
   <script type="module" src="health.js" defer></script>
   <script src="turn.js" defer></script>
 
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="turn.css" />
   <link rel="stylesheet" href="save.css" />
@@ -82,6 +84,7 @@
     <a href="openmonsterlist.html" class="button-link">Go to Monster List</a>
   </div>
 
+  <!-- Stats Modal -->
   <div id="stat-modal" class="ol-modal" aria-hidden="true">
     <div class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stat-modal-title">
       <button class="ol-modal__close" id="stat-modal-close" aria-label="Close">×</button>
@@ -100,10 +103,12 @@
 
       <a id="stat-url" class="button-link" target="_blank" rel="noopener" style="display:none; margin-top:12px;">Open details</a>
 
+
       <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
         <input id="stat-heal-amount" type="number" placeholder="Heal amount" style="flex:1; padding:6px 8px;">
         <button id="stat-heal" class="remove-button">Heal</button>
       </div>
+
 
       <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
         <input id="stat-countdown-amount" type="number" min="1" placeholder="Countdown (turns)" style="flex:1; padding:6px 8px;">
@@ -116,12 +121,14 @@
         <span class="value" id="stat-countdown-remaining">—</span>
       </p>
 
+
       <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
         <button id="stat-add-bane" type="button">Bane</button>
         <button id="stat-delete" class="remove-button" style="margin-top:0;">Delete from list</button>
       </div>
     </div>
   </div>
+
 
   <div id="hp-modal" class="ol-modal" aria-hidden="true">
     <div class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="hp-modal-title">
@@ -135,10 +142,11 @@
     </div>
   </div>
 
+
   <div id="bane-picker-modal" class="ol-modal" aria-hidden="true">
     <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="bane-picker-title">
       <button class="ol-modal__close" id="bane-picker-close" aria-label="Close">×</button>
-      <h3 id="bane-picker-title">Select Bane</h3>
+      <h3 id="bane-picker-title">Banes</h3>
       <div id="bane-picker-list" class="bane-picker-list"></div>
     </div>
   </div>
@@ -150,6 +158,7 @@
       <div id="banes-modal-list" class="banes-modal-list"></div>
     </div>
   </div>
+
 </body>
 
 </html>

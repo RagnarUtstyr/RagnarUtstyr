@@ -1,45 +1,17 @@
-import { getDatabase, ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { BANES } from "./banes.js";
+import { getDatabase, ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 const db = getDatabase();
-let __currentEntryId = null;
-const __countdownById = new Map();
-
-function __getCountdownState(id) {
-  return __countdownById.get(id) || { remaining: null, active: false, ended: false };
-}
-
-function __setCountdownState(id, state) {
-  __countdownById.set(id, {
-    remaining: typeof state.remaining === 'number' ? state.remaining : null,
-    active: !!state.active,
-    ended: !!state.ended
-  });
-}
-
-function __rowFor(id) {
-  return document.querySelector(`.list-item[data-entry-id="${id}"]`);
-}
-
-function __sanitizeKey(value) {
-  return String(value ?? '').replace(/[.#$\[\]/]/g, '_');
-}
-
-function __normalizeBanes(banes) {
-  if (!banes) return [];
-  if (Array.isArray(banes)) return banes.filter(Boolean);
-  return Object.values(banes).filter(Boolean);
-}
 
 function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded }) {
   const modal = document.getElementById('stat-modal');
   if (!modal) return;
 
   document.getElementById('stat-modal-title').textContent = name ?? '';
-  document.getElementById('stat-init').textContent = initiative ?? 'N/A';
-  document.getElementById('stat-grd').textContent = grd ?? 'N/A';
-  document.getElementById('stat-res').textContent = res ?? 'N/A';
-  document.getElementById('stat-tgh').textContent = tgh ?? 'N/A';
+  document.getElementById('stat-init').textContent = (initiative ?? 'N/A');
+  document.getElementById('stat-grd').textContent = (grd ?? 'N/A');
+  document.getElementById('stat-res').textContent = (res ?? 'N/A');
+  document.getElementById('stat-tgh').textContent = (tgh ?? 'N/A');
 
   const link = document.getElementById('stat-url');
   if (url) {
@@ -64,7 +36,9 @@ function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemainin
 }
 
 function closeStatModal() {
-  document.getElementById('stat-modal')?.setAttribute('aria-hidden', 'true');
+  const modal = document.getElementById('stat-modal');
+  if (!modal) return;
+  modal.setAttribute('aria-hidden', 'true');
 }
 
 function openHpModal(currentHp) {
@@ -84,7 +58,82 @@ function openHpModal(currentHp) {
 }
 
 function closeHpModal() {
-  document.getElementById('hp-modal')?.setAttribute('aria-hidden', 'true');
+  const modal = document.getElementById('hp-modal');
+  if (!modal) return;
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('stat-modal');
+  if (modal) {
+    document.getElementById('stat-modal-close')?.addEventListener('click', closeStatModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeStatModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStatModal(); });
+  }
+
+  const hpModal = document.getElementById('hp-modal');
+  if (hpModal) {
+    document.getElementById('hp-modal-close')?.addEventListener('click', closeHpModal);
+    hpModal.addEventListener('click', (e) => { if (e.target === hpModal) closeHpModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && hpModal.getAttribute('aria-hidden') === 'false') {
+        closeHpModal();
+      }
+    });
+  }
+
+  const banePickerModal = document.getElementById('bane-picker-modal');
+  if (banePickerModal) {
+    document.getElementById('bane-picker-close')?.addEventListener('click', closeBanePickerModal);
+    banePickerModal.addEventListener('click', (e) => { if (e.target === banePickerModal) closeBanePickerModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && banePickerModal.getAttribute('aria-hidden') === 'false') {
+        closeBanePickerModal();
+      }
+    });
+  }
+
+  const banesModal = document.getElementById('banes-modal');
+  if (banesModal) {
+    document.getElementById('banes-modal-close')?.addEventListener('click', closeBanesModal);
+    banesModal.addEventListener('click', (e) => { if (e.target === banesModal) closeBanesModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && banesModal.getAttribute('aria-hidden') === 'false') {
+        closeBanesModal();
+      }
+    });
+  }
+
+  document.getElementById('stat-add-bane')?.addEventListener('click', openBanePickerModal);
+
+});
+
+
+const __countdownById = new Map(); 
+function __getCountdownState(id) {
+  return __countdownById.get(id) || { remaining: null, active: false, ended: false };
+}
+function __setCountdownState(id, state) {
+  __countdownById.set(id, {
+    remaining: (typeof state.remaining === 'number') ? state.remaining : null,
+    active: !!state.active,
+    ended: !!state.ended
+  });
+}
+
+function __rowFor(id) {
+  return document.querySelector(`.list-item[data-entry-id="${id}"]`);
+}
+
+
+function __sanitizeBaneKey(value) {
+  return String(value ?? '').replace(/[.#$\[\]/]/g, '_');
+}
+
+function __normalizeBanes(banes) {
+  if (!banes) return [];
+  if (Array.isArray(banes)) return banes.filter(Boolean);
+  return Object.values(banes).filter(Boolean);
 }
 
 function closeBanePickerModal() {
@@ -95,45 +144,49 @@ function closeBanesModal() {
   document.getElementById('banes-modal')?.setAttribute('aria-hidden', 'true');
 }
 
-function __updateCountdownBadge(row, state) {
-  if (!row) return;
-  const nameCol = row.querySelector('.column.name');
-  if (!nameCol) return;
+function openBanesModal(banes, titleText = 'Banes') {
+  const modal = document.getElementById('banes-modal');
+  const list = document.getElementById('banes-modal-list');
+  const title = document.getElementById('banes-modal-title');
+  if (!modal || !list) return;
 
-  let badge = nameCol.querySelector('.countdown-badge');
-  const hasSomething = (state.active && typeof state.remaining === 'number' && state.remaining > 0) || state.ended;
+  list.innerHTML = '';
+  if (title) title.textContent = titleText;
 
-  if (!hasSomething) {
-    badge?.remove();
-    return;
-  }
+  __normalizeBanes(banes).forEach((bane) => {
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'bane-picker-row bane-picker-row--link';
 
-  if (!badge) {
-    badge = document.createElement('span');
-    badge.className = 'countdown-badge';
-    nameCol.appendChild(badge);
-  }
+    const left = document.createElement('div');
+    left.className = 'bane-picker-left';
 
-  badge.textContent = state.ended ? 'CD: ENDED' : `CD: ${state.remaining}`;
+    const icon = document.createElement('img');
+    icon.className = 'bane-icon';
+    icon.src = bane.icon || 'icons/banes/test.png';
+    icon.alt = bane.name || 'Bane';
+
+    const name = document.createElement('span');
+    name.textContent = bane.name || 'Unknown';
+
+    left.appendChild(icon);
+    left.appendChild(name);
+    row.appendChild(left);
+
+    row.addEventListener('click', () => {
+      if (bane.url) window.open(bane.url, '_blank', 'noopener');
+    });
+
+    list.appendChild(row);
+  });
+
+  modal.setAttribute('aria-hidden', 'false');
 }
 
-function __applyRowCountdownClasses(entryId, state) {
-  const row = __rowFor(entryId);
-  if (!row) return;
-
-  if (state.active && typeof state.remaining === 'number' && state.remaining > 0) {
-    row.classList.add('countdown-active');
-  } else {
-    row.classList.remove('countdown-active');
-  }
-
-  if (!state.ended) row.classList.remove('countdown-expired');
-  __updateCountdownBadge(row, state);
-}
-
-function renderBanePicker() {
+function openBanePickerModal() {
+  const modal = document.getElementById('bane-picker-modal');
   const list = document.getElementById('bane-picker-list');
-  if (!list) return;
+  if (!modal || !list || !__currentEntryId) return;
 
   list.innerHTML = '';
 
@@ -146,26 +199,27 @@ function renderBanePicker() {
 
     const icon = document.createElement('img');
     icon.className = 'bane-icon';
-    icon.src = bane.icon;
-    icon.alt = bane.name;
+    icon.src = bane.icon || 'icons/banes/test.png';
+    icon.alt = bane.name || 'Bane';
 
     const name = document.createElement('span');
-    name.className = 'bane-picker-name';
-    name.textContent = bane.name;
+    name.textContent = bane.name || 'Unknown';
 
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.textContent = 'Add';
-    addBtn.addEventListener('click', async () => {
-      if (!__currentEntryId) return;
+    addBtn.className = 'remove-button';
+    addBtn.style.marginTop = '0';
+    addBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
       const entryRef = ref(db, `rankings/${__currentEntryId}/banes`);
-      const key = __sanitizeKey(bane.name);
+      const key = __sanitizeBaneKey(bane.name);
       try {
         await update(entryRef, {
           [key]: {
             name: bane.name,
             url: bane.url,
-            icon: bane.icon
+            icon: bane.icon || 'icons/banes/test.png'
           }
         });
       } catch (err) {
@@ -179,45 +233,49 @@ function renderBanePicker() {
     row.appendChild(addBtn);
     list.appendChild(row);
   });
-}
-
-function openBanePickerModal() {
-  if (!__currentEntryId) return;
-  renderBanePicker();
-  document.getElementById('bane-picker-modal')?.setAttribute('aria-hidden', 'false');
-}
-
-function openBanesModal(banes, titleText = 'Banes') {
-  const modal = document.getElementById('banes-modal');
-  const title = document.getElementById('banes-modal-title');
-  const list = document.getElementById('banes-modal-list');
-  if (!modal || !list) return;
-
-  list.innerHTML = '';
-  if (title) title.textContent = titleText;
-
-  banes.forEach((bane) => {
-    const row = document.createElement('button');
-    row.type = 'button';
-    row.className = 'banes-modal-row';
-    row.addEventListener('click', () => {
-      if (bane.url) window.open(bane.url, '_blank', 'noopener');
-    });
-
-    const icon = document.createElement('img');
-    icon.className = 'bane-icon';
-    icon.src = bane.icon;
-    icon.alt = bane.name;
-
-    const name = document.createElement('span');
-    name.textContent = bane.name;
-
-    row.appendChild(icon);
-    row.appendChild(name);
-    list.appendChild(row);
-  });
 
   modal.setAttribute('aria-hidden', 'false');
+}
+
+function __updateCountdownBadge(row, state) {
+  if (!row) return;
+  const nameCol = row.querySelector('.column.name');
+  if (!nameCol) return;
+
+  let badge = nameCol.querySelector('.countdown-badge');
+
+  const hasSomething =
+    (state.active && typeof state.remaining === 'number' && state.remaining > 0) ||
+    state.ended;
+
+  if (!hasSomething) {
+    badge?.remove();
+    return;
+  }
+
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.className = 'countdown-badge';
+    nameCol.appendChild(badge);
+  }
+
+  if (state.ended) badge.textContent = `CD: ENDED`;
+  else badge.textContent = `CD: ${state.remaining}`;
+}
+
+function __applyRowCountdownClasses(entryId, state) {
+  const row = __rowFor(entryId);
+  if (!row) return;
+
+  if (state.active && typeof state.remaining === 'number' && state.remaining > 0) {
+    row.classList.add('countdown-active');
+  } else {
+    row.classList.remove('countdown-active');
+  }
+
+  if (!state.ended) row.classList.remove('countdown-expired');
+
+  __updateCountdownBadge(row, state);
 }
 
 function fetchRankings() {
@@ -226,53 +284,44 @@ function fetchRankings() {
     const data = snapshot.val();
     const rankingList = document.querySelector('.ranking-body');
     if (!rankingList) return;
-
     rankingList.innerHTML = '';
+
     __countdownById.clear();
     if (!data) return;
 
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-    rankings.sort((a, b) => (b.number ?? 0) - (a.number ?? 0));
+    rankings.sort((a, b) => b.number - a.number);
 
     rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded, banes }) => {
       __setCountdownState(id, {
-        remaining: typeof countdownRemaining === 'number' ? countdownRemaining : null,
+        remaining: (typeof countdownRemaining === 'number') ? countdownRemaining : null,
         active: !!countdownActive,
         ended: !!countdownEnded
       });
 
-      const baneArray = __normalizeBanes(banes);
-
       const listItem = document.createElement('li');
       listItem.className = 'list-item';
       listItem.dataset.entryId = id;
+
       if (health === 0) listItem.classList.add('defeated');
 
       const nameCol = document.createElement('div');
       nameCol.className = 'column name';
-
-      const nameMain = document.createElement('div');
-      nameMain.className = 'name-main';
-      nameMain.textContent = name ?? 'Unknown';
-      nameMain.style.cursor = 'pointer';
-      nameMain.title = 'Show defenses (GRD / RES / TGH)';
-      nameMain.addEventListener('click', () => {
+      nameCol.textContent = name ?? 'Unknown';
+      nameCol.style.cursor = 'pointer';
+      nameCol.title = 'Show defenses (GRD / RES / TGH)';
+      nameCol.addEventListener('click', () => {
         __currentEntryId = id;
         const s = __getCountdownState(id);
         openStatModal({
-          name,
-          grd,
-          res,
-          tgh,
-          url,
-          initiative: number,
+          name, grd, res, tgh, url, initiative: number,
           countdownRemaining: s.remaining,
           countdownActive: s.active,
           countdownEnded: s.ended
         });
       });
-      nameCol.appendChild(nameMain);
 
+      const baneArray = __normalizeBanes(banes);
       if (baneArray.length > 0) {
         const baneWrap = document.createElement('div');
         baneWrap.className = 'row-banes';
@@ -281,37 +330,27 @@ function fetchRankings() {
           const chip = document.createElement('button');
           chip.type = 'button';
           chip.className = 'bane-chip';
-          chip.title = bane.name;
 
-          const chipIcon = document.createElement('img');
-          chipIcon.className = 'bane-chip-icon';
-          chipIcon.src = bane.icon;
-          chipIcon.alt = bane.name;
+          const icon = document.createElement('img');
+          icon.className = 'bane-chip__icon';
+          icon.src = bane.icon || 'icons/banes/test.png';
+          icon.alt = bane.name || 'Bane';
 
-          const chipLabel = document.createElement('span');
-          chipLabel.textContent = bane.name;
+          const label = document.createElement('span');
+          label.textContent = bane.name || 'Unknown';
 
-          chip.appendChild(chipIcon);
-          chip.appendChild(chipLabel);
+          chip.appendChild(icon);
+          chip.appendChild(label);
+
           chip.addEventListener('click', (e) => {
             e.stopPropagation();
             if (bane.url) window.open(bane.url, '_blank', 'noopener');
           });
+
           baneWrap.appendChild(chip);
         });
 
         nameCol.appendChild(baneWrap);
-
-        const banesBtn = document.createElement('button');
-        banesBtn.type = 'button';
-        banesBtn.className = 'view-banes-button';
-        banesBtn.textContent = 'Banes';
-        banesBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          __currentEntryId = id;
-          openBanesModal(baneArray, `${name ?? 'Unknown'} - Banes`);
-        });
-        nameCol.appendChild(banesBtn);
       }
 
       const hpCol = document.createElement('div');
@@ -334,12 +373,30 @@ function fetchRankings() {
       dmgInput.dataset.grd = grd ?? 0;
       dmgInput.dataset.res = res ?? 0;
       dmgInput.dataset.tgh = tgh ?? 0;
-      if (health !== null && health !== undefined) dmgInput.dataset.health = health;
+
+      if (health !== null && health !== undefined) {
+        dmgInput.dataset.health = health;
+      }
+
       dmgCol.appendChild(dmgInput);
 
       listItem.appendChild(nameCol);
       listItem.appendChild(hpCol);
       listItem.appendChild(dmgCol);
+
+      const baneArrayForButton = __normalizeBanes(banes);
+      if (baneArrayForButton.length > 0) {
+        const banesButton = document.createElement('button');
+        banesButton.type = 'button';
+        banesButton.textContent = 'Banes';
+        banesButton.className = 'remove-button';
+        banesButton.style.marginTop = '0';
+        banesButton.addEventListener('click', () => {
+          __currentEntryId = id;
+          openBanesModal(baneArrayForButton, `${name ?? 'Unknown'} - Banes`);
+        });
+        listItem.appendChild(banesButton);
+      }
 
       if (health === 0) {
         const removeButton = document.createElement('button');
@@ -350,6 +407,8 @@ function fetchRankings() {
       }
 
       rankingList.appendChild(listItem);
+
+      // Apply countdown classes + badge AFTER nameCol exists
       __applyRowCountdownClasses(id, __getCountdownState(id));
     });
   });
@@ -359,18 +418,18 @@ function applyDamageToAll() {
   const inputs = document.querySelectorAll('.damage-input');
   const selectedStat = document.querySelector('input[name="globalStat"]:checked')?.value ?? 'grd';
 
-  inputs.forEach((input) => {
+  inputs.forEach(input => {
     if (!('health' in input.dataset)) {
       input.value = '';
       return;
     }
 
     const id = input.dataset.entryId;
-    const currentHealth = parseInt(input.dataset.health, 10);
-    const rawDamage = parseInt(input.value, 10);
-    const statValue = parseInt(input.dataset[selectedStat], 10);
+    const currentHealth = parseInt(input.dataset.health);
+    const rawDamage = parseInt(input.value);
+    const statValue = parseInt(input.dataset[selectedStat]);
 
-    if (Number.isNaN(rawDamage) || Number.isNaN(currentHealth) || Number.isNaN(statValue)) {
+    if (isNaN(rawDamage) || isNaN(currentHealth) || isNaN(statValue)) {
       input.value = '';
       return;
     }
@@ -412,170 +471,54 @@ function updateHealth(id, newHealth, inputEl) {
         listItem?.classList.remove('defeated');
       }
     })
-    .catch((err) => console.error('Error updating health:', err));
+    .catch(err => console.error('Error updating health:', err));
 }
 
 function removeEntry(id, listItem) {
-  remove(ref(db, `rankings/${id}`))
+  const reference = ref(db, `rankings/${id}`);
+  remove(reference)
     .then(() => {
       listItem?.remove();
       __countdownById.delete(id);
     })
-    .catch((err) => console.error('Error removing entry:', err));
+    .catch(err => console.error('Error removing entry:', err));
 }
 
 function clearList() {
-  set(ref(db, 'rankings/'), null)
+  const reference = ref(db, 'rankings/');
+  set(reference, null)
     .then(() => {
       window.resetRoundCounter?.();
       __countdownById.clear();
     })
-    .catch((err) => console.error('Error clearing list:', err));
+    .catch(err => console.error('Error clearing list:', err));
 }
 
-function setCountdown(id, turns) {
-  const reference = ref(db, `rankings/${id}`);
-  __setCountdownState(id, { remaining: turns, active: true, ended: false });
-  __applyRowCountdownClasses(id, __getCountdownState(id));
-
-  return update(reference, {
-    countdownActive: true,
-    countdownRemaining: turns,
-    countdownEnded: false
-  });
-}
-
-function clearCountdown(id) {
-  const reference = ref(db, `rankings/${id}`);
-  __setCountdownState(id, { remaining: null, active: false, ended: false });
-  __applyRowCountdownClasses(id, __getCountdownState(id));
-
-  return update(reference, {
-    countdownActive: null,
-    countdownRemaining: null,
-    countdownEnded: null
-  });
-}
-
-async function __decrementCountdownIfNeeded(entryId) {
-  const state = __getCountdownState(entryId);
-  if (!state.active) return;
-  if (typeof state.remaining !== 'number') return;
-  if (state.remaining <= 0) return;
-
-  const nextRemaining = state.remaining - 1;
-  const reference = ref(db, `rankings/${entryId}`);
-
-  if (nextRemaining <= 0) {
-    __setCountdownState(entryId, { remaining: 0, active: false, ended: true });
-    __applyRowCountdownClasses(entryId, __getCountdownState(entryId));
-    await update(reference, {
-      countdownRemaining: 0,
-      countdownActive: false,
-      countdownEnded: true
-    });
-    return;
-  }
-
-  __setCountdownState(entryId, { remaining: nextRemaining, active: true, ended: false });
-  __applyRowCountdownClasses(entryId, __getCountdownState(entryId));
-  await update(reference, {
-    countdownRemaining: nextRemaining,
-    countdownActive: true,
-    countdownEnded: false
-  });
-}
-
-async function __cleanupEndedCountdownIfNeeded(entryId) {
-  if (!entryId) return;
-  const state = __getCountdownState(entryId);
-  if (!state.ended) return;
-  try {
-    await clearCountdown(entryId);
-  } catch (err) {
-    console.error('Error cleaning up ended countdown:', err);
-  }
-}
-
-window.addEventListener('tracker:highlightChange', async (e) => {
-  const previousId = e?.detail?.previousId ?? null;
-  const currentId = e?.detail?.currentId ?? null;
-  const reason = e?.detail?.reason ?? 'sync';
-
-  if ((reason === 'next' || reason === 'prev') && previousId && previousId !== currentId) {
-    await __cleanupEndedCountdownIfNeeded(previousId);
-    const prevRow = __rowFor(previousId);
-    if (prevRow) prevRow.classList.remove('countdown-expired');
-  }
-
-  if (currentId && (reason === 'next' || reason === 'prev')) {
-    try {
-      await __decrementCountdownIfNeeded(currentId);
-    } catch (err) {
-      console.error('Error decrementing countdown:', err);
-    }
-  }
-
-  if (currentId) {
-    const currentState = __getCountdownState(currentId);
-    const row = __rowFor(currentId);
-    if (row) {
-      if (currentState.ended) row.classList.add('countdown-expired');
-      else row.classList.remove('countdown-expired');
-    }
-  }
-});
+let __currentEntryId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  const statModal = document.getElementById('stat-modal');
-  if (statModal) {
-    document.getElementById('stat-modal-close')?.addEventListener('click', closeStatModal);
-    statModal.addEventListener('click', (e) => { if (e.target === statModal) closeStatModal(); });
+  const delBtn = document.getElementById('stat-delete');
+  if (delBtn) {
+    delBtn.addEventListener('click', () => {
+      if (!__currentEntryId) return;
+      if (!confirm('Delete this entry from the list?')) return;
+
+      const row = __rowFor(__currentEntryId);
+      removeEntry(__currentEntryId, row || undefined);
+
+      document.getElementById('stat-modal')?.setAttribute('aria-hidden', 'true');
+      __currentEntryId = null;
+    });
   }
-
-  const hpModal = document.getElementById('hp-modal');
-  if (hpModal) {
-    document.getElementById('hp-modal-close')?.addEventListener('click', closeHpModal);
-    hpModal.addEventListener('click', (e) => { if (e.target === hpModal) closeHpModal(); });
-  }
-
-  const banePickerModal = document.getElementById('bane-picker-modal');
-  if (banePickerModal) {
-    document.getElementById('bane-picker-close')?.addEventListener('click', closeBanePickerModal);
-    banePickerModal.addEventListener('click', (e) => { if (e.target === banePickerModal) closeBanePickerModal(); });
-  }
-
-  const banesModal = document.getElementById('banes-modal');
-  if (banesModal) {
-    document.getElementById('banes-modal-close')?.addEventListener('click', closeBanesModal);
-    banesModal.addEventListener('click', (e) => { if (e.target === banesModal) closeBanesModal(); });
-  }
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    if (banesModal?.getAttribute('aria-hidden') === 'false') closeBanesModal();
-    else if (banePickerModal?.getAttribute('aria-hidden') === 'false') closeBanePickerModal();
-    else if (hpModal?.getAttribute('aria-hidden') === 'false') closeHpModal();
-    else if (statModal?.getAttribute('aria-hidden') === 'false') closeStatModal();
-  });
-
-  document.getElementById('stat-delete')?.addEventListener('click', () => {
-    if (!__currentEntryId) return;
-    if (!confirm('Delete this entry from the list?')) return;
-
-    const row = __rowFor(__currentEntryId);
-    removeEntry(__currentEntryId, row || undefined);
-    closeStatModal();
-    __currentEntryId = null;
-  });
 
   const healBtn = document.getElementById('stat-heal');
   const healAmtInput = document.getElementById('stat-heal-amount');
+
   if (healBtn && healAmtInput) {
     healBtn.addEventListener('click', () => {
       if (!__currentEntryId) return;
       const amount = parseInt(healAmtInput.value, 10);
-      if (Number.isNaN(amount) || amount === 0) return;
+      if (isNaN(amount) || amount === 0) return;
 
       const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
       if (!dmgInput || !('health' in dmgInput.dataset)) {
@@ -586,17 +529,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const current = parseInt(dmgInput.dataset.health, 10) || 0;
       const newHealth = Math.max(current + amount, 0);
       updateHealth(__currentEntryId, newHealth, dmgInput);
+
       healAmtInput.value = '';
     });
   }
+});
 
-  const hpSetBtn = document.getElementById('hp-set-button');
+
+document.addEventListener('DOMContentLoaded', () => {
+  const setBtn = document.getElementById('hp-set-button');
   const hpInput = document.getElementById('hp-set-amount');
-  if (hpSetBtn && hpInput) {
-    hpSetBtn.addEventListener('click', () => {
+
+  if (setBtn && hpInput) {
+    setBtn.addEventListener('click', () => {
       if (!__currentEntryId) return;
+
       const amount = parseInt(hpInput.value, 10);
-      if (Number.isNaN(amount) || amount < 0) return;
+      if (isNaN(amount) || amount < 0) return;
 
       const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
       if (!dmgInput) return;
@@ -609,19 +558,50 @@ document.addEventListener('DOMContentLoaded', () => {
     hpInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        hpSetBtn.click();
+        setBtn.click();
       }
     });
   }
+});
 
+
+function setCountdown(id, turns) {
+  const reference = ref(db, `rankings/${id}`);
+
+  __setCountdownState(id, { remaining: turns, active: true, ended: false });
+  __applyRowCountdownClasses(id, __getCountdownState(id));
+
+  return update(reference, {
+    countdownActive: true,
+    countdownRemaining: turns,
+    countdownEnded: false
+  });
+}
+
+function clearCountdown(id) {
+  const reference = ref(db, `rankings/${id}`);
+
+  __setCountdownState(id, { remaining: null, active: false, ended: false });
+  __applyRowCountdownClasses(id, __getCountdownState(id));
+
+  return update(reference, {
+    countdownActive: null,
+    countdownRemaining: null,
+    countdownEnded: null
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
   const setBtn = document.getElementById('stat-countdown-set');
   const clearBtn = document.getElementById('stat-countdown-clear');
   const amtInput = document.getElementById('stat-countdown-amount');
+
   if (setBtn && amtInput) {
     setBtn.addEventListener('click', async () => {
       if (!__currentEntryId) return;
+
       const turns = parseInt(amtInput.value, 10);
-      if (Number.isNaN(turns) || turns <= 0) return;
+      if (isNaN(turns) || turns <= 0) return;
 
       try {
         await setCountdown(__currentEntryId, turns);
@@ -642,10 +622,86 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+});
 
-  document.getElementById('stat-add-bane')?.addEventListener('click', openBanePickerModal);
+async function __decrementCountdownIfNeeded(entryId) {
+  const state = __getCountdownState(entryId);
+  if (!state.active) return;
+  if (typeof state.remaining !== 'number') return;
+  if (state.remaining <= 0) return;
+
+  const nextRemaining = state.remaining - 1;
+  const reference = ref(db, `rankings/${entryId}`);
+
+  if (nextRemaining <= 0) {
+    __setCountdownState(entryId, { remaining: 0, active: false, ended: true });
+    __applyRowCountdownClasses(entryId, __getCountdownState(entryId));
+
+    await update(reference, {
+      countdownRemaining: 0,
+      countdownActive: false,
+      countdownEnded: true
+    });
+    return;
+  }
+
+  __setCountdownState(entryId, { remaining: nextRemaining, active: true, ended: false });
+  __applyRowCountdownClasses(entryId, __getCountdownState(entryId));
+
+  await update(reference, {
+    countdownRemaining: nextRemaining,
+    countdownActive: true,
+    countdownEnded: false
+  });
+}
+
+async function __cleanupEndedCountdownIfNeeded(entryId) {
+  if (!entryId) return;
+  const state = __getCountdownState(entryId);
+  if (!state.ended) return;
+  try {
+    await clearCountdown(entryId);
+  } catch (err) {
+    console.error('Error cleaning up ended countdown:', err);
+  }
+}
+
+
+window.addEventListener('tracker:highlightChange', async (e) => {
+  const previousId = e?.detail?.previousId ?? null;
+  const currentId = e?.detail?.currentId ?? null;
+  const reason = e?.detail?.reason ?? "sync";
+
+  // If we just moved away from ended entry, clean it up (only on navigation too)
+  if ((reason === "next" || reason === "prev") && previousId && previousId !== currentId) {
+    await __cleanupEndedCountdownIfNeeded(previousId);
+    const prevRow = __rowFor(previousId);
+    if (prevRow) prevRow.classList.remove('countdown-expired');
+  }
+
+  // TICK ONLY on next/prev
+  if (currentId && (reason === "next" || reason === "prev")) {
+    try {
+      await __decrementCountdownIfNeeded(currentId);
+    } catch (err) {
+      console.error('Error decrementing countdown:', err);
+    }
+  }
+
+
+  if (currentId) {
+    const currentState = __getCountdownState(currentId);
+    const row = __rowFor(currentId);
+    if (row) {
+      if (currentState.ended) row.classList.add('countdown-expired');
+      else row.classList.remove('countdown-expired');
+    }
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetchRankings();
+
   document.getElementById('apply-damage-button')?.addEventListener('click', applyDamageToAll);
   document.getElementById('clear-list-button')?.addEventListener('click', clearList);
-
-  fetchRankings();
 });
