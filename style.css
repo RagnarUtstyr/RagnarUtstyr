@@ -251,11 +251,9 @@ li .number {
   text-align: center;
 }
 
-.column.hp,
 .column.dmg {
-  text-align: center;
-  justify-self: center;
-  width: 100%;
+  width: 20%;
+  text-align: right;
 }
 
 input.damage-input {
