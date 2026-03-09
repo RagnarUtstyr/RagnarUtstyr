@@ -793,3 +793,23 @@ input.damage-input {
     height: 20px;
   }
 }
+
+#bane-picker-modal,
+#banes-modal {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#bane-picker-modal .ol-modal__dialog,
+#banes-modal .ol-modal__dialog {
+  max-height: 85vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#bane-picker-list,
+#banes-modal-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
