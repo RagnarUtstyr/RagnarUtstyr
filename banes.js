@@ -12,7 +12,7 @@ export const BANES = [
   { name: "Immobile", url: "https://openlegendrpg.com/bane/immobile", icon: "icons/banes/immobile.png" },
   { name: "Incapacitated", url: "https://openlegendrpg.com/bane/incapacitated", icon: "icons/banes/incapacitated.png" },
   { name: "Knockdown", url: "https://openlegendrpg.com/bane/knockdown", icon: "icons/banes/knockdown.png" },
-  { name: "Memory Alteration", url: "https://openlegendrpg.com/bane/memory-alteration", icon: "icons/banes/momory.png" },
+  { name: "Memory Alteration", url: "https://openlegendrpg.com/bane/memory-alteration", icon: "icons/banes/memory.png" },
   { name: "Mind Dredge", url: "https://openlegendrpg.com/bane/mind-dredge", icon: "icons/banes/mind.png" },
   { name: "Nullify", url: "https://openlegendrpg.com/bane/nullify", icon: "icons/banes/nulify.png" },
   { name: "Persistent Damage", url: "https://openlegendrpg.com/bane/persistent-damage", icon: "icons/banes/persistent.png" },
@@ -20,10 +20,10 @@ export const BANES = [
   { name: "Polymorph", url: "https://openlegendrpg.com/bane/polymorph", icon: "icons/banes/polymorph.png" },
   { name: "Provoked", url: "https://openlegendrpg.com/bane/provoked", icon: "icons/banes/provoked.png" },
   { name: "Spying", url: "https://openlegendrpg.com/bane/spying", icon: "icons/banes/spying.png" },
-  { name: "Sickened", url: "https://openlegendrpg.com/bane/sickened", icon: "icons/banes/sickened.png" },
+  { name: "Sickened", url: "https://openlegendrpg.com/bane/sickened", icon: "icons/banes/sickend.png" },
   { name: "Silenced", url: "https://openlegendrpg.com/bane/silenced", icon: "icons/banes/silenced.png" },
   { name: "Slowed", url: "https://openlegendrpg.com/bane/slowed", icon: "icons/banes/slowed.png" },
   { name: "Stunned", url: "https://openlegendrpg.com/bane/stunned", icon: "icons/banes/stunned.png" },
   { name: "Stupefied", url: "https://openlegendrpg.com/bane/stupefied", icon: "icons/banes/stupified.png" },
-  { name: "Truthfulness", url: "https://openlegendrpg.com/bane/truthfulness", icon: "icons/banes/truthfulness.png" }
+  { name: "Truthfulness", url: "https://openlegendrpg.com/bane/truthfulness", icon: "icons/banes/truyhfulness.png" }
 ];
