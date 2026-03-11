@@ -483,31 +483,9 @@
     </section>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import {
-      getDatabase,
-      ref,
-      push,
-      update,
-      remove,
-      onValue,
-      get
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-      authDomain: "roll202-c0b0d.firebaseapp.com",
-      databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "roll202-c0b0d",
-      storageBucket: "roll202-c0b0d.appspot.com",
-      messagingSenderId: "607661730400",
-      appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-      measurementId: "G-6X5L39W56C"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  <script>
+    const STORAGE_KEY = "trackEntriesLocal";
+    let currentEntryId = null;
 
     const listView = document.getElementById("list-view");
     const detailView = document.getElementById("detail-view");
@@ -525,11 +503,6 @@
     const statHpEl = document.getElementById("stat-hp");
     const calcResultEl = document.getElementById("calc-result");
 
-    let currentEntryId = null;
-    let activeTrackerUnsubscribe = null;
-    let activeEntryUnsubscribe = null;
-    let currentEntryData = null;
-
     function escapeHtml(value) {
       return String(value ?? "")
         .replace(/&/g, "&amp;")
@@ -537,18 +510,6 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-    }
-
-    function entryRef() {
-      return ref(db, "trackEntries");
-    }
-
-    function singleEntryRef(entryId) {
-      return ref(db, `trackEntries/${entryId}`);
-    }
-
-    function trackersRef(entryId) {
-      return ref(db, `trackEntries/${entryId}/trackers`);
     }
 
     function parseNumber(value, fallback = 0) {
@@ -564,6 +525,40 @@
       if (!text) return null;
       const match = String(text).match(/-?\d+/);
       return match ? parseInt(match[0], 10) : null;
+    }
+
+    function getEntries() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function saveEntries(entries) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+
+    function makeId() {
+      return "id-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+    }
+
+    function findEntry(entryId) {
+      return getEntries().find((entry) => entry.id === entryId) || null;
+    }
+
+    function updateEntry(entryId, updater) {
+      const entries = getEntries();
+      const index = entries.findIndex((entry) => entry.id === entryId);
+      if (index === -1) return null;
+      entries[index] = updater(entries[index]);
+      saveEntries(entries);
+      return entries[index];
+    }
+
+    function deleteEntry(entryId) {
+      const next = getEntries().filter((entry) => entry.id !== entryId);
+      saveEntries(next);
     }
 
     function readById(doc, id) {
@@ -588,18 +583,6 @@
         const text = el.textContent.replace(/\s+/g, " ").trim().toLowerCase();
         if (text !== labelText.toLowerCase()) continue;
 
-        const selectors = [
-          "#evasion", "#toughness", "#resolve", "#hp",
-          ".lead", ".outline", ".save",
-          "[contenteditable='true']"
-        ];
-
-        for (const selector of selectors) {
-          const nearby = el.parentElement ? el.parentElement.querySelector(selector) : null;
-          const number = extractFirstNumber(nearby?.textContent);
-          if (number !== null) return number;
-        }
-
         const sameParent = el.parentElement ? [...el.parentElement.children] : [];
         for (const sib of sameParent) {
           if (sib === el) continue;
@@ -614,15 +597,6 @@
           if (number !== null) return number;
           walker = walker.nextElementSibling;
           steps += 1;
-        }
-
-        if (el.parentElement && el.parentElement.parentElement) {
-          const group = [...el.parentElement.parentElement.querySelectorAll("*")];
-          for (const item of group) {
-            if (item === el) continue;
-            const number = extractFirstNumber(item.textContent);
-            if (number !== null) return number;
-          }
         }
       }
 
@@ -639,7 +613,6 @@
           if (own !== label.toLowerCase()) continue;
 
           const nearbyElements = [
-            el,
             el.nextElementSibling,
             el.previousElementSibling,
             ...(el.parentElement ? [...el.parentElement.children] : [])
@@ -709,178 +682,10 @@
       };
     }
 
-    async function createEntry() {
-      const nameInput = document.getElementById("entry-name");
-      const urlInput = document.getElementById("entry-url");
-
-      const manualName = nameInput.value.trim();
-      const url = urlInput.value.trim();
-
-      if (!url) {
-        setImportStatus("Please paste a HeroMuster URL first.");
-        return;
-      }
-
-      setImportStatus("Importing character...");
-
-      try {
-        const scraped = await scrapeCharacter(url);
-        const finalName = manualName || scraped.name || "Character";
-
-        const newRef = await push(entryRef(), {
-          name: finalName,
-          url: url,
-          baseHp: scraped.hp,
-          currentHp: scraped.hp,
-          guard: scraped.guard,
-          toughness: scraped.toughness,
-          resolve: scraped.resolve,
-          createdAt: Date.now()
-        });
-
-        setImportStatus(`Imported ${finalName}.`);
-        nameInput.value = "";
-        urlInput.value = "";
-        openEntry(newRef.key, finalName);
-      } catch (error) {
-        setImportStatus(error.message || "Import failed.");
-      }
-    }
-
-    async function refreshCharacterStats(entryId) {
-      const snapshot = await get(singleEntryRef(entryId));
-      if (!snapshot.exists()) return;
-
-      const entry = snapshot.val();
-      if (!entry.url) return;
-
-      const scraped = await scrapeCharacter(entry.url);
-
-      await update(singleEntryRef(entryId), {
-        name: entry.name || scraped.name || "Character",
-        guard: scraped.guard,
-        toughness: scraped.toughness,
-        resolve: scraped.resolve,
-        baseHp: scraped.hp
-      });
-    }
-
-    async function resetHpFromSource() {
-      if (!currentEntryId || !currentEntryData?.url) return;
-
-      try {
-        const scraped = await scrapeCharacter(currentEntryData.url);
-
-        await update(singleEntryRef(currentEntryId), {
-          baseHp: scraped.hp,
-          currentHp: scraped.hp,
-          guard: scraped.guard,
-          toughness: scraped.toughness,
-          resolve: scraped.resolve
-        });
-
-        calcResultEl.textContent = "HP reset from source URL.";
-      } catch (error) {
-        calcResultEl.textContent = "Could not reset from source URL.";
-      }
-    }
-
-    function getSelectedDefense() {
-      const selected = document.querySelector(".defense-choice:checked");
-      return selected ? selected.value : null;
-    }
-
-    async function applyDamage() {
-      if (!currentEntryId || !currentEntryData) return;
-
-      const damageValue = parseNumber(document.getElementById("damage-input").value, NaN);
-      if (Number.isNaN(damageValue) || damageValue < 0) return;
-
-      const defenseKey = getSelectedDefense();
-      let defenseValue = 0;
-      let defenseLabel = "none";
-
-      if (defenseKey === "grd") {
-        defenseValue = parseNumber(currentEntryData.guard);
-        defenseLabel = "Guard";
-      } else if (defenseKey === "tgh") {
-        defenseValue = parseNumber(currentEntryData.toughness);
-        defenseLabel = "Toughness";
-      } else if (defenseKey === "res") {
-        defenseValue = parseNumber(currentEntryData.resolve);
-        defenseLabel = "Resolve";
-      }
-
-      const remaining = damageValue - defenseValue;
-      let hpLoss = 0;
-
-      if (remaining > 1) {
-        hpLoss = Math.max(3, remaining);
-      }
-
-      const currentHp = parseNumber(currentEntryData.currentHp, parseNumber(currentEntryData.baseHp));
-      const nextHp = Math.max(0, currentHp - hpLoss);
-
-      await update(singleEntryRef(currentEntryId), {
-        currentHp: nextHp
-      });
-
-      if (hpLoss > 0) {
-        calcResultEl.textContent = `DMG ${damageValue} - ${defenseLabel} ${defenseValue} = ${remaining}. HP reduced by ${hpLoss}.`;
-      } else {
-        calcResultEl.textContent = `DMG ${damageValue} - ${defenseLabel} ${defenseValue} = ${remaining}. No HP damage taken.`;
-      }
-
-      document.getElementById("damage-input").value = "";
-    }
-
-    async function createTracker() {
-      if (!currentEntryId) return;
-
-      const nameInput = document.getElementById("tracker-name");
-      const amountInput = document.getElementById("tracker-amount");
-      const name = nameInput.value.trim();
-      const amount = parseInt(amountInput.value, 10);
-      const startFull = document.getElementById("tracker-start-full").checked;
-
-      if (!name || Number.isNaN(amount) || amount < 1) return;
-
-      await push(trackersRef(currentEntryId), {
-        name,
-        amount,
-        value: startFull ? amount : 0,
-        createdAt: Date.now()
-      });
-
-      nameInput.value = "";
-      amountInput.value = "";
-      document.getElementById("tracker-start-full").checked = false;
-      nameInput.focus();
-    }
-
-    async function changeTrackerValue(trackerId, nextValue) {
-      if (!currentEntryId) return;
-      const trackerReference = ref(db, `trackEntries/${currentEntryId}/trackers/${trackerId}`);
-      const snapshot = await get(trackerReference);
-      if (!snapshot.exists()) return;
-
-      const tracker = snapshot.val();
-      const bounded = Math.max(0, Math.min(Number(tracker.amount) || 0, nextValue));
-      await update(trackerReference, { value: bounded });
-    }
-
-    async function deleteTracker(trackerId) {
-      if (!currentEntryId) return;
-      await remove(ref(db, `trackEntries/${currentEntryId}/trackers/${trackerId}`));
-    }
-
-    function renderEntryList(data) {
+    function renderEntryList() {
       entryListEl.innerHTML = "";
-      const entries = data
-        ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
-        : [];
+      const entries = getEntries().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-      entries.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       entryEmptyEl.classList.toggle("hidden", entries.length > 0);
 
       for (const entry of entries) {
@@ -892,15 +697,17 @@
         `;
 
         li.querySelector(".entry-open").addEventListener("click", () => {
-          openEntry(entry.id, entry.name || "Untitled");
+          openEntry(entry.id);
         });
 
-        li.querySelector(".remove-button").addEventListener("click", async () => {
-          const confirmed = window.confirm(\`Delete \${entry.name || "this entry"}?\`);
+        li.querySelector(".remove-button").addEventListener("click", () => {
+          const confirmed = window.confirm(`Delete ${entry.name || "this entry"}?`);
           if (!confirmed) return;
-          await remove(ref(db, \`trackEntries/\${entry.id}\`));
+          deleteEntry(entry.id);
           if (currentEntryId === entry.id) {
             goToList();
+          } else {
+            renderEntryList();
           }
         });
 
@@ -918,13 +725,10 @@
       return html || '<span class="muted">No boxes</span>';
     }
 
-    function renderTrackerList(data) {
+    function renderTrackerList(entry) {
       trackerListEl.innerHTML = "";
-      const trackers = data
-        ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
-        : [];
+      const trackers = [...(entry.trackers || [])].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 
-      trackers.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
       trackerEmptyEl.classList.toggle("hidden", trackers.length > 0);
 
       for (const tracker of trackers) {
@@ -962,82 +766,243 @@
     }
 
     function renderEntryDetail(entry) {
-      currentEntryData = entry || null;
-
       detailTitleEl.textContent = entry?.name || "Character Sheet";
       detailUrlEl.textContent = entry?.url || "";
-
       statGuardEl.textContent = parseNumber(entry?.guard, 0);
       statToughnessEl.textContent = parseNumber(entry?.toughness, 0);
       statResolveEl.textContent = parseNumber(entry?.resolve, 0);
       statHpEl.textContent = parseNumber(entry?.currentHp, parseNumber(entry?.baseHp, 0));
+      renderTrackerList(entry || { trackers: [] });
     }
 
-    function subscribeToEntry(entryId) {
-      if (activeEntryUnsubscribe) {
-        activeEntryUnsubscribe();
-        activeEntryUnsubscribe = null;
-      }
+    function openEntry(entryId) {
+      const entry = findEntry(entryId);
+      if (!entry) return;
 
-      activeEntryUnsubscribe = onValue(singleEntryRef(entryId), (snapshot) => {
-        if (!snapshot.exists()) {
-          goToList();
-          return;
-        }
-        renderEntryDetail(snapshot.val());
-      });
+      currentEntryId = entryId;
+      listView.classList.add("hidden");
+      detailView.classList.remove("hidden");
+      history.pushState({}, "", `${window.location.pathname}?entry=${encodeURIComponent(entryId)}`);
+      renderEntryDetail(entry);
     }
 
     function goToList() {
       currentEntryId = null;
-      currentEntryData = null;
       detailView.classList.add("hidden");
       listView.classList.remove("hidden");
       history.pushState({}, "", window.location.pathname);
+      renderEntryList();
+    }
 
-      if (activeTrackerUnsubscribe) {
-        activeTrackerUnsubscribe();
-        activeTrackerUnsubscribe = null;
+    async function createEntry() {
+      const nameInput = document.getElementById("entry-name");
+      const urlInput = document.getElementById("entry-url");
+
+      const manualName = nameInput.value.trim();
+      const url = urlInput.value.trim();
+
+      if (!url) {
+        setImportStatus("Please paste a HeroMuster URL first.");
+        return;
       }
 
-      if (activeEntryUnsubscribe) {
-        activeEntryUnsubscribe();
-        activeEntryUnsubscribe = null;
+      setImportStatus("Importing character...");
+
+      try {
+        const scraped = await scrapeCharacter(url);
+        const finalName = manualName || scraped.name || "Character";
+
+        const entries = getEntries();
+        const newEntry = {
+          id: makeId(),
+          name: finalName,
+          url: url,
+          baseHp: scraped.hp,
+          currentHp: scraped.hp,
+          guard: scraped.guard,
+          toughness: scraped.toughness,
+          resolve: scraped.resolve,
+          trackers: [],
+          createdAt: Date.now()
+        };
+
+        entries.push(newEntry);
+        saveEntries(entries);
+
+        setImportStatus(`Imported ${finalName}.`);
+        nameInput.value = "";
+        urlInput.value = "";
+        renderEntryList();
+        openEntry(newEntry.id);
+      } catch (error) {
+        setImportStatus(error.message || "Import failed.");
       }
     }
 
-    function openEntry(entryId, entryName = "Character") {
-      currentEntryId = entryId;
-      detailTitleEl.textContent = entryName;
-      listView.classList.add("hidden");
-      detailView.classList.remove("hidden");
-      history.pushState({}, "", `${window.location.pathname}?entry=${encodeURIComponent(entryId)}`);
+    async function refreshCharacterStats() {
+      const entry = findEntry(currentEntryId);
+      if (!entry || !entry.url) return;
 
-      subscribeToEntry(entryId);
+      const scraped = await scrapeCharacter(entry.url);
 
-      if (activeTrackerUnsubscribe) {
-        activeTrackerUnsubscribe();
-      }
+      updateEntry(currentEntryId, (current) => ({
+        ...current,
+        name: current.name || scraped.name || "Character",
+        guard: scraped.guard,
+        toughness: scraped.toughness,
+        resolve: scraped.resolve,
+        baseHp: scraped.hp
+      }));
 
-      activeTrackerUnsubscribe = onValue(trackersRef(entryId), (snapshot) => {
-        renderTrackerList(snapshot.val());
-      });
+      renderEntryDetail(findEntry(currentEntryId));
     }
 
-    async function restoreFromUrl() {
+    async function resetHpFromSource() {
+      const entry = findEntry(currentEntryId);
+      if (!entry || !entry.url) return;
+
+      try {
+        const scraped = await scrapeCharacter(entry.url);
+
+        updateEntry(currentEntryId, (current) => ({
+          ...current,
+          baseHp: scraped.hp,
+          currentHp: scraped.hp,
+          guard: scraped.guard,
+          toughness: scraped.toughness,
+          resolve: scraped.resolve
+        }));
+
+        renderEntryDetail(findEntry(currentEntryId));
+        calcResultEl.textContent = "HP reset from source URL.";
+      } catch {
+        calcResultEl.textContent = "Could not reset from source URL.";
+      }
+    }
+
+    function getSelectedDefense() {
+      const selected = document.querySelector(".defense-choice:checked");
+      return selected ? selected.value : null;
+    }
+
+    function applyDamage() {
+      const entry = findEntry(currentEntryId);
+      if (!entry) return;
+
+      const damageValue = parseNumber(document.getElementById("damage-input").value, NaN);
+      if (Number.isNaN(damageValue) || damageValue < 0) return;
+
+      const defenseKey = getSelectedDefense();
+      let defenseValue = 0;
+      let defenseLabel = "none";
+
+      if (defenseKey === "grd") {
+        defenseValue = parseNumber(entry.guard);
+        defenseLabel = "Guard";
+      } else if (defenseKey === "tgh") {
+        defenseValue = parseNumber(entry.toughness);
+        defenseLabel = "Toughness";
+      } else if (defenseKey === "res") {
+        defenseValue = parseNumber(entry.resolve);
+        defenseLabel = "Resolve";
+      }
+
+      const remaining = damageValue - defenseValue;
+      let hpLoss = 0;
+
+      if (remaining > 1) {
+        hpLoss = Math.max(3, remaining);
+      }
+
+      const currentHp = parseNumber(entry.currentHp, parseNumber(entry.baseHp));
+      const nextHp = Math.max(0, currentHp - hpLoss);
+
+      updateEntry(currentEntryId, (current) => ({
+        ...current,
+        currentHp: nextHp
+      }));
+
+      renderEntryDetail(findEntry(currentEntryId));
+
+      if (hpLoss > 0) {
+        calcResultEl.textContent = `DMG ${damageValue} - ${defenseLabel} ${defenseValue} = ${remaining}. HP reduced by ${hpLoss}.`;
+      } else {
+        calcResultEl.textContent = `DMG ${damageValue} - ${defenseLabel} ${defenseValue} = ${remaining}. No HP damage taken.`;
+      }
+
+      document.getElementById("damage-input").value = "";
+    }
+
+    function createTracker() {
+      if (!currentEntryId) return;
+
+      const nameInput = document.getElementById("tracker-name");
+      const amountInput = document.getElementById("tracker-amount");
+      const name = nameInput.value.trim();
+      const amount = parseInt(amountInput.value, 10);
+      const startFull = document.getElementById("tracker-start-full").checked;
+
+      if (!name || Number.isNaN(amount) || amount < 1) return;
+
+      updateEntry(currentEntryId, (current) => ({
+        ...current,
+        trackers: [
+          ...(current.trackers || []),
+          {
+            id: makeId(),
+            name,
+            amount,
+            value: startFull ? amount : 0,
+            createdAt: Date.now()
+          }
+        ]
+      }));
+
+      nameInput.value = "";
+      amountInput.value = "";
+      document.getElementById("tracker-start-full").checked = false;
+      renderEntryDetail(findEntry(currentEntryId));
+      nameInput.focus();
+    }
+
+    function changeTrackerValue(trackerId, nextValue) {
+      updateEntry(currentEntryId, (current) => ({
+        ...current,
+        trackers: (current.trackers || []).map((tracker) => {
+          if (tracker.id !== trackerId) return tracker;
+          const bounded = Math.max(0, Math.min(Number(tracker.amount) || 0, nextValue));
+          return { ...tracker, value: bounded };
+        })
+      }));
+
+      renderEntryDetail(findEntry(currentEntryId));
+    }
+
+    function deleteTracker(trackerId) {
+      updateEntry(currentEntryId, (current) => ({
+        ...current,
+        trackers: (current.trackers || []).filter((tracker) => tracker.id !== trackerId)
+      }));
+
+      renderEntryDetail(findEntry(currentEntryId));
+    }
+
+    function restoreFromUrl() {
       const params = new URLSearchParams(window.location.search);
       const entryId = params.get("entry");
-      if (!entryId) return;
+      if (!entryId) {
+        renderEntryList();
+        return;
+      }
 
-      const snapshot = await get(singleEntryRef(entryId));
-      if (!snapshot.exists()) return;
-      const entry = snapshot.val();
-      openEntry(entryId, entry.name || "Character");
+      const entry = findEntry(entryId);
+      if (!entry) {
+        renderEntryList();
+        return;
+      }
+
+      openEntry(entryId);
     }
-
-    onValue(entryRef(), (snapshot) => {
-      renderEntryList(snapshot.val());
-    });
 
     document.getElementById("create-entry-btn").addEventListener("click", createEntry);
 
@@ -1060,16 +1025,15 @@
     });
 
     document.getElementById("back-btn").addEventListener("click", goToList);
-
     document.getElementById("apply-damage-btn").addEventListener("click", applyDamage);
     document.getElementById("reset-hp-btn").addEventListener("click", resetHpFromSource);
 
     document.getElementById("refresh-character-btn").addEventListener("click", async () => {
       if (!currentEntryId) return;
       try {
-        await refreshCharacterStats(currentEntryId);
+        await refreshCharacterStats();
         calcResultEl.textContent = "Stats refreshed from source URL.";
-      } catch (error) {
+      } catch {
         calcResultEl.textContent = "Could not refresh stats from source URL.";
       }
     });
@@ -1088,6 +1052,8 @@
       const entryId = params.get("entry");
       if (!entryId) {
         goToList();
+      } else {
+        openEntry(entryId);
       }
     });
 
