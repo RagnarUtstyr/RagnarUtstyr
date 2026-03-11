@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Character Sheets</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
   <style>
     .track-shell {
       width: 100%;
@@ -27,6 +28,8 @@
 
     .track-title {
       margin: 0;
+      color: #e3cf95;
+      text-align: left;
     }
 
     .track-subtitle {
@@ -62,6 +65,7 @@
     .status-box {
       margin-top: 10px;
       min-height: 1.2em;
+      white-space: pre-line;
     }
 
     .track-form,
@@ -74,7 +78,7 @@
     }
 
     .track-form {
-      grid-template-columns: 1fr 1.5fr auto;
+      grid-template-columns: 1fr 1.6fr auto;
     }
 
     .tracker-form {
@@ -145,6 +149,7 @@
       min-width: 0;
       overflow-wrap: anywhere;
       cursor: pointer;
+      font-family: inherit;
     }
 
     .entry-open:hover {
@@ -382,10 +387,12 @@
           <label for="entry-name">Character name override</label>
           <input type="text" id="entry-name" placeholder="Optional name" />
         </div>
+
         <div class="field-stack">
           <label for="entry-url">Character URL</label>
           <input type="text" id="entry-url" placeholder="https://openlegend.heromuster.com/character?s=..." />
         </div>
+
         <button id="create-entry-btn" type="button">Import</button>
       </div>
 
@@ -457,7 +464,7 @@
 
       <div class="tracker-section">
         <h2 class="section-title">Custom Trackers</h2>
-        <p class="track-subtitle" style="margin-bottom:14px;">These are the tracker controls at the bottom.</p>
+        <p class="track-subtitle" style="margin-bottom:14px;">These trackers stay at the bottom of the character sheet.</p>
 
         <div class="tracker-form">
           <input type="text" id="tracker-name" placeholder="Tracker name" />
@@ -549,59 +556,31 @@
       return Number.isNaN(num) ? fallback : num;
     }
 
-    function readTextById(doc, id) {
-      const el = doc.getElementById(id);
-      return el ? el.textContent.trim() : "";
-    }
-
-    function firstText(doc, selectors) {
-      for (const selector of selectors) {
-        const el = doc.querySelector(selector);
-        if (el && el.textContent.trim()) {
-          return el.textContent.trim();
-        }
-      }
-      return "";
-    }
-
     function setImportStatus(message) {
       importStatusEl.textContent = message || "";
     }
 
-    async function fetchCharacterHtml(url) {
-      const directResponse = await fetch(url).catch(() => null);
-      if (directResponse && directResponse.ok) {
-        return await directResponse.text();
-      }
-
-      const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
-      const proxyResponse = await fetch(proxyUrl).catch(() => null);
-      if (proxyResponse && proxyResponse.ok) {
-        return await proxyResponse.text();
-      }
-
-      throw new Error("Could not load character page.");
-    }
-
     async function scrapeCharacter(url) {
-      const html = await fetchCharacterHtml(url);
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
+      const response = await fetch(`/api/heromuster?url=${encodeURIComponent(url)}`);
+      let data = {};
 
-      const guard = parseNumber(readTextById(doc, "evasion"));
-      const toughness = parseNumber(readTextById(doc, "toughness"));
-      const resolve = parseNumber(readTextById(doc, "resolve"));
-      const hp = parseNumber(readTextById(doc, "hp"));
+      try {
+        data = await response.json();
+      } catch (error) {
+        throw new Error("The server returned an unreadable response.");
+      }
 
-      const name =
-        firstText(doc, [
-          "h1",
-          ".character-name",
-          ".page-title",
-          "title"
-        ]) || "Character";
+      if (!response.ok) {
+        throw new Error(data.error || "Could not import character.");
+      }
 
-      return { name, guard, toughness, resolve, hp };
+      return {
+        name: data.name || "Character",
+        guard: Number(data.guard) || 0,
+        toughness: Number(data.toughness) || 0,
+        resolve: Number(data.resolve) || 0,
+        hp: Number(data.hp) || 0
+      };
     }
 
     async function createEntry() {
@@ -618,17 +597,10 @@
 
       setImportStatus("Importing character...");
 
-      let scraped;
       try {
-        scraped = await scrapeCharacter(url);
-      } catch (error) {
-        setImportStatus("Import failed. HeroMuster may be blocking browser access.");
-        return;
-      }
+        const scraped = await scrapeCharacter(url);
+        const finalName = manualName || scraped.name || "Character";
 
-      const finalName = manualName || scraped.name || "Character";
-
-      try {
         const newRef = await push(entryRef(), {
           name: finalName,
           url: url,
@@ -645,7 +617,7 @@
         urlInput.value = "";
         openEntry(newRef.key, finalName);
       } catch (error) {
-        setImportStatus("Import failed while saving to Firebase.");
+        setImportStatus(error.message || "Import failed.");
       }
     }
 
@@ -672,6 +644,7 @@
 
       try {
         const scraped = await scrapeCharacter(currentEntryData.url);
+
         await update(singleEntryRef(currentEntryId), {
           baseHp: scraped.hp,
           currentHp: scraped.hp,
@@ -679,6 +652,7 @@
           toughness: scraped.toughness,
           resolve: scraped.resolve
         });
+
         calcResultEl.textContent = "HP reset from source URL.";
       } catch (error) {
         calcResultEl.textContent = "Could not reset from source URL.";
