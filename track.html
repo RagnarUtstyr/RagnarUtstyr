@@ -521,12 +521,6 @@
       importStatusEl.textContent = message || "";
     }
 
-    function extractFirstNumber(text) {
-      if (!text) return null;
-      const match = String(text).match(/-?\d+/);
-      return match ? parseInt(match[0], 10) : null;
-    }
-
     function getEntries() {
       try {
         return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -561,74 +555,6 @@
       saveEntries(next);
     }
 
-    function readById(doc, id) {
-      const el = doc.getElementById(id);
-      if (!el) return null;
-      return extractFirstNumber(el.textContent);
-    }
-
-    function getOwnText(node) {
-      if (!node) return "";
-      return [...node.childNodes]
-        .filter((child) => child.nodeType === Node.TEXT_NODE)
-        .map((child) => child.textContent)
-        .join(" ")
-        .trim();
-    }
-
-    function readByLabel(doc, labelText) {
-      const candidates = [...doc.querySelectorAll("p, div, span, strong, b, td, th, h1, h2, h3, h4, h5")];
-
-      for (const el of candidates) {
-        const text = el.textContent.replace(/\s+/g, " ").trim().toLowerCase();
-        if (text !== labelText.toLowerCase()) continue;
-
-        const sameParent = el.parentElement ? [...el.parentElement.children] : [];
-        for (const sib of sameParent) {
-          if (sib === el) continue;
-          const number = extractFirstNumber(sib.textContent);
-          if (number !== null) return number;
-        }
-
-        let walker = el.nextElementSibling;
-        let steps = 0;
-        while (walker && steps < 4) {
-          const number = extractFirstNumber(walker.textContent);
-          if (number !== null) return number;
-          walker = walker.nextElementSibling;
-          steps += 1;
-        }
-      }
-
-      return null;
-    }
-
-    function readByLooseText(doc, possibleLabels) {
-      const all = [...doc.querySelectorAll("*")];
-
-      for (const label of possibleLabels) {
-        for (const el of all) {
-          const own = getOwnText(el).replace(/\s+/g, " ").trim().toLowerCase();
-          if (!own) continue;
-          if (own !== label.toLowerCase()) continue;
-
-          const nearbyElements = [
-            el.nextElementSibling,
-            el.previousElementSibling,
-            ...(el.parentElement ? [...el.parentElement.children] : [])
-          ];
-
-          for (const candidate of nearbyElements) {
-            if (!candidate || candidate === el) continue;
-            const number = extractFirstNumber(candidate.textContent);
-            if (number !== null) return number;
-          }
-        }
-      }
-
-      return null;
-    }
-
     async function scrapeCharacter(url) {
       const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
       const response = await fetch(proxy);
@@ -638,36 +564,57 @@
       }
 
       const html = await response.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
 
-      let guard = readById(doc, "evasion");
-      let toughness = readById(doc, "toughness");
-      let resolve = readById(doc, "resolve");
-      let hp = readById(doc, "hp");
+      function readExactId(id) {
+        const regex = new RegExp(`id=["']${id}["'][^>]*>(\\d+)<`, "i");
+        const match = html.match(regex);
+        return match ? parseInt(match[1], 10) : null;
+      }
 
-      if (guard === null) guard = readByLabel(doc, "Guard");
-      if (toughness === null) toughness = readByLabel(doc, "Toughness");
-      if (resolve === null) resolve = readByLabel(doc, "Resolve");
-      if (hp === null) hp = readByLabel(doc, "Hit Points");
+      function escapeRegex(text) {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
 
-      if (guard === null) guard = readByLooseText(doc, ["Guard", "Evasion"]);
-      if (toughness === null) toughness = readByLooseText(doc, ["Toughness"]);
-      if (resolve === null) resolve = readByLooseText(doc, ["Resolve"]);
-      if (hp === null) hp = readByLooseText(doc, ["Hit Points", "HP"]);
+      function readNearLabel(label) {
+        const escapedLabel = escapeRegex(label);
 
-      guard = guard ?? 0;
-      toughness = toughness ?? 0;
-      resolve = resolve ?? 0;
-      hp = hp ?? 0;
+        const patterns = [
+          new RegExp(`${escapedLabel}[\\s\\S]{0,250}?contenteditable=["']true["'][^>]*>(\\d+)<`, "i"),
+          new RegExp(`${escapedLabel}[\\s\\S]{0,250}?>\\s*(\\d+)\\s*<`, "i")
+        ];
 
-      const nameElement =
-        doc.querySelector("h1") ||
-        doc.querySelector(".character-name") ||
-        doc.querySelector(".page-title") ||
-        doc.querySelector("title");
+        for (const pattern of patterns) {
+          const match = html.match(pattern);
+          if (match) return parseInt(match[1], 10);
+        }
 
-      const name = nameElement ? nameElement.textContent.trim() : "Character";
+        return null;
+      }
+
+      const guard =
+        readExactId("evasion") ??
+        readNearLabel("Guard") ??
+        readNearLabel("Evasion") ??
+        0;
+
+      const toughness =
+        readExactId("toughness") ??
+        readNearLabel("Toughness") ??
+        0;
+
+      const resolve =
+        readExactId("resolve") ??
+        readNearLabel("Resolve") ??
+        0;
+
+      const hp =
+        readExactId("hp") ??
+        readNearLabel("Hit Points") ??
+        readNearLabel("HP") ??
+        0;
+
+      const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+      const name = titleMatch ? titleMatch[1].trim() : "Character";
 
       if (guard === 0 && toughness === 0 && resolve === 0 && hp === 0) {
         throw new Error("Could not read stats from HeroMuster page.");
@@ -907,11 +854,11 @@
         defenseLabel = "Resolve";
       }
 
-      const remaining = damageValue - defenseValue;
       let hpLoss = 0;
+      const difference = damageValue - defenseValue;
 
-      if (remaining > 1) {
-        hpLoss = Math.max(3, remaining);
+      if (damageValue >= defenseValue) {
+        hpLoss = Math.max(3, difference);
       }
 
       const currentHp = parseNumber(entry.currentHp, parseNumber(entry.baseHp));
@@ -925,9 +872,9 @@
       renderEntryDetail(findEntry(currentEntryId));
 
       if (hpLoss > 0) {
-        calcResultEl.textContent = `DMG ${damageValue} - ${defenseLabel} ${defenseValue} = ${remaining}. HP reduced by ${hpLoss}.`;
+        calcResultEl.textContent = `DMG ${damageValue} vs ${defenseLabel} ${defenseValue}. HP reduced by ${hpLoss}.`;
       } else {
-        calcResultEl.textContent = `DMG ${damageValue} - ${defenseLabel} ${defenseValue} = ${remaining}. No HP damage taken.`;
+        calcResultEl.textContent = `DMG ${damageValue} vs ${defenseLabel} ${defenseValue}. No HP damage taken.`;
       }
 
       document.getElementById("damage-input").value = "";
