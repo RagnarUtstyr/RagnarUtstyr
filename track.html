@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trackers</title>
+  <title>Character Sheets</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     .track-shell {
@@ -34,16 +34,75 @@
       opacity: 0.85;
     }
 
+    .muted {
+      opacity: 0.75;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .empty-state {
+      padding: 14px;
+      border: 1px dashed #2d3d73;
+      border-radius: 8px;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .message-box,
+    .panel-box {
+      background: rgba(11, 41, 36, 0.85);
+      border: 1px solid #1a3b4a;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+
     .track-form,
-    .tracker-form {
+    .tracker-form,
+    .damage-panel,
+    .sheet-header {
       display: grid;
-      grid-template-columns: 1fr auto;
       gap: 10px;
       margin-bottom: 18px;
     }
 
+    .track-form {
+      grid-template-columns: 1fr 1.3fr auto;
+    }
+
     .tracker-form {
       grid-template-columns: 1.3fr 110px auto;
+    }
+
+    .sheet-header {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    .damage-panel {
+      grid-template-columns: 120px 1fr auto;
+      align-items: end;
+    }
+
+    .field-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field-stack label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .track-form input,
+    .tracker-form input,
+    .damage-panel input {
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .entry-list,
@@ -80,11 +139,83 @@
       color: #e3cf95;
       min-width: 0;
       overflow-wrap: anywhere;
+      cursor: pointer;
     }
 
     .entry-open:hover {
       color: #ffffff;
       background: transparent;
+    }
+
+    .sheet-url {
+      overflow-wrap: anywhere;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: rgba(20, 22, 30, 0.9);
+      border: 1px solid #2d3d73;
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .hp-card {
+      border-color: #8b0000;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      opacity: 0.85;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #e3cf95;
+    }
+
+    .damage-options {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      min-height: 40px;
+    }
+
+    .damage-options label,
+    .tracker-form-inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .damage-buttons,
+    .tracker-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .calc-result {
+      min-height: 1.4em;
+    }
+
+    .section-title {
+      margin-top: 0;
+      margin-bottom: 6px;
     }
 
     .tracker-card {
@@ -98,6 +229,7 @@
       gap: 12px;
       align-items: center;
       flex-wrap: wrap;
+      margin-bottom: 10px;
     }
 
     .tracker-name {
@@ -108,14 +240,6 @@
 
     .tracker-progress {
       color: #bdb382;
-    }
-
-    .tracker-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
     }
 
     .tracker-boxes {
@@ -157,11 +281,6 @@
       transform: rotate(45deg);
     }
 
-    .tracker-boxes input[type="checkbox"]:checked {
-      accent-color: #8b0000;
-      filter: none;
-    }
-
     .button-small {
       padding: 6px 10px;
       font-size: 0.85rem;
@@ -176,6 +295,8 @@
       font-size: 0.8rem;
       line-height: 1.1;
       border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
     }
 
     .button-ghost-small:hover {
@@ -183,20 +304,37 @@
       border-color: #e3cf95;
     }
 
-    .muted {
-      opacity: 0.75;
+    .remove-button {
+      background-color: #a8342d;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: inherit;
     }
 
-    .hidden {
-      display: none !important;
+    .remove-button:hover {
+      background-color: #851f1a;
     }
 
-    .empty-state {
-      padding: 14px;
-      border: 1px dashed #2d3d73;
-      border-radius: 8px;
-      text-align: center;
-      opacity: 0.85;
+    @media (max-width: 900px) {
+      .track-form,
+      .damage-panel,
+      .tracker-form,
+      .sheet-header,
+      .tracker-card {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-grid {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+      }
+
+      .damage-buttons,
+      .tracker-controls {
+        justify-content: flex-start;
+      }
     }
 
     @media (max-width: 640px) {
@@ -206,47 +344,13 @@
 
       .track-form,
       .tracker-form,
-      .tracker-card {
+      .stat-grid {
         grid-template-columns: 1fr;
-      }
-
-      .entry-card {
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: center;
-      }
-
-      .tracker-controls {
-        justify-content: flex-start;
       }
 
       .tracker-boxes {
         grid-template-columns: repeat(10, 20px);
         gap: 6px;
-      }
-
-      .tracker-boxes input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-      }
-
-      #back-btn,
-      .remove-button,
-      .deduct-btn,
-      .add-btn,
-      .delete-tracker-btn,
-      #create-entry-btn,
-      #create-tracker-btn {
-        padding: 8px 10px;
-        font-size: 0.85rem;
-      }
-
-      .track-title {
-        font-size: 1.5rem;
-      }
-    }
-
-      .tracker-controls {
-        justify-content: space-between;
       }
     }
   </style>
@@ -257,41 +361,112 @@
       <div class="track-header">
         <div>
           <a href="index.html" class="button-ghost-small" style="display:inline-block;margin-bottom:8px;">← Back</a>
-          <h1 class="track-title">Tracker Lists</h1>
-          <p class="track-subtitle">Create a name, then open it to manage custom trackers.</p>
+          <h1 class="track-title">Character Sheets</h1>
+          <p class="track-subtitle">Import a HeroMuster character, then open it to track HP and custom trackers.</p>
         </div>
       </div>
 
+      <div class="message-box">
+        Paste a character URL such as
+        <span class="muted">https://openlegend.heromuster.com/character?s=...</span>
+      </div>
+
       <div class="track-form">
-        <input type="text" id="entry-name" placeholder="Enter name" />
-        <button id="create-entry-btn" type="button">Create</button>
+        <div class="field-stack">
+          <label for="entry-name">Character name override</label>
+          <input type="text" id="entry-name" placeholder="Optional name" />
+        </div>
+        <div class="field-stack">
+          <label for="entry-url">Character URL</label>
+          <input type="text" id="entry-url" placeholder="https://openlegend.heromuster.com/character?s=..." />
+        </div>
+        <button id="create-entry-btn" type="button">Import</button>
       </div>
 
       <ul id="entry-list" class="entry-list"></ul>
-      <div id="entry-empty" class="empty-state">No entries yet.</div>
+      <div id="entry-empty" class="empty-state">No character sheets yet.</div>
     </section>
 
     <section id="detail-view" class="hidden">
       <div class="track-header">
         <div>
           <button id="back-btn" class="button-ghost-small" type="button">← Back</button>
-          <h1 id="detail-title" class="track-title" style="margin-top:12px;">Trackers</h1>
-          <p class="track-subtitle">Add trackers with a name and number of checkboxes.</p>
+          <h1 id="detail-title" class="track-title" style="margin-top:12px;">Character Sheet</h1>
+          <p class="track-subtitle">HP can be reduced with the damage calculator and reset from the source URL.</p>
         </div>
       </div>
 
-      <div class="tracker-form">
-        <input type="text" id="tracker-name" placeholder="Tracker name" />
-        <input type="number" id="tracker-amount" min="1" placeholder="Amount" />
-        <button id="create-tracker-btn" type="button">Add tracker</button>
-      </div>
-      <label class="muted" style="display:flex;align-items:center;gap:8px;margin:-6px 0 18px 0;">
-        <input type="checkbox" id="tracker-start-full" />
-        Start fully checked
-      </label>
+      <div class="sheet-top panel-box">
+        <div class="sheet-header">
+          <div>
+            <div id="detail-url" class="sheet-url muted"></div>
+          </div>
+          <div class="damage-buttons">
+            <button id="refresh-character-btn" type="button">Refresh stats</button>
+          </div>
+        </div>
 
-      <ul id="tracker-list" class="tracker-list"></ul>
-      <div id="tracker-empty" class="empty-state">No trackers yet for this entry.</div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <span class="stat-label">Guard</span>
+            <span class="stat-value" id="stat-guard">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Toughness</span>
+            <span class="stat-value" id="stat-toughness">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Resolve</span>
+            <span class="stat-value" id="stat-resolve">—</span>
+          </div>
+          <div class="stat-card hp-card">
+            <span class="stat-label">Hit Points</span>
+            <span class="stat-value" id="stat-hp">—</span>
+          </div>
+        </div>
+
+        <div class="damage-panel">
+          <div class="field-stack">
+            <label for="damage-input">DMG</label>
+            <input type="number" id="damage-input" min="0" placeholder="Damage" />
+          </div>
+
+          <div class="field-stack">
+            <label>Reduce with</label>
+            <div class="damage-options">
+              <label><input type="checkbox" class="defense-choice" value="grd" /> GRD</label>
+              <label><input type="checkbox" class="defense-choice" value="tgh" /> TGH</label>
+              <label><input type="checkbox" class="defense-choice" value="res" /> RES</label>
+            </div>
+          </div>
+
+          <div class="damage-buttons">
+            <button id="apply-damage-btn" type="button">Apply</button>
+            <button id="reset-hp-btn" type="button">Reset</button>
+          </div>
+        </div>
+
+        <div id="calc-result" class="calc-result muted"></div>
+      </div>
+
+      <div class="tracker-section">
+        <h2 class="section-title">Custom Trackers</h2>
+        <p class="track-subtitle" style="margin-bottom:14px;">These are the tracker controls at the bottom.</p>
+
+        <div class="tracker-form">
+          <input type="text" id="tracker-name" placeholder="Tracker name" />
+          <input type="number" id="tracker-amount" min="1" placeholder="Amount" />
+          <button id="create-tracker-btn" type="button">Add tracker</button>
+        </div>
+
+        <label class="muted tracker-form-inline" style="margin:-6px 0 18px 0;">
+          <input type="checkbox" id="tracker-start-full" />
+          Start fully checked
+        </label>
+
+        <ul id="tracker-list" class="tracker-list"></ul>
+        <div id="tracker-empty" class="empty-state">No trackers yet for this character.</div>
+      </div>
     </section>
   </div>
 
@@ -328,17 +503,26 @@
     const entryEmptyEl = document.getElementById("entry-empty");
     const trackerEmptyEl = document.getElementById("tracker-empty");
     const detailTitleEl = document.getElementById("detail-title");
+    const detailUrlEl = document.getElementById("detail-url");
+
+    const statGuardEl = document.getElementById("stat-guard");
+    const statToughnessEl = document.getElementById("stat-toughness");
+    const statResolveEl = document.getElementById("stat-resolve");
+    const statHpEl = document.getElementById("stat-hp");
+    const calcResultEl = document.getElementById("calc-result");
 
     let currentEntryId = null;
     let activeTrackerUnsubscribe = null;
+    let activeEntryUnsubscribe = null;
     let activeEntryName = "";
+    let currentEntryData = null;
 
     function escapeHtml(value) {
       return String(value ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;")
+        .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
     }
 
@@ -346,22 +530,188 @@
       return ref(db, "trackEntries");
     }
 
+    function singleEntryRef(entryId) {
+      return ref(db, `trackEntries/${entryId}`);
+    }
+
     function trackersRef(entryId) {
       return ref(db, `trackEntries/${entryId}/trackers`);
     }
 
+    function parseNumber(value, fallback = 0) {
+      const num = parseInt(String(value ?? "").trim(), 10);
+      return Number.isNaN(num) ? fallback : num;
+    }
+
+    function readTextById(doc, id) {
+      const el = doc.getElementById(id);
+      return el ? el.textContent.trim() : "";
+    }
+
+    function firstText(doc, selectors) {
+      for (const selector of selectors) {
+        const el = doc.querySelector(selector);
+        if (el && el.textContent.trim()) {
+          return el.textContent.trim();
+        }
+      }
+      return "";
+    }
+
+    async function fetchCharacterHtml(url) {
+      const directResponse = await fetch(url, { mode: "cors" }).catch(() => null);
+      if (directResponse && directResponse.ok) {
+        return await directResponse.text();
+      }
+
+      const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+      const proxyResponse = await fetch(proxyUrl);
+      if (!proxyResponse.ok) {
+        throw new Error("Could not load character page.");
+      }
+      return await proxyResponse.text();
+    }
+
+    async function scrapeCharacter(url) {
+      const html = await fetchCharacterHtml(url);
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      const guard = parseNumber(readTextById(doc, "evasion"));
+      const toughness = parseNumber(readTextById(doc, "toughness"));
+      const resolve = parseNumber(readTextById(doc, "resolve"));
+      const hp = parseNumber(readTextById(doc, "hp"));
+
+      const name =
+        firstText(doc, [
+          "h1",
+          ".character-name",
+          ".page-title",
+          "title"
+        ]) || "Character";
+
+      return { name, guard, toughness, resolve, hp };
+    }
+
     async function createEntry() {
-      const input = document.getElementById("entry-name");
-      const name = input.value.trim();
-      if (!name) return;
+      const nameInput = document.getElementById("entry-name");
+      const urlInput = document.getElementById("entry-url");
+
+      const manualName = nameInput.value.trim();
+      const url = urlInput.value.trim();
+
+      if (!url) return;
+
+      let scraped;
+      try {
+        scraped = await scrapeCharacter(url);
+      } catch (error) {
+        alert("Could not import that HeroMuster page.");
+        return;
+      }
+
+      const finalName = manualName || scraped.name || "Character";
 
       const newRef = await push(entryRef(), {
-        name,
+        name: finalName,
+        url,
+        baseHp: scraped.hp,
+        currentHp: scraped.hp,
+        guard: scraped.guard,
+        toughness: scraped.toughness,
+        resolve: scraped.resolve,
         createdAt: Date.now()
       });
 
-      input.value = "";
-      openEntry(newRef.key, name);
+      nameInput.value = "";
+      urlInput.value = "";
+
+      openEntry(newRef.key, finalName);
+    }
+
+    async function refreshCharacterStats(entryId) {
+      const snapshot = await get(singleEntryRef(entryId));
+      if (!snapshot.exists()) return;
+
+      const entry = snapshot.val();
+      if (!entry.url) return;
+
+      const scraped = await scrapeCharacter(entry.url);
+
+      await update(singleEntryRef(entryId), {
+        name: entry.name || scraped.name || "Character",
+        guard: scraped.guard,
+        toughness: scraped.toughness,
+        resolve: scraped.resolve,
+        baseHp: scraped.hp
+      });
+    }
+
+    async function resetHpFromSource() {
+      if (!currentEntryId || !currentEntryData?.url) return;
+
+      try {
+        const scraped = await scrapeCharacter(currentEntryData.url);
+        await update(singleEntryRef(currentEntryId), {
+          baseHp: scraped.hp,
+          currentHp: scraped.hp,
+          guard: scraped.guard,
+          toughness: scraped.toughness,
+          resolve: scraped.resolve
+        });
+        calcResultEl.textContent = "HP reset from source URL.";
+      } catch (error) {
+        calcResultEl.textContent = "Could not reset from source URL.";
+      }
+    }
+
+    function getSelectedDefense() {
+      const selected = document.querySelector(".defense-choice:checked");
+      return selected ? selected.value : null;
+    }
+
+    async function applyDamage() {
+      if (!currentEntryId || !currentEntryData) return;
+
+      const damageValue = parseNumber(document.getElementById("damage-input").value, NaN);
+      if (Number.isNaN(damageValue) || damageValue < 0) return;
+
+      const defenseKey = getSelectedDefense();
+      let defenseValue = 0;
+      let defenseLabel = "none";
+
+      if (defenseKey === "grd") {
+        defenseValue = parseNumber(currentEntryData.guard);
+        defenseLabel = "Guard";
+      } else if (defenseKey === "tgh") {
+        defenseValue = parseNumber(currentEntryData.toughness);
+        defenseLabel = "Toughness";
+      } else if (defenseKey === "res") {
+        defenseValue = parseNumber(currentEntryData.resolve);
+        defenseLabel = "Resolve";
+      }
+
+      const remaining = damageValue - defenseValue;
+      let hpLoss = 0;
+
+      if (remaining > 1) {
+        hpLoss = Math.max(3, remaining);
+      }
+
+      const currentHp = parseNumber(currentEntryData.currentHp, parseNumber(currentEntryData.baseHp));
+      const nextHp = Math.max(0, currentHp - hpLoss);
+
+      await update(singleEntryRef(currentEntryId), {
+        currentHp: nextHp
+      });
+
+      if (hpLoss > 0) {
+        calcResultEl.textContent = `DMG ${damageValue} - ${defenseLabel} ${defenseValue} = ${remaining}. HP reduced by ${hpLoss}.`;
+      } else {
+        calcResultEl.textContent = `DMG ${damageValue} - ${defenseLabel} ${defenseValue} = ${remaining}. No HP damage taken.`;
+      }
+
+      document.getElementById("damage-input").value = "";
     }
 
     async function createTracker() {
@@ -426,7 +776,7 @@
         });
 
         li.querySelector(".remove-button").addEventListener("click", async () => {
-          const confirmed = window.confirm(`Delete ${entry.name || "this entry"}?`);
+          const confirmed = window.confirm(\`Delete \${entry.name || "this entry"}?\`);
           if (!confirmed) return;
           await remove(ref(db, `trackEntries/${entry.id}`));
           if (currentEntryId === entry.id) {
@@ -491,25 +841,63 @@
       }
     }
 
+    function renderEntryDetail(entry) {
+      currentEntryData = entry || null;
+
+      detailTitleEl.textContent = entry?.name || "Character Sheet";
+      detailUrlEl.textContent = entry?.url || "";
+
+      statGuardEl.textContent = parseNumber(entry?.guard, 0);
+      statToughnessEl.textContent = parseNumber(entry?.toughness, 0);
+      statResolveEl.textContent = parseNumber(entry?.resolve, 0);
+      statHpEl.textContent = parseNumber(entry?.currentHp, parseNumber(entry?.baseHp, 0));
+    }
+
+    function subscribeToEntry(entryId) {
+      if (activeEntryUnsubscribe) {
+        activeEntryUnsubscribe();
+        activeEntryUnsubscribe = null;
+      }
+
+      activeEntryUnsubscribe = onValue(singleEntryRef(entryId), (snapshot) => {
+        if (!snapshot.exists()) {
+          goToList();
+          return;
+        }
+        const entry = snapshot.val();
+        activeEntryName = entry.name || "Character";
+        renderEntryDetail(entry);
+      });
+    }
+
     function goToList() {
       currentEntryId = null;
+      currentEntryData = null;
       activeEntryName = "";
       detailView.classList.add("hidden");
       listView.classList.remove("hidden");
       history.pushState({}, "", window.location.pathname);
+
       if (activeTrackerUnsubscribe) {
         activeTrackerUnsubscribe();
         activeTrackerUnsubscribe = null;
       }
+
+      if (activeEntryUnsubscribe) {
+        activeEntryUnsubscribe();
+        activeEntryUnsubscribe = null;
+      }
     }
 
-    function openEntry(entryId, entryName = "Trackers") {
+    function openEntry(entryId, entryName = "Character") {
       currentEntryId = entryId;
       activeEntryName = entryName;
       detailTitleEl.textContent = entryName;
       listView.classList.add("hidden");
       detailView.classList.remove("hidden");
       history.pushState({}, "", `${window.location.pathname}?entry=${encodeURIComponent(entryId)}`);
+
+      subscribeToEntry(entryId);
 
       if (activeTrackerUnsubscribe) {
         activeTrackerUnsubscribe();
@@ -525,10 +913,10 @@
       const entryId = params.get("entry");
       if (!entryId) return;
 
-      const snapshot = await get(ref(db, `trackEntries/${entryId}`));
+      const snapshot = await get(singleEntryRef(entryId));
       if (!snapshot.exists()) return;
       const entry = snapshot.val();
-      openEntry(entryId, entry.name || "Trackers");
+      openEntry(entryId, entry.name || "Character");
     }
 
     onValue(entryRef(), (snapshot) => {
@@ -536,23 +924,49 @@
     });
 
     document.getElementById("create-entry-btn").addEventListener("click", createEntry);
-    document.getElementById("create-entry-btn").addEventListener("keydown", (event) => {
-      if (event.key === "Enter") createEntry();
-    });
 
     document.getElementById("entry-name").addEventListener("keydown", (event) => {
       if (event.key === "Enter") createEntry();
     });
 
+    document.getElementById("entry-url").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createEntry();
+    });
+
     document.getElementById("create-tracker-btn").addEventListener("click", createTracker);
+
     document.getElementById("tracker-name").addEventListener("keydown", (event) => {
       if (event.key === "Enter") createTracker();
     });
+
     document.getElementById("tracker-amount").addEventListener("keydown", (event) => {
       if (event.key === "Enter") createTracker();
     });
 
     document.getElementById("back-btn").addEventListener("click", goToList);
+
+    document.getElementById("apply-damage-btn").addEventListener("click", applyDamage);
+    document.getElementById("reset-hp-btn").addEventListener("click", resetHpFromSource);
+
+    document.getElementById("refresh-character-btn").addEventListener("click", async () => {
+      if (!currentEntryId) return;
+      try {
+        await refreshCharacterStats(currentEntryId);
+        calcResultEl.textContent = "Stats refreshed from source URL.";
+      } catch (error) {
+        calcResultEl.textContent = "Could not refresh stats from source URL.";
+      }
+    });
+
+    document.querySelectorAll(".defense-choice").forEach((checkbox) => {
+      checkbox.addEventListener("change", () => {
+        if (!checkbox.checked) return;
+        document.querySelectorAll(".defense-choice").forEach((other) => {
+          if (other !== checkbox) other.checked = false;
+        });
+      });
+    });
+
     window.addEventListener("popstate", () => {
       const params = new URLSearchParams(window.location.search);
       const entryId = params.get("entry");
