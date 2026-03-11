@@ -59,6 +59,11 @@
       margin-bottom: 18px;
     }
 
+    .status-box {
+      margin-top: 10px;
+      min-height: 1.2em;
+    }
+
     .track-form,
     .tracker-form,
     .damage-panel,
@@ -69,7 +74,7 @@
     }
 
     .track-form {
-      grid-template-columns: 1fr 1.3fr auto;
+      grid-template-columns: 1fr 1.5fr auto;
     }
 
     .tracker-form {
@@ -369,6 +374,7 @@
       <div class="message-box">
         Paste a character URL such as
         <span class="muted">https://openlegend.heromuster.com/character?s=...</span>
+        <div id="import-status" class="status-box muted"></div>
       </div>
 
       <div class="track-form">
@@ -504,6 +510,7 @@
     const trackerEmptyEl = document.getElementById("tracker-empty");
     const detailTitleEl = document.getElementById("detail-title");
     const detailUrlEl = document.getElementById("detail-url");
+    const importStatusEl = document.getElementById("import-status");
 
     const statGuardEl = document.getElementById("stat-guard");
     const statToughnessEl = document.getElementById("stat-toughness");
@@ -514,7 +521,6 @@
     let currentEntryId = null;
     let activeTrackerUnsubscribe = null;
     let activeEntryUnsubscribe = null;
-    let activeEntryName = "";
     let currentEntryData = null;
 
     function escapeHtml(value) {
@@ -558,18 +564,23 @@
       return "";
     }
 
+    function setImportStatus(message) {
+      importStatusEl.textContent = message || "";
+    }
+
     async function fetchCharacterHtml(url) {
-      const directResponse = await fetch(url, { mode: "cors" }).catch(() => null);
+      const directResponse = await fetch(url).catch(() => null);
       if (directResponse && directResponse.ok) {
         return await directResponse.text();
       }
 
       const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
-      const proxyResponse = await fetch(proxyUrl);
-      if (!proxyResponse.ok) {
-        throw new Error("Could not load character page.");
+      const proxyResponse = await fetch(proxyUrl).catch(() => null);
+      if (proxyResponse && proxyResponse.ok) {
+        return await proxyResponse.text();
       }
-      return await proxyResponse.text();
+
+      throw new Error("Could not load character page.");
     }
 
     async function scrapeCharacter(url) {
@@ -600,33 +611,42 @@
       const manualName = nameInput.value.trim();
       const url = urlInput.value.trim();
 
-      if (!url) return;
+      if (!url) {
+        setImportStatus("Please paste a HeroMuster URL first.");
+        return;
+      }
+
+      setImportStatus("Importing character...");
 
       let scraped;
       try {
         scraped = await scrapeCharacter(url);
       } catch (error) {
-        alert("Could not import that HeroMuster page.");
+        setImportStatus("Import failed. HeroMuster may be blocking browser access.");
         return;
       }
 
       const finalName = manualName || scraped.name || "Character";
 
-      const newRef = await push(entryRef(), {
-        name: finalName,
-        url,
-        baseHp: scraped.hp,
-        currentHp: scraped.hp,
-        guard: scraped.guard,
-        toughness: scraped.toughness,
-        resolve: scraped.resolve,
-        createdAt: Date.now()
-      });
+      try {
+        const newRef = await push(entryRef(), {
+          name: finalName,
+          url: url,
+          baseHp: scraped.hp,
+          currentHp: scraped.hp,
+          guard: scraped.guard,
+          toughness: scraped.toughness,
+          resolve: scraped.resolve,
+          createdAt: Date.now()
+        });
 
-      nameInput.value = "";
-      urlInput.value = "";
-
-      openEntry(newRef.key, finalName);
+        setImportStatus(`Imported ${finalName}.`);
+        nameInput.value = "";
+        urlInput.value = "";
+        openEntry(newRef.key, finalName);
+      } catch (error) {
+        setImportStatus("Import failed while saving to Firebase.");
+      }
     }
 
     async function refreshCharacterStats(entryId) {
@@ -776,7 +796,7 @@
         });
 
         li.querySelector(".remove-button").addEventListener("click", async () => {
-          const confirmed = window.confirm(\`Delete \${entry.name || "this entry"}?\`);
+          const confirmed = window.confirm(`Delete ${entry.name || "this entry"}?`);
           if (!confirmed) return;
           await remove(ref(db, `trackEntries/${entry.id}`));
           if (currentEntryId === entry.id) {
@@ -864,16 +884,13 @@
           goToList();
           return;
         }
-        const entry = snapshot.val();
-        activeEntryName = entry.name || "Character";
-        renderEntryDetail(entry);
+        renderEntryDetail(snapshot.val());
       });
     }
 
     function goToList() {
       currentEntryId = null;
       currentEntryData = null;
-      activeEntryName = "";
       detailView.classList.add("hidden");
       listView.classList.remove("hidden");
       history.pushState({}, "", window.location.pathname);
@@ -891,7 +908,6 @@
 
     function openEntry(entryId, entryName = "Character") {
       currentEntryId = entryId;
-      activeEntryName = entryName;
       detailTitleEl.textContent = entryName;
       listView.classList.add("hidden");
       detailView.classList.remove("hidden");
