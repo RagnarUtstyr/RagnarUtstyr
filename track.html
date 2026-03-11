@@ -555,79 +555,112 @@
       saveEntries(next);
     }
 
-    async function scrapeCharacter(url) {
-      const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
-      const response = await fetch(proxy);
+async function scrapeCharacter(url) {
+  const proxyUrls = [
+    "https://corsproxy.io/?url=" + encodeURIComponent(url),
+    "https://api.allorigins.win/raw?url=" + encodeURIComponent(url)
+  ];
+
+  let html = "";
+  let lastError = "Could not load HeroMuster page.";
+
+  for (const proxyUrl of proxyUrls) {
+    try {
+      const response = await fetch(proxyUrl, {
+        method: "GET"
+      });
 
       if (!response.ok) {
-        throw new Error("Could not load HeroMuster page.");
+        lastError = `Proxy failed with HTTP ${response.status}.`;
+        continue;
       }
 
-      const html = await response.text();
+      html = await response.text();
 
-      function readExactId(id) {
-        const regex = new RegExp(`id=["']${id}["'][^>]*>(\\d+)<`, "i");
-        const match = html.match(regex);
-        return match ? parseInt(match[1], 10) : null;
+      if (!html || html.trim().length < 50) {
+        lastError = "Proxy returned an empty response.";
+        continue;
       }
 
-      function escapeRegex(text) {
-        return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      }
-
-      function readNearLabel(label) {
-        const escapedLabel = escapeRegex(label);
-
-        const patterns = [
-          new RegExp(`${escapedLabel}[\\s\\S]{0,250}?contenteditable=["']true["'][^>]*>(\\d+)<`, "i"),
-          new RegExp(`${escapedLabel}[\\s\\S]{0,250}?>\\s*(\\d+)\\s*<`, "i")
-        ];
-
-        for (const pattern of patterns) {
-          const match = html.match(pattern);
-          if (match) return parseInt(match[1], 10);
-        }
-
-        return null;
-      }
-
-      const guard =
-        readExactId("evasion") ??
-        readNearLabel("Guard") ??
-        readNearLabel("Evasion") ??
-        0;
-
-      const toughness =
-        readExactId("toughness") ??
-        readNearLabel("Toughness") ??
-        0;
-
-      const resolve =
-        readExactId("resolve") ??
-        readNearLabel("Resolve") ??
-        0;
-
-      const hp =
-        readExactId("hp") ??
-        readNearLabel("Hit Points") ??
-        readNearLabel("HP") ??
-        0;
-
-      const titleMatch = html.match(/<title>(.*?)<\/title>/i);
-      const name = titleMatch ? titleMatch[1].trim() : "Character";
-
-      if (guard === 0 && toughness === 0 && resolve === 0 && hp === 0) {
-        throw new Error("Could not read stats from HeroMuster page.");
-      }
-
-      return {
-        name,
-        guard,
-        toughness,
-        resolve,
-        hp
-      };
+      break;
+    } catch (error) {
+      lastError = error.message || "Proxy request failed.";
     }
+  }
+
+  if (!html) {
+    throw new Error(lastError);
+  }
+
+  function readExactId(id) {
+    const regex = new RegExp(`id=["']${id}["'][^>]*>(\\d+)<`, "i");
+    const match = html.match(regex);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  function escapeRegex(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function readNearLabel(label) {
+    const escapedLabel = escapeRegex(label);
+
+    const patterns = [
+      new RegExp(
+        `${escapedLabel}[\\s\\S]{0,250}?contenteditable=["']true["'][^>]*>(\\d+)<`,
+        "i"
+      ),
+      new RegExp(
+        `${escapedLabel}[\\s\\S]{0,250}?>\\s*(\\d+)\\s*<`,
+        "i"
+      )
+    ];
+
+    for (const pattern of patterns) {
+      const match = html.match(pattern);
+      if (match) return parseInt(match[1], 10);
+    }
+
+    return null;
+  }
+
+  const guard =
+    readExactId("evasion") ??
+    readNearLabel("Guard") ??
+    readNearLabel("Evasion") ??
+    0;
+
+  const toughness =
+    readExactId("toughness") ??
+    readNearLabel("Toughness") ??
+    0;
+
+  const resolve =
+    readExactId("resolve") ??
+    readNearLabel("Resolve") ??
+    0;
+
+  const hp =
+    readExactId("hp") ??
+    readNearLabel("Hit Points") ??
+    readNearLabel("HP") ??
+    0;
+
+  const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+  const name = titleMatch ? titleMatch[1].trim() : "Character";
+
+  if (guard === 0 && toughness === 0 && resolve === 0 && hp === 0) {
+    throw new Error("Loaded HeroMuster page, but could not find Guard, Toughness, Resolve, or HP.");
+  }
+
+  return {
+    name,
+    guard,
+    toughness,
+    resolve,
+    hp
+  };
+}
 
     function renderEntryList() {
       entryListEl.innerHTML = "";
