@@ -11,16 +11,15 @@
   <link rel="stylesheet" href="auth.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 
-  <script type="module" src="player.js?v=4" defer></script>
+  <script type="module" src="player.js?v=5" defer></script>
 
   <style>
-    /* D&D action controls */
     .dnd-action-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
       margin-top: 18px;
-      align-items: end;
+      align-items: stretch;
     }
 
     .dnd-action-card {
@@ -30,17 +29,33 @@
       padding: 12px;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       gap: 10px;
-      min-height: 100%;
     }
 
     .dnd-action-card .field-stack {
       margin: 0;
     }
 
-    .dnd-action-card input[type="number"] {
+    .dnd-action-card input[type="number"],
+    .dnd-action-card input[type="text"] {
       width: 100%;
       margin-bottom: 0;
+      padding: 10px;
+      border: 2px solid #D4AF37;
+      border-radius: 5px;
+      box-sizing: border-box;
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #E0D8B0;
+      font-family: 'MedievalSharp', serif;
+      font-size: 1em;
+      outline: none;
+    }
+
+    .dnd-action-card input[type="number"]:focus,
+    .dnd-action-card input[type="text"]:focus {
+      border: 2px solid #8C5A4A;
+      background-color: rgba(255, 255, 255, 0.25);
     }
 
     .dnd-action-btn,
@@ -76,7 +91,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin: 2px 0 0;
+      margin: 0;
       color: #E0D8B0;
       font-size: 0.95rem;
     }
@@ -214,7 +229,7 @@
           <div class="dnd-action-card">
             <div class="field-stack">
               <label for="dnd-reset-note">Reset</label>
-              <input type="text" id="dnd-reset-note" value="Reload from builder" readonly />
+              <input type="text" id="dnd-reset-note" value="Reload all D&D fields from builder" readonly />
             </div>
             <button id="dnd-reset-hp-btn" class="dnd-action-btn" type="button">Reset HP</button>
           </div>
