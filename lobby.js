@@ -54,6 +54,11 @@ watchOwnedAndJoinedGames(user.uid, (games) => {
 
     return `
       <div class="game-card game-card-row">
+        <a href="${gameLink(game, user.uid)}" class="game-card-main">
+          <div><strong>${escapeHtml(game.title)}</strong></div>
+          <div class="muted">${escapeHtml(game.mode)} · Code: ${escapeHtml(game.code)} · ${role}</div>
+        </a>
+
         <button
           type="button"
           class="game-action-button"
@@ -62,11 +67,6 @@ watchOwnedAndJoinedGames(user.uid, (games) => {
         >
           ${actionLabel}
         </button>
-
-        <a href="${gameLink(game, user.uid)}" class="game-card-main">
-          <div><strong>${escapeHtml(game.title)}</strong></div>
-          <div class="muted">${escapeHtml(game.mode)} · Code: ${escapeHtml(game.code)} · ${role}</div>
-        </a>
       </div>
     `;
   }).join("");

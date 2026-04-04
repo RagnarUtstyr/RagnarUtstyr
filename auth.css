@@ -79,6 +79,7 @@ select {
   font-size: 1em;
   box-sizing: border-box;
 }
+
 .game-card-row {
   display: flex;
   align-items: center;
