@@ -662,25 +662,36 @@
 
     function createDefaultFeatRegistry() {
       return {
-        "Alternate Form I": { cost: 5, prerequisites: {} },
+        "Alternate Form (I - II)": { cost: 3, prerequisites: { oneOf: [] } },
         "Armor Mastery": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Fortitude", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } },
-        "Attribute Substitution I": { cost: 3, prerequisites: { oneOf: [
-          { type: "attribute", attribute: "Alteration", min: 3 },
-          { type: "attribute", attribute: "Creation", min: 3 },
-          { type: "attribute", attribute: "Energy", min: 3 },
-          { type: "attribute", attribute: "Entropy", min: 3 },
-          { type: "attribute", attribute: "Influence", min: 3 },
-          { type: "attribute", attribute: "Movement", min: 3 },
-          { type: "attribute", attribute: "Prescience", min: 3 },
-          { type: "attribute", attribute: "Protection", min: 3 }
-        ] } },
-        "Companion": { cost: 5, prerequisites: {} },
-        "Dual Wielding": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } },
-        "Extraordinary Focus": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Energy", min: 3 }, { type: "attribute", attribute: "Influence", min: 3 }, { type: "attribute", attribute: "Prescience", min: 3 }] } },
+        "Attribute Substitution (I - II)": { cost: 2, prerequisites: { oneOf: [] } },
+        "Attack Specialization": { cost: 2, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } },
+        "Battle Trance": { cost: 2, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 5 }, { type: "attribute", attribute: "Might", min: 5 }, { type: "attribute", attribute: "Energy", min: 5 }] } },
+        "Boon Focus (I - III)": { cost: 3, prerequisites: { oneOf: [] } },
+        "Companion (I - III)": { cost: 5, prerequisites: { oneOf: [] } },
+        "Craft Extraordinary Item (I - III)": { cost: 2, prerequisites: { oneOf: [] } },
+        "Deathless Trance": { cost: 3, prerequisites: { allOf: [{ type: "attribute", attribute: "Fortitude", min: 7 }, { type: "feat", name: "Battle Trance" }] } },
+        "Destructive Trance": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 7 }, { type: "attribute", attribute: "Might", min: 7 }, { type: "attribute", attribute: "Energy", min: 7 }] } },
+        "Evasive Footwork": { cost: 2, prerequisites: { allOf: [{ type: "attribute", attribute: "Agility", min: 4 }] } },
+        "Fast Draw": { cost: 1, prerequisites: { allOf: [{ type: "attribute", attribute: "Agility", min: 1 }] } },
+        "Ferocious Minions": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Alteration", min: 4 }, { type: "attribute", attribute: "Creation", min: 4 }, { type: "attribute", attribute: "Entropy", min: 4 }, { type: "attribute", attribute: "Energy", min: 4 }, { type: "attribute", attribute: "Influence", min: 4 }] } },
+        "Heightened Invocation (I - III)": { cost: 2, prerequisites: { oneOf: [] } },
+        "Hospitaler": { cost: 2, prerequisites: { oneOf: [{ type: "attribute", attribute: "Creation", min: 4 }, { type: "attribute", attribute: "Presence", min: 4 }, { type: "attribute", attribute: "Protection", min: 4 }] } },
+        "Indomitable Resolve (I - III)": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Presence", min: 3 }, { type: "attribute", attribute: "Will", min: 3 }] } },
+        "Inspiring Champion (I - III)": { cost: 2, prerequisites: { allOf: [{ type: "attribute", attribute: "Presence", min: 4 }] } },
         "Keen Senses": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Perception", min: 2 }, { type: "attribute", attribute: "Prescience", min: 2 }] } },
+        "Lethal Strike (I - IX)": { cost: 2, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }, { type: "attribute", attribute: "Energy", min: 3 }] } },
+        "Longshot": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 5 }, { type: "attribute", attribute: "Might", min: 5 }] } },
+        "Multi-Attack Specialist (I - VI)": { cost: 3, prerequisites: { oneOf: [] } },
+        "Multi-Bane Specialist": { cost: 3, prerequisites: { oneOf: [] } },
+        "Multi-Target Attack Specialist (I - V)": { cost: 2, prerequisites: { oneOf: [] } },
         "Resilient": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Fortitude", min: 3 }, { type: "attribute", attribute: "Presence", min: 3 }, { type: "attribute", attribute: "Will", min: 3 }] } },
-        "Skillful": { cost: 1, prerequisites: {} },
+        "Sentinel (I - III)": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 5 }, { type: "attribute", attribute: "Might", min: 5 }] } },
+        "Skillful": { cost: 1, prerequisites: { oneOf: [] } },
+        "Superior Concentration (I - III)": { cost: 3, prerequisites: { oneOf: [] } },
         "Tough": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Fortitude", min: 2 }, { type: "attribute", attribute: "Will", min: 2 }] } },
+        "Two Weapon Brute": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Multi-Attack Specialist (I - VI)" }], oneOf: [{ type: "attribute", attribute: "Agility", min: 4 }, { type: "attribute", attribute: "Might", min: 5 }] } },
+        "Vicious Strike": { cost: 2, prerequisites: { oneOf: [] } },
         "Weapon Specialization": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } }
       };
     }
@@ -981,7 +992,7 @@
               <select data-weapon-preset="${index}">
                 <option value="">Custom</option>
                 ${WEAPON_PRESETS.map((preset) => `
-                  <option value="${escapeHtml(preset.name)}">${escapeHtml(preset.name)}</option>
+                  <option value="${escapeHtml(preset.name)}" ${weapon.name === preset.name ? "selected" : ""}>${escapeHtml(preset.name)}</option>
                 `).join("")}
               </select>
             </label>
@@ -1232,7 +1243,7 @@
               damage: preset.damage,
               notes: preset.notes
             };
-            renderWeapons();
+            rerender();
             scheduleSave();
             return;
           }
