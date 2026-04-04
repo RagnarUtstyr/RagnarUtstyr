@@ -3,123 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png" />
-  <title>Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #1f1d1a;
-      color: #e3cf95;
-      font-family: 'MedievalSharp', cursive;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 540px;
-      background: rgba(31, 29, 26, 0.95);
-      border: 1px solid #2d3d73;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    }
-
-    h1 {
-      margin-top: 0;
-    }
-
-    p {
-      line-height: 1.5;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 18px;
-    }
-
-    a,
-    button {
-      display: inline-block;
-      padding: 10px 14px;
-      border-radius: 6px;
-      text-decoration: none;
-      background: #0b2621;
-      color: #e3cf95;
-      border: 2px solid #2d3d73;
-      font-family: inherit;
-      cursor: pointer;
-    }
-
-    a:hover,
-    button:hover {
-      background: #1a3b4a;
-    }
-
-    .small {
-      opacity: 0.9;
-      font-size: 0.95rem;
-      margin-top: 12px;
-    }
-  </style>
+  <title>Admin Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="auth.css" />
+  <script type="module" src="admin.js" defer></script>
 </head>
 <body>
-  <div class="container">
-    <h1>Admin Page</h1>
-    <p id="status">Checking which tracker to open…</p>
-
-    <div class="buttons" id="fallback-buttons" style="display:none;">
-      <a href="group.html">Open Open Legend Admin</a>
-      <a href="group_dnd.html">Open D&amp;D Admin</a>
+  <div class="container auth-shell">
+    <div class="top-row">
+      <h1>Admin View</h1>
+      <a class="button-link" href="lobby.html">Back to lobby</a>
     </div>
 
-    <p class="small">
-      You can also open this page with<br>
-      <strong>?mode=openlegend</strong> or <strong>?mode=dnd</strong>
-    </p>
+    <div id="game-meta" class="panel"></div>
+
+    <div class="panel">
+      <h2>Opening tracker...</h2>
+      <p class="muted">
+        Redirecting you to the correct admin tracker for this game.
+      </p>
+    </div>
+
+    <p id="admin-status" class="muted"></p>
   </div>
-
-  <script>
-    function getModeFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      const mode = (params.get("mode") || params.get("game") || "").trim().toLowerCase();
-      return mode;
-    }
-
-    function routeAdmin() {
-      const mode = getModeFromUrl();
-      const status = document.getElementById("status");
-      const fallback = document.getElementById("fallback-buttons");
-
-      if (mode === "dnd") {
-        status.textContent = "Opening D&D admin…";
-        window.location.href = "group_dnd.html";
-        return;
-      }
-
-      if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
-        status.textContent = "Opening Open Legend admin…";
-        window.location.href = "group.html";
-        return;
-      }
-
-      status.textContent = "No valid mode found. Choose which admin page to open:";
-      fallback.style.display = "flex";
-    }
-
-    routeAdmin();
-  </script>
 </body>
 </html>
