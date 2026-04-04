@@ -11,11 +11,11 @@
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 
 <style>
-  .player-shell {
+  .player-page.player-shell {
     max-width: 980px;
   }
 
-  .player-panel {
+  .player-page .player-panel {
     background: rgba(11, 41, 36, 0.55);
     border: 1px solid #2d3d73;
     border-radius: 8px;
@@ -23,90 +23,90 @@
     margin-bottom: 16px;
   }
 
-  .field-stack {
+  .player-page .field-stack {
     display: flex;
     flex-direction: column;
     gap: 6px;
     min-width: 0;
   }
 
-  .field-stack label {
+  .player-page .field-stack label {
     font-size: 0.95rem;
     opacity: 0.9;
   }
 
-  .field-stack input {
+  .player-page .field-stack input {
     width: 100%;
     box-sizing: border-box;
     min-width: 0;
   }
 
-  .button-row {
+  .player-page .button-row {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 14px;
   }
 
-  .hidden {
+  .player-page .hidden {
     display: none !important;
   }
 
-  .name-grid {
+  .player-page .name-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .initiative-panel {
+  .player-page .initiative-panel {
     max-width: 280px;
   }
 
-  .initiative-panel button {
+  .player-page .initiative-panel button {
     margin-top: 10px;
     width: 100%;
   }
 
-  .dnd-hp-top {
+  .player-page .dnd-hp-top {
     max-width: 240px;
     margin: 0 auto 18px auto;
     text-align: center;
   }
 
-  .dnd-ac-prof {
+  .player-page .dnd-ac-prof {
     display: grid;
     grid-template-columns: repeat(2, minmax(140px, 1fr));
     gap: 12px;
     margin-bottom: 18px;
   }
 
-  .dnd-stats-columns {
+  .player-page .dnd-stats-columns {
     display: grid;
     grid-template-columns: repeat(2, minmax(180px, 1fr));
     gap: 18px;
     align-items: start;
   }
 
-  .dnd-stat-column {
+  .player-page .dnd-stat-column {
     display: grid;
     gap: 12px;
     min-width: 0;
   }
 
-  .ol-top-grid {
+  .player-page .ol-top-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(180px, 1fr));
     gap: 12px;
   }
 
-  .stat-grid {
+  .player-page .stat-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(120px, 1fr));
     gap: 12px;
     margin-top: 12px;
   }
 
-  .stat-card {
+  .player-page .stat-card {
     background: rgba(20, 22, 30, 0.9);
     border: 1px solid #2d3d73;
     border-radius: 8px;
@@ -118,24 +118,24 @@
     min-width: 0;
   }
 
-  .hp-card {
+  .player-page .hp-card {
     border-color: #8b0000;
   }
 
-  .stat-label {
+  .player-page .stat-label {
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     opacity: 0.85;
   }
 
-  .stat-value {
+  .player-page .stat-value {
     font-size: 2rem;
     font-weight: bold;
     color: #e3cf95;
   }
 
-  .damage-panel {
+  .player-page .damage-panel {
     display: grid;
     grid-template-columns: 120px 1fr auto;
     gap: 12px;
@@ -143,7 +143,7 @@
     margin-top: 18px;
   }
 
-  .damage-options {
+  .player-page .damage-options {
     display: flex;
     gap: 16px;
     flex-wrap: wrap;
@@ -151,32 +151,32 @@
     min-height: 40px;
   }
 
-  .damage-options label {
+  .player-page .damage-options label {
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  .calc-result {
+  .player-page .calc-result {
     min-height: 1.4em;
     margin-top: 12px;
   }
 
-  .tracker-form {
+  .player-page .tracker-form {
     display: grid;
     grid-template-columns: 1.3fr 110px auto;
     gap: 10px;
     margin-bottom: 18px;
   }
 
-  .tracker-form-inline {
+  .player-page .tracker-form-inline {
     display: flex;
     align-items: center;
     gap: 8px;
     margin: -6px 0 18px 0;
   }
 
-  .tracker-list {
+  .player-page .tracker-list {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -184,7 +184,7 @@
     gap: 10px;
   }
 
-  .tracker-card {
+  .player-page .tracker-card {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
@@ -195,7 +195,7 @@
     padding: 12px;
   }
 
-  .tracker-top {
+  .player-page .tracker-top {
     display: flex;
     justify-content: space-between;
     gap: 12px;
@@ -204,17 +204,17 @@
     margin-bottom: 10px;
   }
 
-  .tracker-name {
+  .player-page .tracker-name {
     font-weight: bold;
     color: #e3cf95;
     font-size: 1.05rem;
   }
 
-  .tracker-progress {
+  .player-page .tracker-progress {
     color: #bdb382;
   }
 
-  .tracker-boxes {
+  .player-page .tracker-boxes {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(20px, 20px));
     gap: 8px;
@@ -222,7 +222,7 @@
     justify-content: start;
   }
 
-  .tracker-boxes input[type="checkbox"] {
+  .player-page .tracker-boxes input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     width: 20px;
@@ -236,12 +236,12 @@
     margin: 0;
   }
 
-  .tracker-boxes input[type="checkbox"]:checked {
+  .player-page .tracker-boxes input[type="checkbox"]:checked {
     background: #8b0000;
     border-color: #8b0000;
   }
 
-  .tracker-boxes input[type="checkbox"]:checked::after {
+  .player-page .tracker-boxes input[type="checkbox"]:checked::after {
     content: "";
     position: absolute;
     left: 5px;
@@ -253,14 +253,14 @@
     transform: rotate(45deg);
   }
 
-  .tracker-controls {
+  .player-page .tracker-controls {
     display: flex;
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
   }
 
-  .empty-state {
+  .player-page .empty-state {
     padding: 14px;
     border: 1px dashed #2d3d73;
     border-radius: 8px;
@@ -268,87 +268,85 @@
     opacity: 0.85;
   }
 
-  .button-small {
+  .player-page .button-small {
     padding: 6px 10px;
     font-size: 0.85rem;
     line-height: 1.1;
   }
 
-  /* Tablet */
   @media (max-width: 900px) {
-    .ol-top-grid,
-    .stat-grid,
-    .damage-panel,
-    .tracker-form,
-    .tracker-card {
+    .player-page .ol-top-grid,
+    .player-page .stat-grid,
+    .player-page .damage-panel,
+    .player-page .tracker-form,
+    .player-page .tracker-card {
       grid-template-columns: 1fr;
     }
 
-    .dnd-ac-prof {
+    .player-page .dnd-ac-prof {
       grid-template-columns: 1fr 1fr;
     }
 
-    .dnd-stats-columns {
+    .player-page .dnd-stats-columns {
       grid-template-columns: 1fr 1fr;
       gap: 14px;
     }
   }
 
-  /* Phone */
   @media (max-width: 640px) {
-    .player-shell {
+    .player-page.player-shell {
       max-width: 100%;
     }
 
-    .player-panel {
+    .player-page .player-panel {
       padding: 12px;
     }
 
-    .initiative-panel {
+    .player-page .initiative-panel {
       max-width: 100%;
     }
 
-    .dnd-hp-top {
+    .player-page .dnd-hp-top {
       max-width: 100%;
       margin: 0 0 16px 0;
     }
 
-    .dnd-ac-prof {
+    .player-page .dnd-ac-prof {
       grid-template-columns: 1fr;
       gap: 10px;
     }
 
-    .dnd-stats-columns {
+    .player-page .dnd-stats-columns {
       grid-template-columns: 1fr;
       gap: 12px;
     }
 
-    .ol-top-grid,
-    .stat-grid,
-    .damage-panel,
-    .tracker-form,
-    .tracker-card {
+    .player-page .ol-top-grid,
+    .player-page .stat-grid,
+    .player-page .damage-panel,
+    .player-page .tracker-form,
+    .player-page .tracker-card {
       grid-template-columns: 1fr;
     }
 
-    .button-row {
+    .player-page .button-row {
       flex-direction: column;
       align-items: stretch;
     }
 
-    .button-row button {
+    .player-page .button-row button {
       width: 100%;
     }
 
-    .tracker-controls {
+    .player-page .tracker-controls {
       justify-content: stretch;
     }
 
-    .tracker-controls button {
+    .player-page .tracker-controls button {
       width: 100%;
     }
 
-    .tracker-boxes {
+    .player-page .tracker-boxes {
       grid-template-columns: repeat(8, 20px);
       gap: 6px;
     }
@@ -358,7 +356,7 @@
   <script type="module" src="player.js" defer></script>
 </head>
 <body>
-  <div class="container auth-shell player-shell">
+  <div class="container auth-shell player-shell player-page">
     <div class="top-row">
       <h1>Player Sheet</h1>
       <a class="button-link" href="lobby.html">Back to lobby</a>
