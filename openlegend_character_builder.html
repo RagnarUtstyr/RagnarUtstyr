@@ -662,37 +662,251 @@
 
     function createDefaultFeatRegistry() {
       return {
-        "Alternate Form (I - II)": { cost: 3, prerequisites: { oneOf: [] } },
-        "Armor Mastery": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Fortitude", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } },
-        "Attribute Substitution (I - II)": { cost: 2, prerequisites: { oneOf: [] } },
-        "Attack Specialization": { cost: 2, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } },
-        "Battle Trance": { cost: 2, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 5 }, { type: "attribute", attribute: "Might", min: 5 }, { type: "attribute", attribute: "Energy", min: 5 }] } },
-        "Boon Focus (I - III)": { cost: 3, prerequisites: { oneOf: [] } },
-        "Companion (I - III)": { cost: 5, prerequisites: { oneOf: [] } },
-        "Craft Extraordinary Item (I - III)": { cost: 2, prerequisites: { oneOf: [] } },
-        "Deathless Trance": { cost: 3, prerequisites: { allOf: [{ type: "attribute", attribute: "Fortitude", min: 7 }, { type: "feat", name: "Battle Trance" }] } },
-        "Destructive Trance": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 7 }, { type: "attribute", attribute: "Might", min: 7 }, { type: "attribute", attribute: "Energy", min: 7 }] } },
-        "Evasive Footwork": { cost: 2, prerequisites: { allOf: [{ type: "attribute", attribute: "Agility", min: 4 }] } },
-        "Fast Draw": { cost: 1, prerequisites: { allOf: [{ type: "attribute", attribute: "Agility", min: 1 }] } },
-        "Ferocious Minions": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Alteration", min: 4 }, { type: "attribute", attribute: "Creation", min: 4 }, { type: "attribute", attribute: "Entropy", min: 4 }, { type: "attribute", attribute: "Energy", min: 4 }, { type: "attribute", attribute: "Influence", min: 4 }] } },
-        "Heightened Invocation (I - III)": { cost: 2, prerequisites: { oneOf: [] } },
-        "Hospitaler": { cost: 2, prerequisites: { oneOf: [{ type: "attribute", attribute: "Creation", min: 4 }, { type: "attribute", attribute: "Presence", min: 4 }, { type: "attribute", attribute: "Protection", min: 4 }] } },
-        "Indomitable Resolve (I - III)": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Presence", min: 3 }, { type: "attribute", attribute: "Will", min: 3 }] } },
-        "Inspiring Champion (I - III)": { cost: 2, prerequisites: { allOf: [{ type: "attribute", attribute: "Presence", min: 4 }] } },
-        "Keen Senses": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Perception", min: 2 }, { type: "attribute", attribute: "Prescience", min: 2 }] } },
-        "Lethal Strike (I - IX)": { cost: 2, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }, { type: "attribute", attribute: "Energy", min: 3 }] } },
-        "Longshot": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 5 }, { type: "attribute", attribute: "Might", min: 5 }] } },
-        "Multi-Attack Specialist (I - VI)": { cost: 3, prerequisites: { oneOf: [] } },
-        "Multi-Bane Specialist": { cost: 3, prerequisites: { oneOf: [] } },
-        "Multi-Target Attack Specialist (I - V)": { cost: 2, prerequisites: { oneOf: [] } },
-        "Resilient": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Fortitude", min: 3 }, { type: "attribute", attribute: "Presence", min: 3 }, { type: "attribute", attribute: "Will", min: 3 }] } },
-        "Sentinel (I - III)": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 5 }, { type: "attribute", attribute: "Might", min: 5 }] } },
+        "Alternate Form I": { cost: 3, prerequisites: { oneOf: [] } },
+        "Alternate Form II": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Alternate Form I" }] } },
+
+        "Armor Mastery": {
+          cost: 3,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Fortitude", min: 3 },
+              { type: "attribute", attribute: "Might", min: 3 }
+            ]
+          }
+        },
+
+        "Attribute Substitution I": { cost: 2, prerequisites: { oneOf: [] } },
+        "Attribute Substitution II": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Attribute Substitution I" }] } },
+
+        "Attack Specialization": {
+          cost: 2,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Agility", min: 3 },
+              { type: "attribute", attribute: "Might", min: 3 }
+            ]
+          }
+        },
+
+        "Battle Trance": {
+          cost: 2,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Agility", min: 5 },
+              { type: "attribute", attribute: "Might", min: 5 },
+              { type: "attribute", attribute: "Energy", min: 5 }
+            ]
+          }
+        },
+
+        "Boon Focus I": { cost: 3, prerequisites: { oneOf: [] } },
+        "Boon Focus II": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Boon Focus I" }] } },
+        "Boon Focus III": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Boon Focus II" }] } },
+
+        "Companion I": { cost: 5, prerequisites: { oneOf: [] } },
+        "Companion II": { cost: 5, prerequisites: { allOf: [{ type: "feat", name: "Companion I" }] } },
+        "Companion III": { cost: 5, prerequisites: { allOf: [{ type: "feat", name: "Companion II" }] } },
+
+        "Craft Extraordinary Item I": { cost: 2, prerequisites: { oneOf: [] } },
+        "Craft Extraordinary Item II": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Craft Extraordinary Item I" }] } },
+        "Craft Extraordinary Item III": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Craft Extraordinary Item II" }] } },
+
+        "Deathless Trance": {
+          cost: 3,
+          prerequisites: {
+            allOf: [
+              { type: "attribute", attribute: "Fortitude", min: 7 },
+              { type: "feat", name: "Battle Trance" }
+            ]
+          }
+        },
+
+        "Destructive Trance": {
+          cost: 3,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Agility", min: 7 },
+              { type: "attribute", attribute: "Might", min: 7 },
+              { type: "attribute", attribute: "Energy", min: 7 }
+            ]
+          }
+        },
+
+        "Evasive Footwork": {
+          cost: 2,
+          prerequisites: { allOf: [{ type: "attribute", attribute: "Agility", min: 4 }] }
+        },
+
+        "Fast Draw": {
+          cost: 1,
+          prerequisites: { allOf: [{ type: "attribute", attribute: "Agility", min: 1 }] }
+        },
+
+        "Ferocious Minions": {
+          cost: 3,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Alteration", min: 4 },
+              { type: "attribute", attribute: "Creation", min: 4 },
+              { type: "attribute", attribute: "Entropy", min: 4 },
+              { type: "attribute", attribute: "Energy", min: 4 },
+              { type: "attribute", attribute: "Influence", min: 4 }
+            ]
+          }
+        },
+
+        "Heightened Invocation I": { cost: 2, prerequisites: { oneOf: [] } },
+        "Heightened Invocation II": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Heightened Invocation I" }] } },
+        "Heightened Invocation III": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Heightened Invocation II" }] } },
+
+        "Hospitaler": {
+          cost: 2,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Creation", min: 4 },
+              { type: "attribute", attribute: "Presence", min: 4 },
+              { type: "attribute", attribute: "Protection", min: 4 }
+            ]
+          }
+        },
+
+        "Indomitable Resolve I": {
+          cost: 1,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Presence", min: 3 },
+              { type: "attribute", attribute: "Will", min: 3 }
+            ]
+          }
+        },
+        "Indomitable Resolve II": { cost: 1, prerequisites: { allOf: [{ type: "feat", name: "Indomitable Resolve I" }] } },
+        "Indomitable Resolve III": { cost: 1, prerequisites: { allOf: [{ type: "feat", name: "Indomitable Resolve II" }] } },
+
+        "Inspiring Champion I": {
+          cost: 2,
+          prerequisites: { allOf: [{ type: "attribute", attribute: "Presence", min: 4 }] }
+        },
+        "Inspiring Champion II": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Inspiring Champion I" }] } },
+        "Inspiring Champion III": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Inspiring Champion II" }] } },
+
+        "Keen Senses": {
+          cost: 1,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Perception", min: 2 },
+              { type: "attribute", attribute: "Prescience", min: 2 }
+            ]
+          }
+        },
+
+        "Lethal Strike I": {
+          cost: 2,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Agility", min: 3 },
+              { type: "attribute", attribute: "Might", min: 3 },
+              { type: "attribute", attribute: "Energy", min: 3 }
+            ]
+          }
+        },
+        "Lethal Strike II": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Lethal Strike I" }] } },
+        "Lethal Strike III": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Lethal Strike II" }] } },
+        "Lethal Strike IV": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Lethal Strike III" }] } },
+        "Lethal Strike V": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Lethal Strike IV" }] } },
+        "Lethal Strike VI": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Lethal Strike V" }] } },
+        "Lethal Strike VII": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Lethal Strike VI" }] } },
+        "Lethal Strike VIII": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Lethal Strike VII" }] } },
+        "Lethal Strike IX": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Lethal Strike VIII" }] } },
+
+        "Longshot": {
+          cost: 1,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Agility", min: 5 },
+              { type: "attribute", attribute: "Might", min: 5 }
+            ]
+          }
+        },
+
+        "Multi-Attack Specialist I": { cost: 3, prerequisites: { oneOf: [] } },
+        "Multi-Attack Specialist II": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Multi-Attack Specialist I" }] } },
+        "Multi-Attack Specialist III": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Multi-Attack Specialist II" }] } },
+        "Multi-Attack Specialist IV": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Multi-Attack Specialist III" }] } },
+        "Multi-Attack Specialist V": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Multi-Attack Specialist IV" }] } },
+        "Multi-Attack Specialist VI": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Multi-Attack Specialist V" }] } },
+
+        "Multi-Bane Specialist": {
+          cost: 3,
+          prerequisites: { oneOf: [] }
+        },
+
+        "Multi-Target Attack Specialist I": { cost: 2, prerequisites: { oneOf: [] } },
+        "Multi-Target Attack Specialist II": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Multi-Target Attack Specialist I" }] } },
+        "Multi-Target Attack Specialist III": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Multi-Target Attack Specialist II" }] } },
+        "Multi-Target Attack Specialist IV": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Multi-Target Attack Specialist III" }] } },
+        "Multi-Target Attack Specialist V": { cost: 2, prerequisites: { allOf: [{ type: "feat", name: "Multi-Target Attack Specialist IV" }] } },
+
+        "Resilient": {
+          cost: 3,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Fortitude", min: 3 },
+              { type: "attribute", attribute: "Presence", min: 3 },
+              { type: "attribute", attribute: "Will", min: 3 }
+            ]
+          }
+        },
+
+        "Sentinel I": {
+          cost: 3,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Agility", min: 5 },
+              { type: "attribute", attribute: "Might", min: 5 }
+            ]
+          }
+        },
+        "Sentinel II": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Sentinel I" }] } },
+        "Sentinel III": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Sentinel II" }] } },
+
         "Skillful": { cost: 1, prerequisites: { oneOf: [] } },
-        "Superior Concentration (I - III)": { cost: 3, prerequisites: { oneOf: [] } },
-        "Tough": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Fortitude", min: 2 }, { type: "attribute", attribute: "Will", min: 2 }] } },
-        "Two Weapon Brute": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Multi-Attack Specialist (I - VI)" }], oneOf: [{ type: "attribute", attribute: "Agility", min: 4 }, { type: "attribute", attribute: "Might", min: 5 }] } },
+
+        "Superior Concentration I": { cost: 3, prerequisites: { oneOf: [] } },
+        "Superior Concentration II": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Superior Concentration I" }] } },
+        "Superior Concentration III": { cost: 3, prerequisites: { allOf: [{ type: "feat", name: "Superior Concentration II" }] } },
+
+        "Tough": {
+          cost: 1,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Fortitude", min: 2 },
+              { type: "attribute", attribute: "Will", min: 2 }
+            ]
+          }
+        },
+
+        "Two Weapon Brute": {
+          cost: 3,
+          prerequisites: {
+            allOf: [{ type: "feat", name: "Multi-Attack Specialist I" }],
+            oneOf: [
+              { type: "attribute", attribute: "Agility", min: 4 },
+              { type: "attribute", attribute: "Might", min: 5 }
+            ]
+          }
+        },
+
         "Vicious Strike": { cost: 2, prerequisites: { oneOf: [] } },
-        "Weapon Specialization": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } }
+
+        "Weapon Specialization": {
+          cost: 3,
+          prerequisites: {
+            oneOf: [
+              { type: "attribute", attribute: "Agility", min: 3 },
+              { type: "attribute", attribute: "Might", min: 3 }
+            ]
+          }
+        }
       };
     }
 
