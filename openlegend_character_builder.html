@@ -7,7 +7,6 @@
   <style>
     * { box-sizing: border-box; }
     html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
-
     body {
       margin: 0;
       min-height: 100vh;
@@ -18,32 +17,28 @@
       display: flex;
       justify-content: center;
     }
-
-    h1, h2, h3 { color: #e3cf95; margin-top: 0; }
-
+    h1, h2, h3, h4 { color: #e3cf95; margin-top: 0; }
     .container {
-      width: min(980px, 100%);
+      width: min(1100px, 100%);
       background-color: rgba(31, 29, 26, 0.9);
       border-radius: 12px;
       box-shadow: 0 0 16px rgba(0,0,0,0.55);
       border: 1px solid rgba(45,61,115,0.75);
       padding: 18px;
     }
-
     .topbar {
       display: flex;
       justify-content: space-between;
       gap: 12px;
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-
     .meta {
       color: #d4c89a;
       font-size: 0.95rem;
     }
-
+    .intro-copy { margin: 0 0 14px; color: #d4c89a; }
     .save-status {
       margin: 10px 0 0;
       min-height: 1.3em;
@@ -51,21 +46,11 @@
       font-size: 0.95rem;
     }
 
-    .sheet-box {
-      background: rgba(11, 41, 36, 0.55);
-      border: 1px solid #1a3b4a;
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 16px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.95rem;
-    }
-
+    label { display: block; font-size: 0.95rem; }
     input[type="text"],
-    input[type="number"] {
+    input[type="number"],
+    select,
+    textarea {
       width: 100%;
       margin-top: 6px;
       padding: 10px;
@@ -76,17 +61,10 @@
       font-size: 1rem;
       font-family: inherit;
     }
-
+    textarea { min-height: 92px; resize: vertical; }
     input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    input[type="number"] {
-      appearance: textfield;
-      -moz-appearance: textfield;
-    }
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
 
     button,
     .button-link {
@@ -101,32 +79,71 @@
       text-decoration: none;
       display: inline-block;
     }
-
     button:hover,
-    .button-link:hover {
-      background-color: #1a3b4a;
+    .button-link:hover { background-color: #1a3b4a; color: #fff; }
+
+    .remove-button {
+      background-color: #a8342d;
+      border-color: #7c241f;
       color: #fff;
     }
+    .remove-button:hover { background-color: #851f1a; }
 
     .grid-top {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
+      margin-bottom: 16px;
     }
 
+    .budget-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .budget-card,
+    .sheet-box {
+      background: rgba(11, 41, 36, 0.55);
+      border: 1px solid #1a3b4a;
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .budget-card .label {
+      color: #e3cf95;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+    .budget-card .value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff4c2;
+    }
+    .budget-card .detail {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      color: #c7bc91;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.9fr);
+      gap: 16px;
+      align-items: start;
+    }
     .attributes-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
-
+    .category-box fieldset,
+    .category-box { border: 0; padding: 0; margin: 0; }
     .category-title {
       margin-bottom: 10px;
       color: #e3cf95;
       font-size: 1rem;
       letter-spacing: 0.02em;
     }
-
     .attribute-row {
       display: grid;
       grid-template-columns: minmax(110px, 1fr) 84px 74px;
@@ -134,12 +151,8 @@
       align-items: center;
       margin-bottom: 8px;
     }
-
-    .attr-name {
-      color: #ddd2a8;
-    }
-
-    .attr-cost {
+    .attribute-row .attr-name { color: #ddd2a8; }
+    .attribute-row .attr-cost {
       text-align: center;
       font-size: 0.92rem;
       color: #d5cba0;
@@ -149,78 +162,117 @@
       border: 1px solid rgba(45,61,115,0.55);
     }
 
-    .budget-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .budget-card {
-      background: rgba(11, 41, 36, 0.55);
-      border: 1px solid #1a3b4a;
-      border-radius: 10px;
-      padding: 12px;
-    }
-
-    .budget-label {
-      color: #e3cf95;
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-    }
-
-    .budget-value {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #fff4c2;
-    }
-
     .derived-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 12px;
     }
+    .derived-card .derived-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .derived-card .derived-name { color: #e3cf95; font-size: 1rem; }
+    .derived-card .derived-total { color: #fff4c2; font-size: 1.4rem; font-weight: 700; }
+    .formula-list {
+      display: grid;
+      gap: 6px;
+      font-size: 0.92rem;
+    }
+    .formula-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+    }
+    .formula-row span:last-child { color: #fff; }
 
-    .derived-card {
-      background: rgba(11, 41, 36, 0.55);
-      border: 1px solid #1a3b4a;
-      border-radius: 10px;
-      padding: 12px;
-      text-align: center;
+    .feat-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 130px auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 10px;
+    }
+    .helper-text {
+      font-size: 0.88rem;
+      color: #c9bf96;
+      margin: 4px 0 0;
+    }
+    .tag-list { display: grid; gap: 8px; }
+    .tag-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 74px auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid rgba(45,61,115,0.55);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+    }
+    .tag-row .tag-name { color: #fff1bf; }
+    .tag-row .tag-cost { text-align: center; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .simple-list { display: grid; gap: 8px; }
+    .simple-list-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
     }
 
-    .derived-name {
-      color: #e3cf95;
-      font-size: 0.95rem;
-      margin-bottom: 8px;
-    }
-
-    .derived-total {
-      color: #fff4c2;
-      font-size: 1.6rem;
+    .status-ok {
+      color: #d6f5a3;
       font-weight: 700;
     }
-
+    .status-bad {
+      color: #ffb2a8;
+      font-weight: 700;
+    }
+    .messages {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .message-box {
+      border-radius: 8px;
+      padding: 10px 12px;
+      border: 1px solid rgba(45,61,115,0.55);
+      background: rgba(255,255,255,0.04);
+    }
+    .message-box ul { margin: 8px 0 0; padding-left: 18px; }
+    .export-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
     .debug-box {
       font-size: 0.9rem;
       white-space: pre-wrap;
       color: #d8cfac;
     }
 
-    @media (max-width: 900px) {
-      .grid-top,
-      .attributes-grid,
-      .budget-grid,
-      .derived-grid {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 920px) {
+      .grid-top, .budget-grid, .attributes-grid, .two-col, .main-layout { grid-template-columns: 1fr; }
     }
-
     @media (max-width: 600px) {
       body { padding: 6px; }
       .container { padding: 10px; }
       h1 { font-size: 1.4rem; }
       .attribute-row { grid-template-columns: minmax(92px, 1fr) 72px 66px; }
+      .feat-controls { grid-template-columns: 1fr; }
+      .tag-row { grid-template-columns: minmax(0, 1fr) 64px auto; }
     }
   </style>
 </head>
@@ -234,71 +286,12 @@
       <a id="back-to-player-link" class="button-link" href="player.html">Back to player</a>
     </div>
 
-    <div class="sheet-box">
-      <div class="grid-top">
-        <label>
-          Name
-          <input id="char-name" type="text" placeholder="Character name" />
-        </label>
+    <p class="intro-copy">Character creation and XP advancement builder with corrected cumulative attribute costs, derived-stat breakdowns, and a searchable feat picker.</p>
 
-        <label>
-          XP
-          <input id="char-xp" type="number" min="0" step="1" value="0" />
-        </label>
-
-        <label>
-          Level
-          <input id="char-level" type="number" readonly />
-        </label>
-      </div>
-
-      <div class="budget-grid">
-        <div class="budget-card">
-          <div class="budget-label">Attribute Budget</div>
-          <div id="budget-attrs" class="budget-value">0 / 40</div>
-        </div>
-
-        <div class="budget-card">
-          <div class="budget-label">Feat Budget</div>
-          <div id="budget-feats" class="budget-value">6</div>
-        </div>
-
-        <div class="budget-card">
-          <div class="budget-label">XP Levels</div>
-          <div id="budget-levels" class="budget-value">1</div>
-        </div>
-      </div>
-    </div>
+    <div id="builder"></div>
 
     <div class="sheet-box">
-      <h2>Attributes</h2>
-      <div id="attributes-wrap" class="attributes-grid"></div>
-    </div>
-
-    <div class="sheet-box">
-      <h2>Derived Stats</h2>
-      <div class="derived-grid">
-        <div class="derived-card">
-          <div class="derived-name">Guard</div>
-          <div id="derived-guard" class="derived-total">0</div>
-        </div>
-        <div class="derived-card">
-          <div class="derived-name">Toughness</div>
-          <div id="derived-tgh" class="derived-total">0</div>
-        </div>
-        <div class="derived-card">
-          <div class="derived-name">Resolve</div>
-          <div id="derived-res" class="derived-total">0</div>
-        </div>
-        <div class="derived-card">
-          <div class="derived-name">HP</div>
-          <div id="derived-hp" class="derived-total">0</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="sheet-box">
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <div class="export-row">
         <button id="save-now-btn" type="button">Save Now</button>
         <button id="reload-btn" type="button">Reload From Firebase</button>
       </div>
@@ -325,45 +318,44 @@
     const code = (params.get("code") || "").trim().toUpperCase();
 
     const metaEl = document.getElementById("builder-meta");
+    const backLink = document.getElementById("back-to-player-link");
     const saveStatusEl = document.getElementById("save-status");
     const debugEl = document.getElementById("debug-output");
-    const backLink = document.getElementById("back-to-player-link");
-
-    const nameInput = document.getElementById("char-name");
-    const xpInput = document.getElementById("char-xp");
-    const levelInput = document.getElementById("char-level");
-
-    const budgetAttrsEl = document.getElementById("budget-attrs");
-    const budgetFeatsEl = document.getElementById("budget-feats");
-    const budgetLevelsEl = document.getElementById("budget-levels");
-
-    const derivedGuardEl = document.getElementById("derived-guard");
-    const derivedTghEl = document.getElementById("derived-tgh");
-    const derivedResEl = document.getElementById("derived-res");
-    const derivedHpEl = document.getElementById("derived-hp");
-
-    const attributesWrap = document.getElementById("attributes-wrap");
+    const builderRoot = document.getElementById("builder");
     const saveNowBtn = document.getElementById("save-now-btn");
     const reloadBtn = document.getElementById("reload-btn");
 
-    const RULES = {
+    const RULES = Object.freeze({
       creation: {
         level: 1,
         attributePoints: 40,
         featPoints: 6,
+        maxPerks: 2,
+        maxFlaws: 2,
         xpPerAdvance: {
           attributePoints: 3,
           featPoints: 1,
           levelEveryXp: 3
         }
       },
-      categories: {
+      categories: Object.freeze({
         physical: ["Agility", "Fortitude", "Might"],
         mental: ["Learning", "Logic", "Perception", "Will"],
         social: ["Deception", "Persuasion", "Presence"],
         extraordinary: ["Alteration", "Creation", "Energy", "Entropy", "Influence", "Movement", "Prescience", "Protection"]
-      }
-    };
+      }),
+      defaults: Object.freeze({
+        speed: 30,
+        wealth: 0,
+        armorGuardBonus: 0,
+        guardBonus: 0,
+        toughnessBonus: 0,
+        resolveBonus: 0,
+        hpBonus: 0,
+        initiativeBonus: 0,
+        initiativeAttribute: "Agility"
+      })
+    });
 
     const ATTRIBUTE_ORDER = [
       ...RULES.categories.physical,
@@ -372,25 +364,33 @@
       ...RULES.categories.extraordinary
     ];
 
-    let user = null;
-    let game = null;
-    let autoSaveTimer = null;
-    let isSaving = false;
+    function createEmptyAttributes() {
+      return ATTRIBUTE_ORDER.reduce((acc, key) => {
+        acc[key] = 0;
+        return acc;
+      }, {});
+    }
 
-    const character = {
-      name: "",
-      xp: 0,
-      attributes: Object.fromEntries(ATTRIBUTE_ORDER.map((attr) => [attr, 0]))
-    };
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function numberOrZero(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : 0;
+    }
 
     function cleanInt(value) {
-      const n = parseInt(value, 10);
-      return Number.isNaN(n) ? 0 : Math.max(0, n);
+      return Math.max(0, Math.floor(numberOrZero(value)));
     }
 
     function attributeCost(score) {
       const n = cleanInt(score);
       return (n * (n + 1)) / 2;
+    }
+
+    function getAttributeCostBreakdown(attributes) {
+      return Object.fromEntries(Object.entries(attributes).map(([name, value]) => [name, attributeCost(value)]));
     }
 
     function spentAttributePoints(attributes) {
@@ -409,113 +409,668 @@
       };
     }
 
-    function getDerivedStats() {
-      const a = character.attributes;
+    function getAvailableBudgets(character) {
+      const xpAwards = getXpAwards(character.xp);
       return {
-        guard: 10 + a.Agility + a.Might,
-        toughness: 10 + a.Fortitude + a.Will,
-        resolve: 10 + a.Presence + a.Will,
-        hp: 10 + (2 * (a.Fortitude + a.Presence + a.Will))
+        xp: xpAwards.xp,
+        level: xpAwards.level,
+        attributePointsTotal: RULES.creation.attributePoints + xpAwards.bonusAttributePoints,
+        featPointsTotal: RULES.creation.featPoints + xpAwards.bonusFeatPoints,
+        bonusAttributePoints: xpAwards.bonusAttributePoints,
+        bonusFeatPoints: xpAwards.bonusFeatPoints,
+        earnedLevels: xpAwards.earnedLevels
       };
     }
 
+    function getDerivedStats(character) {
+      const a = character.attributes;
+      const m = character.modifiers || {};
+      return {
+        guard: {
+          total: 10 + a.Agility + a.Might + numberOrZero(m.armorGuardBonus) + numberOrZero(m.guardBonus),
+          parts: [
+            ["Base", 10],
+            ["Agility", a.Agility],
+            ["Might", a.Might],
+            ["Armor", numberOrZero(m.armorGuardBonus)],
+            ["Other Bonus", numberOrZero(m.guardBonus)]
+          ]
+        },
+        toughness: {
+          total: 10 + a.Fortitude + a.Will + numberOrZero(m.toughnessBonus),
+          parts: [
+            ["Base", 10],
+            ["Fortitude", a.Fortitude],
+            ["Will", a.Will],
+            ["Other Bonus", numberOrZero(m.toughnessBonus)]
+          ]
+        },
+        resolve: {
+          total: 10 + a.Presence + a.Will + numberOrZero(m.resolveBonus),
+          parts: [
+            ["Base", 10],
+            ["Presence", a.Presence],
+            ["Will", a.Will],
+            ["Other Bonus", numberOrZero(m.resolveBonus)]
+          ]
+        },
+        hitPoints: {
+          total: 10 + (2 * (a.Fortitude + a.Presence + a.Will)) + numberOrZero(m.hpBonus),
+          parts: [
+            ["Base", 10],
+            ["2 × Fortitude", 2 * a.Fortitude],
+            ["2 × Presence", 2 * a.Presence],
+            ["2 × Will", 2 * a.Will],
+            ["Other Bonus", numberOrZero(m.hpBonus)]
+          ]
+        },
+        initiative: {
+          total: (m.initiativeAttribute || "Agility") + " +" + numberOrZero(m.initiativeBonus),
+          parts: [
+            ["Roll Attribute", m.initiativeAttribute || "Agility"],
+            ["Flat Bonus", numberOrZero(m.initiativeBonus)]
+          ]
+        },
+        speed: numberOrZero(m.speed || RULES.defaults.speed),
+        wealth: numberOrZero(m.wealth || RULES.defaults.wealth)
+      };
+    }
+
+    function makeCharacter(seed = {}) {
+      const attributes = createEmptyAttributes();
+      Object.assign(attributes, seed.attributes || {});
+      const xpAwards = getXpAwards(seed.xp);
+      return {
+        name: seed.name || "",
+        concept: seed.concept || "",
+        xp: cleanInt(seed.xp),
+        level: numberOrZero(seed.level) || xpAwards.level,
+        attributes,
+        feats: clone(seed.feats || []),
+        perks: clone(seed.perks || []),
+        flaws: clone(seed.flaws || []),
+        notes: seed.notes || "",
+        modifiers: Object.assign({}, clone(RULES.defaults), seed.modifiers || {})
+      };
+    }
+
+    function meetsThreshold(attributes, requirement) {
+      if (!requirement || !requirement.attribute) return true;
+      return cleanInt(attributes[requirement.attribute]) >= cleanInt(requirement.min);
+    }
+
+    function createDefaultFeatRegistry() {
+      return {
+        "Alternate Form I": { cost: 5, prerequisites: {} },
+        "Armor Mastery": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Fortitude", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } },
+        "Attribute Substitution I": { cost: 3, prerequisites: { oneOf: [
+          { type: "attribute", attribute: "Alteration", min: 3 },
+          { type: "attribute", attribute: "Creation", min: 3 },
+          { type: "attribute", attribute: "Energy", min: 3 },
+          { type: "attribute", attribute: "Entropy", min: 3 },
+          { type: "attribute", attribute: "Influence", min: 3 },
+          { type: "attribute", attribute: "Movement", min: 3 },
+          { type: "attribute", attribute: "Prescience", min: 3 },
+          { type: "attribute", attribute: "Protection", min: 3 }
+        ] } },
+        "Companion": { cost: 5, prerequisites: {} },
+        "Dual Wielding": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } },
+        "Extraordinary Focus": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Energy", min: 3 }, { type: "attribute", attribute: "Influence", min: 3 }, { type: "attribute", attribute: "Prescience", min: 3 }] } },
+        "Keen Senses": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Perception", min: 2 }, { type: "attribute", attribute: "Prescience", min: 2 }] } },
+        "Resilient": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Fortitude", min: 3 }, { type: "attribute", attribute: "Presence", min: 3 }, { type: "attribute", attribute: "Will", min: 3 }] } },
+        "Skillful": { cost: 1, prerequisites: {} },
+        "Tough": { cost: 1, prerequisites: { oneOf: [{ type: "attribute", attribute: "Fortitude", min: 2 }, { type: "attribute", attribute: "Will", min: 2 }] } },
+        "Weapon Specialization": { cost: 3, prerequisites: { oneOf: [{ type: "attribute", attribute: "Agility", min: 3 }, { type: "attribute", attribute: "Might", min: 3 }] } }
+      };
+    }
+
+    function validateFeatSelection(character, featRegistry = {}) {
+      const errors = [];
+      const warnings = [];
+      const budgets = getAvailableBudgets(character);
+      let spent = 0;
+      const chosenNames = new Set();
+
+      for (const feat of character.feats) {
+        const name = typeof feat === "string" ? feat.trim() : (feat.name || "").trim();
+        if (!name) continue;
+        chosenNames.add(name);
+        const entry = featRegistry[name];
+        if (!entry) {
+          warnings.push(`Feat "${name}" is not in the current dropdown registry, so cost and prerequisites were not validated.`);
+          continue;
+        }
+        spent += cleanInt(entry.cost || 0);
+
+        if (Array.isArray(entry.prerequisites?.allOf)) {
+          for (const req of entry.prerequisites.allOf) {
+            if (req.type === "attribute" && !meetsThreshold(character.attributes, req)) {
+              errors.push(`Feat "${name}" requires ${req.attribute} ${req.min}+.`);
+            }
+            if (req.type === "feat" && !chosenNames.has(req.name)) {
+              errors.push(`Feat "${name}" requires feat "${req.name}".`);
+            }
+          }
+        }
+
+        if (Array.isArray(entry.prerequisites?.oneOf) && entry.prerequisites.oneOf.length) {
+          const passed = entry.prerequisites.oneOf.some((req) => {
+            if (req.type === "attribute") return meetsThreshold(character.attributes, req);
+            if (req.type === "feat") return chosenNames.has(req.name);
+            return false;
+          });
+          if (!passed) {
+            const readable = entry.prerequisites.oneOf.map((req) => {
+              if (req.type === "attribute") return `${req.attribute} ${req.min}+`;
+              if (req.type === "feat") return `feat "${req.name}"`;
+              return "an eligible prerequisite";
+            }).join(" or ");
+            errors.push(`Feat "${name}" requires ${readable}.`);
+          }
+        }
+      }
+
+      if (spent > budgets.featPointsTotal) {
+        errors.push(`You have spent ${spent} feat points, but only ${budgets.featPointsTotal} are available (${RULES.creation.featPoints} base + ${budgets.bonusFeatPoints} from XP).`);
+      }
+
+      return { spent, remaining: budgets.featPointsTotal - spent, totalAvailable: budgets.featPointsTotal, errors, warnings };
+    }
+
+    function validateCharacter(character, featRegistry = {}) {
+      const errors = [];
+      const warnings = [];
+      const budgets = getAvailableBudgets(character);
+      character.level = budgets.level;
+
+      const attrSpent = spentAttributePoints(character.attributes);
+      if (attrSpent > budgets.attributePointsTotal) {
+        errors.push(`You have spent ${attrSpent} attribute points, but only ${budgets.attributePointsTotal} are available (${RULES.creation.attributePoints} base + ${budgets.bonusAttributePoints} from XP).`);
+      }
+
+      for (const attr of ATTRIBUTE_ORDER) {
+        if (cleanInt(character.attributes[attr]) !== numberOrZero(character.attributes[attr])) {
+          character.attributes[attr] = cleanInt(character.attributes[attr]);
+        }
+      }
+
+      if (character.perks.length > RULES.creation.maxPerks) {
+        errors.push(`A character may select up to ${RULES.creation.maxPerks} perks at character creation.`);
+      }
+      if (character.flaws.length > RULES.creation.maxFlaws) {
+        errors.push(`A character may select up to ${RULES.creation.maxFlaws} flaws at character creation.`);
+      }
+
+      const featValidation = validateFeatSelection(character, featRegistry);
+      errors.push(...featValidation.errors);
+      warnings.push(...featValidation.warnings);
+
+      return {
+        ok: errors.length === 0,
+        errors,
+        warnings,
+        xp: budgets.xp,
+        level: budgets.level,
+        earnedLevels: budgets.earnedLevels,
+        attributePointsSpent: attrSpent,
+        attributePointsTotal: budgets.attributePointsTotal,
+        attributePointsRemaining: budgets.attributePointsTotal - attrSpent,
+        featPointsSpent: featValidation.spent,
+        featPointsTotal: budgets.featPointsTotal,
+        featPointsRemaining: featValidation.remaining,
+        attributeCostBreakdown: getAttributeCostBreakdown(character.attributes),
+        derived: getDerivedStats(character)
+      };
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    let user = null;
+    let game = null;
+    let autoSaveTimer = null;
+    let isSaving = false;
+
+    let root = null;
+    let featRegistry = createDefaultFeatRegistry();
+    let featNames = Object.keys(featRegistry).sort((a, b) => a.localeCompare(b));
+    let character = makeCharacter({});
+
+    let attrWrap = null;
+    let budgetWrap = null;
+    let derivedWrap = null;
+    let featListWrap = null;
+    let perkListWrap = null;
+    let flawListWrap = null;
+    let statusWrap = null;
+    let messagesWrap = null;
+    let jsonArea = null;
+    let featPicker = null;
+    let featCostPreview = null;
+    let featHelper = null;
+
+    function builderPath() {
+      return `games/${code}/builderSheets/${user.uid}`;
+    }
+
+    function playerPath() {
+      return `games/${code}/players/${user.uid}`;
+    }
+
+    function syncFromDom() {
+      for (const attr of ATTRIBUTE_ORDER) {
+        const input = root.querySelector(`[data-attr="${CSS.escape(attr)}"]`);
+        if (input) character.attributes[attr] = cleanInt(input.value);
+      }
+
+      for (const key of Object.keys(character.modifiers)) {
+        const input = root.querySelector(`[data-mod="${CSS.escape(key)}"]`);
+        if (input) character.modifiers[key] = cleanInt(input.value);
+      }
+
+      const initAttr = root.querySelector("[data-init-attr]");
+      if (initAttr) character.modifiers.initiativeAttribute = initAttr.value;
+
+      character.name = root.querySelector('[data-field="name"]').value;
+      character.concept = root.querySelector('[data-field="concept"]').value;
+      character.xp = cleanInt(root.querySelector('[data-field="xp"]').value);
+      character.level = getXpAwards(character.xp).level;
+      character.notes = root.querySelector('[data-field="notes"]').value;
+
+      character.perks = Array.from(root.querySelectorAll("[data-perk-index]"))
+        .map((el) => el.value.trim())
+        .filter(Boolean);
+
+      character.flaws = Array.from(root.querySelectorAll("[data-flaw-index]"))
+        .map((el) => el.value.trim())
+        .filter(Boolean);
+    }
+
     function renderAttributes() {
-      attributesWrap.innerHTML = Object.entries(RULES.categories).map(([category, attrs]) => {
-        return `
-          <div class="sheet-box">
-            <div class="category-title">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
-            ${attrs.map((attr) => `
-              <div class="attribute-row">
-                <div class="attr-name">${attr}</div>
-                <div class="attr-cost">${attributeCost(character.attributes[attr])} pts</div>
-                <input data-attr="${attr}" type="number" min="0" value="${cleanInt(character.attributes[attr])}">
+      attrWrap.innerHTML = Object.entries(RULES.categories).map(([category, attrs]) => `
+        <div class="sheet-box category-box">
+          <div class="category-title">${escapeHtml(category.charAt(0).toUpperCase() + category.slice(1))}</div>
+          ${attrs.map((attr) => `
+            <div class="attribute-row">
+              <div class="attr-name">${escapeHtml(attr)}</div>
+              <div class="attr-cost">${attributeCost(character.attributes[attr])} pts</div>
+              <input data-attr="${escapeHtml(attr)}" type="number" min="0" value="${cleanInt(character.attributes[attr])}">
+            </div>
+          `).join("")}
+        </div>
+      `).join("");
+    }
+
+    function renderBudgets(result) {
+      budgetWrap.innerHTML = `
+        <div class="budget-card">
+          <div class="label">XP</div>
+          <div class="value">${result.xp}</div>
+          <div class="detail">+${RULES.creation.xpPerAdvance.attributePoints} attribute / +${RULES.creation.xpPerAdvance.featPoints} feat per XP</div>
+        </div>
+        <div class="budget-card">
+          <div class="label">Level</div>
+          <div class="value">${result.level}</div>
+          <div class="detail">${result.earnedLevels} level(s) earned from XP</div>
+        </div>
+        <div class="budget-card">
+          <div class="label">Attribute Budget</div>
+          <div class="value">${result.attributePointsSpent} / ${result.attributePointsTotal}</div>
+          <div class="detail">Uses cumulative cost: 1, 3, 6, 10, 15...</div>
+        </div>
+        <div class="budget-card">
+          <div class="label">Feat Budget</div>
+          <div class="value">${result.featPointsSpent} / ${result.featPointsTotal}</div>
+          <div class="detail">${result.featPointsRemaining} remaining</div>
+        </div>
+      `;
+    }
+
+    function renderDerived(result) {
+      const derived = result.derived;
+      const cards = [
+        ["Guard", derived.guard],
+        ["Toughness", derived.toughness],
+        ["Resolve", derived.resolve],
+        ["HP", derived.hitPoints],
+        ["Initiative", derived.initiative]
+      ];
+
+      derivedWrap.innerHTML = cards.map(([name, data]) => `
+        <div class="sheet-box derived-card">
+          <div class="derived-top">
+            <div class="derived-name">${escapeHtml(name)}</div>
+            <div class="derived-total">${escapeHtml(String(data.total))}</div>
+          </div>
+          <div class="formula-list">
+            ${data.parts.map(([label, value]) => `
+              <div class="formula-row">
+                <span>${escapeHtml(label)}</span>
+                <span>${escapeHtml(String(value))}</span>
               </div>
             `).join("")}
+          </div>
+        </div>
+      `).join("") + `
+        <div class="sheet-box derived-card">
+          <div class="derived-top"><div class="derived-name">Speed</div><div class="derived-total">${derived.speed}</div></div>
+        </div>
+        <div class="sheet-box derived-card">
+          <div class="derived-top"><div class="derived-name">Wealth</div><div class="derived-total">${derived.wealth}</div></div>
+        </div>
+      `;
+    }
+
+    function renderSimpleList(container, list, type, placeholder) {
+      container.innerHTML = list.map((item, index) => `
+        <div class="simple-list-row">
+          <input data-${type}-index="${index}" type="text" value="${escapeHtml(item)}" placeholder="${escapeHtml(placeholder)}">
+          <button type="button" class="remove-button" data-remove-${type}="${index}">Remove</button>
+        </div>
+      `).join("");
+    }
+
+    function renderFeatList() {
+      featListWrap.innerHTML = character.feats.map((feat, index) => {
+        const name = typeof feat === "string" ? feat : feat.name;
+        const entry = featRegistry[name];
+        const cost = entry ? entry.cost : "?";
+        return `
+          <div class="tag-row">
+            <div class="tag-name">${escapeHtml(name)}</div>
+            <div class="tag-cost">${escapeHtml(String(cost))} pt</div>
+            <button type="button" class="remove-button" data-remove-feat="${index}">Remove</button>
           </div>
         `;
       }).join("");
     }
 
-    function syncFromDom() {
-      character.name = nameInput.value.trim();
-      character.xp = cleanInt(xpInput.value);
-
-      ATTRIBUTE_ORDER.forEach((attr) => {
-        const input = attributesWrap.querySelector(`[data-attr="${CSS.escape(attr)}"]`);
-        if (input) {
-          character.attributes[attr] = cleanInt(input.value);
-        }
-      });
+    function renderStatus(result) {
+      statusWrap.innerHTML = `<div class="${result.ok ? "status-ok" : "status-bad"}">${result.ok ? "Character is currently valid." : "Character needs fixes."}</div>`;
+      const blocks = [];
+      if (result.errors.length) {
+        blocks.push(`<div class="message-box"><strong>Errors</strong><ul>${result.errors.map((e) => `<li>${escapeHtml(e)}</li>`).join("")}</ul></div>`);
+      }
+      if (result.warnings.length) {
+        blocks.push(`<div class="message-box"><strong>Warnings</strong><ul>${result.warnings.map((w) => `<li>${escapeHtml(w)}</li>`).join("")}</ul></div>`);
+      }
+      blocks.push(`<div class="message-box"><strong>Attribute Cost Notes</strong><ul>${ATTRIBUTE_ORDER.map((attr) => `<li>${escapeHtml(attr)} ${cleanInt(character.attributes[attr])} costs ${result.attributeCostBreakdown[attr]} points</li>`).join("")}</ul></div>`);
+      messagesWrap.innerHTML = blocks.join("");
     }
 
-    function renderAll() {
-      const xpAwards = getXpAwards(character.xp);
-      const derived = getDerivedStats();
-      const attrSpent = spentAttributePoints(character.attributes);
-      const attrTotal = RULES.creation.attributePoints + xpAwards.bonusAttributePoints;
-      const featTotal = RULES.creation.featPoints + xpAwards.bonusFeatPoints;
+    function refreshFeatPreview() {
+      const value = featPicker.value.trim();
+      const entry = featRegistry[value];
+      featCostPreview.value = entry ? String(entry.cost) : "-";
+      featHelper.textContent = entry
+        ? "Cost: " + entry.cost + (entry.prerequisites && (entry.prerequisites.oneOf || entry.prerequisites.allOf) ? " • prerequisites will be checked" : "")
+        : "Pick a feat from the dropdown or type the full name.";
+    }
 
-      nameInput.value = character.name;
-      xpInput.value = character.xp;
-      levelInput.value = xpAwards.level;
-
+    function rerender() {
       renderAttributes();
-
-      budgetAttrsEl.textContent = `${attrSpent} / ${attrTotal}`;
-      budgetFeatsEl.textContent = String(featTotal);
-      budgetLevelsEl.textContent = String(xpAwards.level);
-
-      derivedGuardEl.textContent = String(derived.guard);
-      derivedTghEl.textContent = String(derived.toughness);
-      derivedResEl.textContent = String(derived.resolve);
-      derivedHpEl.textContent = String(derived.hp);
+      renderFeatList();
+      renderSimpleList(perkListWrap, character.perks, "perk", "Perk name");
+      renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
+      const result = validateCharacter(character, featRegistry);
+      const levelField = root.querySelector('[data-field="level"]');
+      if (levelField) levelField.value = result.level;
+      renderBudgets(result);
+      renderDerived(result);
+      renderStatus(result);
 
       debugEl.textContent = JSON.stringify({
         code,
         userUid: user?.uid || null,
+        builderPath: user ? builderPath() : null,
+        playerPath: user ? playerPath() : null,
         name: character.name,
         xp: character.xp,
-        derived
+        level: result.level,
+        derived: {
+          guard: result.derived.guard.total,
+          toughness: result.derived.toughness.total,
+          resolve: result.derived.resolve.total,
+          hp: result.derived.hitPoints.total
+        }
       }, null, 2);
+
+      return result;
     }
 
-    function scheduleSave() {
-      clearTimeout(autoSaveTimer);
-      autoSaveTimer = setTimeout(() => {
-        saveToFirebase("Auto-saved.");
-      }, 500);
+    function renderBuilder() {
+      root = builderRoot;
+      root.innerHTML = `
+        <section>
+          <div class="grid-top">
+            <label>Name <input data-field="name" type="text" value="${escapeHtml(character.name)}"></label>
+            <label>Concept <input data-field="concept" type="text" value="${escapeHtml(character.concept)}"></label>
+            <label>XP <input data-field="xp" type="number" min="0" step="1" value="${character.xp}"></label>
+            <label>Level <input data-field="level" type="number" value="${character.level}" readonly></label>
+          </div>
+
+          <div class="budget-grid" data-budget-grid></div>
+
+          <div class="main-layout">
+            <div class="sheet-box">
+              <h2>Attributes</h2>
+              <div class="attributes-grid" data-attributes></div>
+            </div>
+
+            <div class="derived-grid" data-derived></div>
+          </div>
+
+          <div class="two-col">
+            <div class="sheet-box">
+              <h2>Feats</h2>
+              <div class="feat-controls">
+                <label>Find feat
+                  <input list="feat-options" data-feat-picker type="text" placeholder="Start typing a feat name">
+                  <datalist id="feat-options">
+                    ${featNames.map((name) => `<option value="${escapeHtml(name)}"></option>`).join("")}
+                  </datalist>
+                </label>
+                <label>Cost
+                  <input data-feat-cost-preview type="text" readonly value="-">
+                </label>
+                <button type="button" data-add-feat>Add Feat</button>
+              </div>
+              <p class="helper-text" data-feat-helper>Pick a feat from the dropdown or type the full name.</p>
+              <div class="tag-list" data-feat-list></div>
+            </div>
+
+            <div class="sheet-box">
+              <h2>Modifiers</h2>
+              <div class="attributes-grid">
+                <label>Armor Guard Bonus <input data-mod="armorGuardBonus" type="number" value="${character.modifiers.armorGuardBonus}"></label>
+                <label>Extra Guard Bonus <input data-mod="guardBonus" type="number" value="${character.modifiers.guardBonus}"></label>
+                <label>Toughness Bonus <input data-mod="toughnessBonus" type="number" value="${character.modifiers.toughnessBonus}"></label>
+                <label>Resolve Bonus <input data-mod="resolveBonus" type="number" value="${character.modifiers.resolveBonus}"></label>
+                <label>HP Bonus <input data-mod="hpBonus" type="number" value="${character.modifiers.hpBonus}"></label>
+                <label>Initiative Bonus <input data-mod="initiativeBonus" type="number" value="${character.modifiers.initiativeBonus}"></label>
+                <label>Initiative Attribute
+                  <select data-init-attr>
+                    ${ATTRIBUTE_ORDER.map((attr) => `<option value="${escapeHtml(attr)}" ${character.modifiers.initiativeAttribute === attr ? "selected" : ""}>${escapeHtml(attr)}</option>`).join("")}
+                  </select>
+                </label>
+                <label>Speed <input data-mod="speed" type="number" value="${character.modifiers.speed}"></label>
+                <label>Wealth <input data-mod="wealth" type="number" value="${character.modifiers.wealth}"></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="sheet-box">
+              <h2>Perks</h2>
+              <div class="simple-list" data-perk-list></div>
+              <div class="export-row"><button type="button" data-add-perk>Add Perk</button></div>
+            </div>
+            <div class="sheet-box">
+              <h2>Flaws</h2>
+              <div class="simple-list" data-flaw-list></div>
+              <div class="export-row"><button type="button" data-add-flaw>Add Flaw</button></div>
+            </div>
+          </div>
+
+          <div class="sheet-box" style="margin-top:16px;">
+            <h2>Notes</h2>
+            <textarea data-field="notes">${escapeHtml(character.notes)}</textarea>
+          </div>
+
+          <div class="sheet-box" style="margin-top:16px;">
+            <h2>Validation & Export</h2>
+            <div data-status></div>
+            <div class="messages" data-messages></div>
+            <div class="export-row">
+              <button type="button" data-export>Export JSON</button>
+              <button type="button" data-import>Import JSON</button>
+            </div>
+            <textarea data-json placeholder="Character JSON will appear here."></textarea>
+          </div>
+        </section>
+      `;
+
+      attrWrap = root.querySelector("[data-attributes]");
+      budgetWrap = root.querySelector("[data-budget-grid]");
+      derivedWrap = root.querySelector("[data-derived]");
+      featListWrap = root.querySelector("[data-feat-list]");
+      perkListWrap = root.querySelector("[data-perk-list]");
+      flawListWrap = root.querySelector("[data-flaw-list]");
+      statusWrap = root.querySelector("[data-status]");
+      messagesWrap = root.querySelector("[data-messages]");
+      jsonArea = root.querySelector("[data-json]");
+      featPicker = root.querySelector("[data-feat-picker]");
+      featCostPreview = root.querySelector("[data-feat-cost-preview]");
+      featHelper = root.querySelector("[data-feat-helper]");
+
+      root.addEventListener("input", (event) => {
+        if (event.target.matches("[data-feat-picker]")) {
+          refreshFeatPreview();
+          return;
+        }
+        syncFromDom();
+        rerender();
+        scheduleSave();
+      });
+
+      root.addEventListener("change", () => {
+        syncFromDom();
+        rerender();
+        scheduleSave();
+      });
+
+      root.addEventListener("click", async (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+
+        if (button.matches("[data-add-feat]")) {
+          const featName = featPicker.value.trim();
+          if (featName) {
+            character.feats.push({ name: featName });
+            featPicker.value = "";
+            refreshFeatPreview();
+            rerender();
+            scheduleSave();
+          }
+          return;
+        }
+
+        if (button.matches("[data-add-perk]")) {
+          syncFromDom();
+          character.perks.push("");
+          renderSimpleList(perkListWrap, character.perks, "perk", "Perk name");
+          scheduleSave();
+          return;
+        }
+
+        if (button.matches("[data-add-flaw]")) {
+          syncFromDom();
+          character.flaws.push("");
+          renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
+          scheduleSave();
+          return;
+        }
+
+        if (button.dataset.removeFeat !== undefined) {
+          character.feats.splice(Number(button.dataset.removeFeat), 1);
+          rerender();
+          scheduleSave();
+          return;
+        }
+
+        if (button.dataset.removePerk !== undefined) {
+          syncFromDom();
+          character.perks.splice(Number(button.dataset.removePerk), 1);
+          renderSimpleList(perkListWrap, character.perks, "perk", "Perk name");
+          rerender();
+          scheduleSave();
+          return;
+        }
+
+        if (button.dataset.removeFlaw !== undefined) {
+          syncFromDom();
+          character.flaws.splice(Number(button.dataset.removeFlaw), 1);
+          renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
+          rerender();
+          scheduleSave();
+          return;
+        }
+
+        if (button.matches("[data-export]")) {
+          syncFromDom();
+          jsonArea.value = JSON.stringify(character, null, 2);
+          return;
+        }
+
+        if (button.matches("[data-import]")) {
+          try {
+            const parsed = JSON.parse(jsonArea.value || "{}");
+            const next = makeCharacter(parsed);
+            character = next;
+            renderBuilder();
+            rerender();
+            refreshFeatPreview();
+            await saveToFirebase("Imported and saved.");
+          } catch (err) {
+            alert("Could not import JSON. Please check the format.");
+          }
+          return;
+        }
+      });
+
+      rerender();
+      refreshFeatPreview();
     }
 
-    async function saveToFirebase(successMessage = "Saved.") {
-      if (isSaving) return;
+    async function saveToFirebase(successMessage = "Auto-saved.") {
+      if (isSaving || !user) return;
       isSaving = true;
       saveStatusEl.textContent = "Saving…";
 
       try {
         syncFromDom();
+        const result = validateCharacter(character, featRegistry);
 
-        const builderPath = `games/${code}/builderSheets/${user.uid}`;
-        const playerPath = `games/${code}/players/${user.uid}`;
-
-        const existingPlayerSnap = await get(ref(db, playerPath));
+        const existingPlayerSnap = await get(ref(db, playerPath()));
         const existingPlayer = existingPlayerSnap.exists() ? existingPlayerSnap.val() : {};
 
-        const xpAwards = getXpAwards(character.xp);
-        const derived = getDerivedStats();
-
-        const builderPayload = {
-          name: character.name,
-          xp: character.xp,
-          level: xpAwards.level,
-          attributes: { ...character.attributes },
-          updatedAt: Date.now()
-        };
-
-        const derivedBaseHp = derived.hp;
+        const derived = result.derived;
+        const derivedBaseHp = Number(derived.hitPoints.total) || 0;
         const existingCurrentHp = Number(existingPlayer.currentHp);
         const nextCurrentHp = Number.isFinite(existingCurrentHp)
           ? Math.max(0, Math.min(existingCurrentHp, derivedBaseHp))
           : derivedBaseHp;
+
+        const builderPayload = {
+          ...clone(character),
+          updatedAt: Date.now()
+        };
 
         const playerPayload = {
           ...(existingPlayer || {}),
@@ -526,58 +1081,52 @@
           name: character.name || user.displayName || "",
           baseHp: derivedBaseHp,
           currentHp: nextCurrentHp,
-          grd: derived.guard,
-          res: derived.resolve,
-          tgh: derived.toughness,
+          grd: Number(derived.guard.total) || 0,
+          res: Number(derived.resolve.total) || 0,
+          tgh: Number(derived.toughness.total) || 0,
           builderUpdatedAt: Date.now()
         };
 
-        await set(ref(db, builderPath), builderPayload);
-        await set(ref(db, playerPath), playerPayload);
+        await set(ref(db, builderPath()), builderPayload);
+        await set(ref(db, playerPath()), playerPayload);
 
         saveStatusEl.textContent = successMessage;
         debugEl.textContent = JSON.stringify({
           code,
           userUid: user.uid,
-          builderPath,
-          playerPath,
-          builderPayload,
-          playerPayload
+          builderPath: builderPath(),
+          playerPath: playerPath(),
+          builderSavedAt: builderPayload.updatedAt,
+          playerSavedAt: playerPayload.builderUpdatedAt
         }, null, 2);
       } catch (error) {
-        console.error("Save failed:", error);
+        console.error("Builder save failed:", error);
         saveStatusEl.textContent = `Save failed: ${error.message || error}`;
       } finally {
         isSaving = false;
       }
     }
 
+    function scheduleSave() {
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(() => {
+        saveToFirebase("Auto-saved.");
+      }, 500);
+    }
+
     async function loadFromFirebase() {
-      const builderPath = `games/${code}/builderSheets/${user.uid}`;
-      const snap = await get(ref(db, builderPath));
-
+      const snap = await get(ref(db, builderPath()));
       if (snap.exists()) {
-        const data = snap.val();
-        character.name = data.name || "";
-        character.xp = cleanInt(data.xp);
-
-        ATTRIBUTE_ORDER.forEach((attr) => {
-          character.attributes[attr] = cleanInt(data.attributes?.[attr]);
-        });
-
+        character = makeCharacter(snap.val());
         saveStatusEl.textContent = "Loaded from Firebase.";
       } else {
-        character.name = user.displayName || "";
-        character.xp = 0;
-
-        ATTRIBUTE_ORDER.forEach((attr) => {
-          character.attributes[attr] = 0;
+        character = makeCharacter({
+          name: user.displayName || ""
         });
-
         saveStatusEl.textContent = "No builder save found yet.";
       }
 
-      renderAll();
+      renderBuilder();
     }
 
     async function init() {
@@ -609,30 +1158,12 @@
       await loadFromFirebase();
     }
 
-    nameInput.addEventListener("input", () => {
-      syncFromDom();
-      renderAll();
-      scheduleSave();
-    });
-
-    xpInput.addEventListener("input", () => {
-      syncFromDom();
-      renderAll();
-      scheduleSave();
-    });
-
-    attributesWrap.addEventListener("input", (event) => {
-      if (!event.target.matches("[data-attr]")) return;
-      syncFromDom();
-      renderAll();
-      scheduleSave();
-    });
-
     saveNowBtn.addEventListener("click", async () => {
       await saveToFirebase("Saved.");
     });
 
     reloadBtn.addEventListener("click", async () => {
+      if (!user) return;
       await loadFromFirebase();
     });
 
