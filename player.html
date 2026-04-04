@@ -10,285 +10,350 @@
   <link rel="stylesheet" href="auth.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 
-  <style>
+<style>
+  .player-shell {
+    max-width: 980px;
+  }
+
+  .player-panel {
+    background: rgba(11, 41, 36, 0.55);
+    border: 1px solid #2d3d73;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .field-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .field-stack label {
+    font-size: 0.95rem;
+    opacity: 0.9;
+  }
+
+  .field-stack input {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .name-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .initiative-panel {
+    max-width: 280px;
+  }
+
+  .initiative-panel button {
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .dnd-hp-top {
+    max-width: 240px;
+    margin: 0 auto 18px auto;
+    text-align: center;
+  }
+
+  .dnd-ac-prof {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .dnd-stats-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+
+  .dnd-stat-column {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .ol-top-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .stat-card {
+    background: rgba(20, 22, 30, 0.9);
+    border: 1px solid #2d3d73;
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+    min-width: 0;
+  }
+
+  .hp-card {
+    border-color: #8b0000;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #e3cf95;
+  }
+
+  .damage-panel {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 12px;
+    align-items: end;
+    margin-top: 18px;
+  }
+
+  .damage-options {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 40px;
+  }
+
+  .damage-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .calc-result {
+    min-height: 1.4em;
+    margin-top: 12px;
+  }
+
+  .tracker-form {
+    display: grid;
+    grid-template-columns: 1.3fr 110px auto;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .tracker-form-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: -6px 0 18px 0;
+  }
+
+  .tracker-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  .tracker-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    background: rgba(11, 41, 36, 0.85);
+    border: 1px solid #1a3b4a;
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .tracker-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .tracker-name {
+    font-weight: bold;
+    color: #e3cf95;
+    font-size: 1.05rem;
+  }
+
+  .tracker-progress {
+    color: #bdb382;
+  }
+
+  .tracker-boxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20px, 20px));
+    gap: 8px;
+    align-items: center;
+    justify-content: start;
+  }
+
+  .tracker-boxes input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #2d3d73;
+    border-radius: 4px;
+    background: #1b1b1b;
+    display: inline-block;
+    position: relative;
+    pointer-events: none;
+    margin: 0;
+  }
+
+  .tracker-boxes input[type="checkbox"]:checked {
+    background: #8b0000;
+    border-color: #8b0000;
+  }
+
+  .tracker-boxes input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .tracker-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .empty-state {
+    padding: 14px;
+    border: 1px dashed #2d3d73;
+    border-radius: 8px;
+    text-align: center;
+    opacity: 0.85;
+  }
+
+  .button-small {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    line-height: 1.1;
+  }
+
+  /* Tablet */
+  @media (max-width: 900px) {
+    .ol-top-grid,
+    .stat-grid,
+    .damage-panel,
+    .tracker-form,
+    .tracker-card {
+      grid-template-columns: 1fr;
+    }
+
+    .dnd-ac-prof {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .dnd-stats-columns {
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+  }
+
+  /* Phone */
+  @media (max-width: 640px) {
     .player-shell {
-      max-width: 980px;
+      max-width: 100%;
     }
 
     .player-panel {
-      background: rgba(11, 41, 36, 0.55);
-      border: 1px solid #2d3d73;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
+      padding: 12px;
     }
 
-    .field-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
+    .initiative-panel {
+      max-width: 100%;
     }
 
-    .field-stack label {
-      font-size: 0.95rem;
-      opacity: 0.9;
+    .dnd-hp-top {
+      max-width: 100%;
+      margin: 0 0 16px 0;
     }
 
-    .field-stack input {
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
+    .dnd-ac-prof {
+      grid-template-columns: 1fr;
       gap: 10px;
-      margin-top: 14px;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
-    .name-grid {
-      display: grid;
+    .dnd-stats-columns {
       grid-template-columns: 1fr;
       gap: 12px;
     }
 
-    .initiative-panel {
-      max-width: 280px;
+    .ol-top-grid,
+    .stat-grid,
+    .damage-panel,
+    .tracker-form,
+    .tracker-card {
+      grid-template-columns: 1fr;
     }
 
-    .initiative-panel button {
-      margin-top: 10px;
+    .button-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .button-row button {
       width: 100%;
     }
 
-    .dnd-hp-top {
-      max-width: 240px;
-      margin: 0 auto 18px auto;
-      text-align: center;
+    .tracker-controls {
+      justify-content: stretch;
     }
 
-    .dnd-ac-prof {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(140px, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .dnd-stats-columns {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(180px, 1fr));
-      gap: 18px;
-    }
-
-    .dnd-stat-column {
-      display: grid;
-      gap: 12px;
-    }
-
-    .ol-top-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(180px, 1fr));
-      gap: 12px;
-    }
-
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .stat-card {
-      background: rgba(20, 22, 30, 0.9);
-      border: 1px solid #2d3d73;
-      border-radius: 8px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      text-align: center;
-    }
-
-    .hp-card {
-      border-color: #8b0000;
-    }
-
-    .stat-label {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      opacity: 0.85;
-    }
-
-    .stat-value {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #e3cf95;
-    }
-
-    .damage-panel {
-      display: grid;
-      grid-template-columns: 120px 1fr auto;
-      gap: 12px;
-      align-items: end;
-      margin-top: 18px;
-    }
-
-    .damage-options {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      align-items: center;
-      min-height: 40px;
-    }
-
-    .damage-options label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .calc-result {
-      min-height: 1.4em;
-      margin-top: 12px;
-    }
-
-    .tracker-form {
-      display: grid;
-      grid-template-columns: 1.3fr 110px auto;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
-    .tracker-form-inline {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: -6px 0 18px 0;
-    }
-
-    .tracker-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 10px;
-    }
-
-    .tracker-card {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 10px;
-      background: rgba(11, 41, 36, 0.85);
-      border: 1px solid #1a3b4a;
-      border-radius: 8px;
-      padding: 12px;
-    }
-
-    .tracker-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-
-    .tracker-name {
-      font-weight: bold;
-      color: #e3cf95;
-      font-size: 1.05rem;
-    }
-
-    .tracker-progress {
-      color: #bdb382;
+    .tracker-controls button {
+      width: 100%;
     }
 
     .tracker-boxes {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(20px, 20px));
-      gap: 8px;
-      align-items: center;
-      justify-content: start;
+      grid-template-columns: repeat(8, 20px);
+      gap: 6px;
     }
-
-    .tracker-boxes input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #2d3d73;
-      border-radius: 4px;
-      background: #1b1b1b;
-      display: inline-block;
-      position: relative;
-      pointer-events: none;
-      margin: 0;
-    }
-
-    .tracker-boxes input[type="checkbox"]:checked {
-      background: #8b0000;
-      border-color: #8b0000;
-    }
-
-    .tracker-boxes input[type="checkbox"]:checked::after {
-      content: "";
-      position: absolute;
-      left: 5px;
-      top: 1px;
-      width: 6px;
-      height: 12px;
-      border: solid white;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-    }
-
-    .tracker-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .empty-state {
-      padding: 14px;
-      border: 1px dashed #2d3d73;
-      border-radius: 8px;
-      text-align: center;
-      opacity: 0.85;
-    }
-
-    .button-small {
-      padding: 6px 10px;
-      font-size: 0.85rem;
-      line-height: 1.1;
-    }
-
-    @media (max-width: 900px) {
-      .dnd-ac-prof,
-      .dnd-stats-columns,
-      .ol-top-grid,
-      .stat-grid,
-      .damage-panel,
-      .tracker-form,
-      .tracker-card {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .tracker-boxes {
-        grid-template-columns: repeat(10, 20px);
-        gap: 6px;
-      }
-    }
-  </style>
+  }
+</style>
 
   <script type="module" src="player.js" defer></script>
 </head>
