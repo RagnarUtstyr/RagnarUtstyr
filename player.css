@@ -19,17 +19,6 @@ body {
   max-width: 980px;
 }
 
-.top-character-row {
-  display: flex;
-  gap: 14px;
-  align-items: stretch;
-  margin-bottom: 16px;
-}
-
-.top-character-row .player-panel {
-  margin-bottom: 0;
-}
-
 .player-page.container {
   width: min(100%, 980px);
   max-width: 980px;
@@ -48,6 +37,21 @@ body {
   overflow-x: hidden;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.top-character-row {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+
+.top-character-row .player-panel {
+  margin-bottom: 0;
+}
+
 .compact-panel {
   width: 220px;
   max-width: 220px;
@@ -58,10 +62,6 @@ body {
   width: 260px;
   max-width: 260px;
   flex: 0 0 260px;
-}
-
-.hidden {
-  display: none !important;
 }
 
 .name-grid {
@@ -262,29 +262,33 @@ body {
 }
 
 .damage-options {
-  display: flex;
-  gap: 12px;
-  flex-wrap: nowrap;
-  align-items: center;
-  min-height: auto;
-  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
   justify-content: center;
+  align-items: start;
+  column-gap: 8px;
+  row-gap: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .damage-options label {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
-  font-size: 0.85rem;
+  justify-content: flex-start;
+  gap: 3px;
+  font-size: 0.78rem;
+  line-height: 1;
   white-space: nowrap;
   flex: 0 0 auto;
 }
 
 .damage-options input[type="checkbox"] {
-  width: 13px;
-  height: 13px;
-  min-width: 13px;
-  min-height: 13px;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
   margin: 0;
   transform: none;
 }
@@ -463,24 +467,24 @@ body {
     overflow-x: hidden;
   }
 
-.top-character-row {
-  flex-direction: row;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: nowrap;
-}
+  .top-character-row {
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
 
-.compact-panel {
-  width: 150px;
-  max-width: 150px;
-  flex: 0 0 150px;
-}
+  .compact-panel {
+    width: 150px;
+    max-width: 150px;
+    flex: 0 0 150px;
+  }
 
-.name-panel {
-  width: 170px;
-  max-width: 170px;
-  flex: 0 0 170px;
-}
+  .name-panel {
+    width: 170px;
+    max-width: 170px;
+    flex: 0 0 170px;
+  }
 
   .field-stack input {
     width: 100%;
@@ -566,22 +570,22 @@ body {
     font-size: 0.88rem;
   }
 
-.damage-options {
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: nowrap;
-}
+  .damage-options {
+    grid-template-columns: repeat(3, max-content);
+    column-gap: 6px;
+    justify-content: center;
+  }
 
-.damage-options label {
-  font-size: 0.78rem;
-  gap: 4px;
-}
+  .damage-options label {
+    font-size: 0.72rem;
+    gap: 2px;
+  }
 
   .damage-options input[type="checkbox"] {
-    width: 12px;
-    height: 12px;
-    min-width: 12px;
-    min-height: 12px;
+    width: 11px;
+    height: 11px;
+    min-width: 11px;
+    min-height: 11px;
   }
 
   .button-row {
