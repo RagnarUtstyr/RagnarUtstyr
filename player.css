@@ -1,3 +1,13 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -7,16 +17,6 @@ body {
 
 .player-shell {
   max-width: 980px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  width: 100%;
-  overflow-x: hidden;
 }
 
 .player-page.container {
@@ -34,6 +34,7 @@ body {
   border-radius: 10px;
   padding: 16px;
   margin-bottom: 16px;
+  overflow-x: hidden;
 }
 
 .hidden {
@@ -51,6 +52,7 @@ body {
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  width: 100%;
   align-items: center;
 }
 
@@ -93,6 +95,7 @@ body {
   margin-top: 14px;
 }
 
+/* D&D layout */
 .dnd-hp-top {
   width: 100%;
   max-width: 300px;
@@ -146,22 +149,29 @@ body {
   max-width: 140px;
 }
 
+/* Open Legend layout */
 .ol-top-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(120px, 150px));
+  grid-template-columns: repeat(2, minmax(0, 150px));
   justify-content: center;
   gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
 }
 
 .ol-top-grid .field-stack input {
   max-width: 150px;
 }
 
+/* Shared stat cards */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(120px, 1fr));
   gap: 12px;
   margin-top: 12px;
+  width: 100%;
+  min-width: 0;
 }
 
 .stat-card {
@@ -192,6 +202,8 @@ body {
   gap: 12px;
   align-items: end;
   margin-top: 18px;
+  width: 100%;
+  min-width: 0;
 }
 
 .damage-options {
@@ -200,6 +212,7 @@ body {
   flex-wrap: wrap;
   align-items: center;
   min-height: 40px;
+  min-width: 0;
 }
 
 .damage-options label {
@@ -213,11 +226,14 @@ body {
   margin-top: 12px;
 }
 
+/* Trackers */
 .tracker-form {
   display: grid;
   grid-template-columns: 1.3fr 110px auto;
   gap: 10px;
   margin-bottom: 18px;
+  width: 100%;
+  min-width: 0;
 }
 
 .tracker-form-inline {
@@ -242,6 +258,8 @@ body {
   gap: 10px;
   border-radius: 8px;
   padding: 12px;
+  width: 100%;
+  min-width: 0;
 }
 
 .tracker-top {
@@ -264,6 +282,7 @@ body {
   gap: 8px;
   align-items: center;
   justify-content: start;
+  min-width: 0;
 }
 
 .tracker-boxes input[type="checkbox"] {
@@ -295,6 +314,7 @@ body {
   align-items: center;
   gap: 8px;
   flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .tracker-controls button {
@@ -316,6 +336,7 @@ body {
   line-height: 1.1;
 }
 
+/* Tablet */
 @media (max-width: 900px) {
   .stat-grid,
   .damage-panel,
@@ -325,19 +346,20 @@ body {
   }
 
   .dnd-ac-prof {
-    grid-template-columns: repeat(2, minmax(120px, 140px));
+    grid-template-columns: repeat(2, minmax(0, 140px));
   }
 
   .dnd-stats-columns {
-    grid-template-columns: repeat(2, minmax(120px, 140px));
+    grid-template-columns: repeat(2, minmax(0, 140px));
   }
 
   .ol-top-grid {
-    grid-template-columns: repeat(2, minmax(120px, 150px));
+    grid-template-columns: repeat(2, minmax(0, 150px));
   }
 }
 
-@@media (max-width: 640px) {
+/* Phone */
+@media (max-width: 640px) {
   .player-page.container {
     width: calc(100% - 16px);
     max-width: none;
@@ -455,6 +477,5 @@ body {
   .tracker-boxes {
     grid-template-columns: repeat(8, 20px);
     gap: 6px;
-    min-width: 0;
   }
 }
