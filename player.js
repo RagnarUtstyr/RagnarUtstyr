@@ -38,7 +38,7 @@ if (!game) {
 
 const mode = String(game.mode || "").toLowerCase();
 
-function applyModeStyles(mode) {
+function applyModeStyles(currentMode) {
   const dndStyle = document.getElementById("player-dnd-style");
   const olStyle = document.getElementById("player-ol-style");
 
@@ -47,9 +47,13 @@ function applyModeStyles(mode) {
   dndStyle.disabled = true;
   olStyle.disabled = true;
 
-  if (mode === "dnd") {
+  if (currentMode === "dnd") {
     dndStyle.disabled = false;
-  } else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
+  } else if (
+    currentMode === "openlegend" ||
+    currentMode === "ol" ||
+    currentMode === "open_legend"
+  ) {
     olStyle.disabled = false;
   }
 }
@@ -67,7 +71,11 @@ if (mode === "dnd") {
   if (dndBuilderLink) {
     dndBuilderLink.href = `dnd_character_builder_firebase.html?code=${encodeURIComponent(code)}`;
   }
-} else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
+} else if (
+  mode === "openlegend" ||
+  mode === "ol" ||
+  mode === "open_legend"
+) {
   olSection.classList.remove("hidden");
 
   if (openLegendBuilderLink) {
@@ -109,8 +117,14 @@ function getSharedValues() {
 }
 
 function setSharedValues(data = {}) {
-  document.getElementById("player-name").value = data.name ?? user.displayName ?? "";
-  document.getElementById("player-initiative").value = data.initiative ?? "";
+  document.getElementById("player-name").value =
+    data.name ?? data.playerName ?? user.displayName ?? "";
+
+  document.getElementById("player-initiative").value =
+    data.initiative ??
+    data.number ??
+    data.initiativeBonus ??
+    "";
 }
 
 function getDndValues() {
@@ -127,16 +141,58 @@ function getDndValues() {
   };
 }
 
+function mapDndFirebaseToPlayerValues(data = {}) {
+  return {
+    hp:
+      data.hp ??
+      data.currentHp ??
+      data.health ??
+      data.baseHp ??
+      "",
+    ac: data.ac ?? "",
+    prof:
+      data.prof ??
+      data.proficiencyBonus ??
+      "",
+    str:
+      data.str ??
+      data.strength ??
+      "",
+    dex:
+      data.dex ??
+      data.dexterity ??
+      "",
+    con:
+      data.con ??
+      data.constitution ??
+      "",
+    int:
+      data.int ??
+      data.intelligence ??
+      "",
+    wis:
+      data.wis ??
+      data.wisdom ??
+      "",
+    cha:
+      data.cha ??
+      data.charisma ??
+      ""
+  };
+}
+
 function setDndValues(data = {}) {
-  document.getElementById("player-hp").value = data.hp ?? "";
-  document.getElementById("player-ac").value = data.ac ?? "";
-  document.getElementById("player-prof").value = data.prof ?? "";
-  document.getElementById("player-str").value = data.str ?? "";
-  document.getElementById("player-dex").value = data.dex ?? "";
-  document.getElementById("player-con").value = data.con ?? "";
-  document.getElementById("player-int").value = data.int ?? "";
-  document.getElementById("player-wis").value = data.wis ?? "";
-  document.getElementById("player-cha").value = data.cha ?? "";
+  const mapped = mapDndFirebaseToPlayerValues(data);
+
+  document.getElementById("player-hp").value = mapped.hp ?? "";
+  document.getElementById("player-ac").value = mapped.ac ?? "";
+  document.getElementById("player-prof").value = mapped.prof ?? "";
+  document.getElementById("player-str").value = mapped.str ?? "";
+  document.getElementById("player-dex").value = mapped.dex ?? "";
+  document.getElementById("player-con").value = mapped.con ?? "";
+  document.getElementById("player-int").value = mapped.int ?? "";
+  document.getElementById("player-wis").value = mapped.wis ?? "";
+  document.getElementById("player-cha").value = mapped.cha ?? "";
 }
 
 function getOpenLegendValues() {
@@ -221,7 +277,10 @@ function healOpenLegendHp() {
 
   getCurrentSheet().then((existing) => {
     const baseHp = getOlBaseHpFromSheet(existing);
-    const currentHp = parseNumber(document.getElementById("player-ol-current-hp").value, baseHp);
+    const currentHp = parseNumber(
+      document.getElementById("player-ol-current-hp").value,
+      baseHp
+    );
     const nextHp = Math.min(baseHp, currentHp + healAmount);
 
     document.getElementById("player-ol-current-hp").value = nextHp;
@@ -302,14 +361,29 @@ function buildSheetPayload(existing = {}) {
     mode,
     name: shared.name,
     initiative: shared.initiative,
+    initiativeBonus: shared.initiative,
     trackers: existing.trackers || [],
     updatedAt: Date.now()
   };
 
   if (mode === "dnd") {
+    const dnd = getDndValues();
+
     payload = {
       ...payload,
-      ...getDndValues()
+
+      // old player.js-compatible keys
+      ...dnd,
+
+      // builder-compatible keys
+      currentHp: dnd.hp,
+      proficiencyBonus: dnd.prof,
+      strength: dnd.str,
+      dexterity: dnd.dex,
+      constitution: dnd.con,
+      intelligence: dnd.int,
+      wisdom: dnd.wis,
+      charisma: dnd.cha
     };
   } else {
     const ol = getOpenLegendValues();
@@ -357,7 +431,11 @@ async function loadExistingCharacter() {
 
   if (sheetSnap.exists()) {
     const data = sheetSnap.val();
-    setSharedValues(data);
+
+    setSharedValues({
+      name: data.name ?? data.playerName ?? user.displayName ?? "",
+      initiative: data.initiative ?? data.number ?? data.initiativeBonus ?? ""
+    });
 
     if (mode === "dnd") {
       setDndValues(data);
@@ -381,21 +459,11 @@ async function loadExistingCharacter() {
 
     setSharedValues({
       name: entry.name ?? entry.playerName ?? user.displayName ?? "",
-      initiative: entry.number ?? entry.initiative ?? ""
+      initiative: entry.number ?? entry.initiative ?? entry.initiativeBonus ?? ""
     });
 
     if (mode === "dnd") {
-      setDndValues({
-        hp: entry.health ?? "",
-        ac: entry.ac ?? "",
-        prof: entry.prof ?? "",
-        str: entry.str ?? "",
-        dex: entry.dex ?? "",
-        con: entry.con ?? "",
-        int: entry.int ?? "",
-        wis: entry.wis ?? "",
-        cha: entry.cha ?? ""
-      });
+      setDndValues(entry);
     } else {
       setOpenLegendValues({
         currentHp: "",
@@ -434,6 +502,7 @@ async function saveInitiativeToGame() {
     uid: user.uid,
     playerName: shared.name,
     initiative: shared.initiative,
+    initiativeBonus: shared.initiative,
     name: shared.name,
     number: shared.initiative,
     updatedAt: Date.now()
@@ -510,7 +579,9 @@ async function deleteTracker(trackerId) {
   const existing = await getCurrentSheet();
   if (!existing) return;
 
-  const trackers = normalizeTrackers(existing.trackers).filter((tracker) => tracker.id !== trackerId);
+  const trackers = normalizeTrackers(existing.trackers).filter(
+    (tracker) => tracker.id !== trackerId
+  );
 
   const payload = {
     ...existing,
