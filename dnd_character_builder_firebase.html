@@ -794,17 +794,7 @@ function getBaseAbilitiesWithoutBackground(){
 function applyBackgroundBoostsToManualBase(baseMap){
   const boosts = getBackgroundBoostMap();
   const result = {};
-
-  for (const a of ABILITIES) {
-    const baseValue = Number(baseMap[a] || 8) + (boosts[a] || 0);
-
-    if (state.abilityMode === 'pointbuy') {
-      result[a] = Math.max(1, Math.min(20, baseValue));
-    } else {
-      result[a] = Math.max(1, Math.min(30, baseValue));
-    }
-  }
-
+  for (const a of ABILITIES) result[a] = Math.max(1, Math.min(20, Number(baseMap[a]||8) + boosts[a]));
   return result;
 }
 function pointBuySpent(){
@@ -1393,44 +1383,11 @@ qs('asiChoice').addEventListener('change', updateModalFields);
 document.addEventListener('input', (e) => {
   if (e.target.id?.startsWith('base-')) {
     updateBackgroundBoostedAbilitiesFromInputs();
+    renderAbilities();
     renderSkillList();
     renderSummary();
     renderSpells();
     renderNotesSummary();
-    scheduleBuilderSave();
-    return;
-  }
-
-  if (e.target.matches('[data-feat-index]')) {
-    state.feats[Number(e.target.dataset.featIndex)] = e.target.value;
-    scheduleBuilderSave();
-    return;
-  }
-
-  if (e.target.matches('[data-subclass-feature-index]')) {
-    const i = Number(e.target.dataset.subclassFeatureIndex);
-    const cls = state.classes[i];
-    if (cls) cls.subclassFeatureText = e.target.value;
-    scheduleBuilderSave();
-    return;
-  }
-
-  if (e.target.matches('[data-resource-key]')) {
-    state.resourceTracker[e.target.dataset.resourceKey] = e.target.value;
-    scheduleBuilderSave();
-    return;
-  }
-
-  if (e.target.matches('[data-weapon-index][data-weapon-field]')) {
-    const i = Number(e.target.dataset.weaponIndex);
-    const field = e.target.dataset.weaponField;
-    if (state.weapons[i]) state.weapons[i][field] = e.target.value;
-    renderWeapons();
-    renderSummary();
-    scheduleBuilderSave();
-    return;
-  }
-});erNotesSummary();
   }
   if (e.target.matches('[data-feat-index]')) {
     state.feats[Number(e.target.dataset.featIndex)] = e.target.value;
