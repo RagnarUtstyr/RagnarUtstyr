@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
@@ -13,11 +13,8 @@ const firebaseConfig = {
   measurementId: "G-6X5L39W56C"
 };
 
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getDatabase(app);
-export const googleProvider = new GoogleAuthProvider();
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-googleProvider.setCustomParameters({
-  prompt: "select_account"
-});
+export const auth = getAuth(app);
+export const provider = new GoogleAuthProvider();
+export const db = getDatabase(app);

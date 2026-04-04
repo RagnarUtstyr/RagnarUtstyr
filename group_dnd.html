@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
     <title>Initiative</title>
+    <script type="module" src="admin-guard.js" defer></script>
     <script type="module" src="server_dnd.js" defer></script>
     <script type="module" src="health_dnd.js" defer></script> 
     <link rel="stylesheet" href="style_dnd.css"> 
@@ -15,9 +16,10 @@
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> 
 </head>
 
-<body>
+<body data-mode="dnd">
     <div class="container">
         <h1>Initiative</h1>
+        <p id="game-meta"></p>
         
         <ul id="rankingList"></ul>
 

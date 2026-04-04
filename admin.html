@@ -3,34 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Tracker</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="auth.css" />
-  <script type="module" src="admin.js" defer></script>
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png" />
+  <title>Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #1f1d1a;
+      color: #e3cf95;
+      font-family: 'MedievalSharp', cursive;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      background: rgba(31, 29, 26, 0.95);
+      border: 1px solid #2d3d73;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    p {
+      line-height: 1.5;
+    }
+
+    .small {
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .error {
+      color: #ffb3b3;
+    }
+
+    .button-link {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      background: #0b2621;
+      color: #e3cf95;
+      border: 2px solid #2d3d73;
+    }
+
+    .button-link:hover {
+      background: #1a3b4a;
+    }
+  </style>
 </head>
 <body>
-  <div class="container auth-shell">
-    <div class="top-row">
-      <h1>Admin View</h1>
-      <a class="button-link" href="lobby.html">Back to lobby</a>
-    </div>
-
-    <div id="game-meta" class="panel"></div>
-
-    <div class="panel">
-      <h2>Initiative list</h2>
-      <ul id="admin-entry-list" class="simple-list"></ul>
-    </div>
-
-    <div class="panel">
-      <h2>Quick note</h2>
-      <p class="muted">
-        This page is where you should later merge your existing <code>group.html</code> or <code>group_dnd.html</code> tracker UI.
-        The key change is that it should read from <code>games/{code}/entries</code> instead of <code>rankings/</code>.
-      </p>
-    </div>
-
-    <p id="admin-status" class="muted"></p>
+  <div class="container">
+    <h1>Opening Admin</h1>
+    <p id="admin-status">Checking your game and permissions…</p>
+    <p id="admin-detail" class="small"></p>
+    <a class="button-link" href="lobby.html">Back to Lobby</a>
   </div>
+
+  <script type="module" src="admin-router.js"></script>
 </body>
 </html>
