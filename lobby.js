@@ -1,5 +1,11 @@
 import { requireAuth, logout } from "./auth.js";
-import { createGame, joinGame, watchOwnedAndJoinedGames } from "./game-service.js";
+import {
+  createGame,
+  joinGame,
+  watchOwnedAndJoinedGames,
+  deleteGame,
+  leaveSpecificGame
+} from "./game-service.js";
 
 const createBtn = document.getElementById("create-game-button");
 const joinBtn = document.getElementById("join-game-button");
@@ -14,14 +20,23 @@ function gameLink(game, uid) {
   return `${target}?code=${encodeURIComponent(game.code)}`;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 const user = await requireAuth();
 
 userCard.innerHTML = `
   <div class="user-row">
-    ${user.photoURL ? `<img src="${user.photoURL}" alt="${user.displayName}" class="avatar" />` : ""}
+    ${user.photoURL ? `<img src="${user.photoURL}" alt="${escapeHtml(user.displayName || "User")}" class="avatar" />` : ""}
     <div>
-      <div><strong>${user.displayName || "User"}</strong></div>
-      <div class="muted">${user.email || ""}</div>
+      <div><strong>${escapeHtml(user.displayName || "User")}</strong></div>
+      <div class="muted">${escapeHtml(user.email || "")}</div>
     </div>
   </div>
 `;
@@ -33,20 +48,67 @@ watchOwnedAndJoinedGames(user.uid, (games) => {
   }
 
   gamesList.innerHTML = games.map((game) => {
-    const role = game.ownerUid === user.uid ? "Admin" : "Player";
+    const isOwner = game.ownerUid === user.uid;
+    const role = isOwner ? "Admin" : "Player";
+    const actionLabel = isOwner ? "Delete game" : "Leave game";
+
     return `
-      <a class="game-card" href="${gameLink(game, user.uid)}">
-        <div><strong>${game.title}</strong></div>
-        <div class="muted">${game.mode} · Code: ${game.code} · ${role}</div>
-      </a>
+      <div class="game-card">
+        <a href="${gameLink(game, user.uid)}" style="display:block; text-decoration:none; color:inherit;">
+          <div><strong>${escapeHtml(game.title)}</strong></div>
+          <div class="muted">${escapeHtml(game.mode)} · Code: ${escapeHtml(game.code)} · ${role}</div>
+        </a>
+        <div style="margin-top:10px;">
+          <button
+            type="button"
+            class="game-action-button"
+            data-game-code="${escapeHtml(game.code)}"
+            data-is-owner="${isOwner ? "true" : "false"}"
+          >
+            ${actionLabel}
+          </button>
+        </div>
+      </div>
     `;
   }).join("");
+
+  document.querySelectorAll(".game-action-button").forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const gameCode = button.dataset.gameCode;
+      const isOwner = button.dataset.isOwner === "true";
+
+      try {
+        if (isOwner) {
+          const confirmed = confirm(`Delete game ${gameCode}? This removes the room, entries, and saved lists for everyone.`);
+          if (!confirmed) return;
+
+          statusEl.textContent = "Deleting game...";
+          await deleteGame(user.uid, gameCode);
+          statusEl.textContent = `Game ${gameCode} deleted.`;
+        } else {
+          const confirmed = confirm(`Leave game ${gameCode}? This removes your character/entry from that room.`);
+          if (!confirmed) return;
+
+          statusEl.textContent = "Leaving game...";
+          await leaveSpecificGame(user.uid, gameCode);
+          statusEl.textContent = `You left game ${gameCode}.`;
+        }
+      } catch (error) {
+        console.error(error);
+        statusEl.textContent = error.message || "Could not complete that action.";
+      }
+    });
+  });
 });
 
 createBtn?.addEventListener("click", async () => {
   const title = document.getElementById("game-title").value;
   const mode = document.getElementById("game-mode").value;
   statusEl.textContent = "Creating game...";
+
   try {
     const game = await createGame({ owner: user, mode, title });
     window.location.href = `admin.html?code=${encodeURIComponent(game.code)}`;
@@ -59,6 +121,7 @@ createBtn?.addEventListener("click", async () => {
 joinBtn?.addEventListener("click", async () => {
   const code = document.getElementById("join-code").value.trim().toUpperCase();
   statusEl.textContent = "Joining game...";
+
   try {
     const game = await joinGame({ user, code });
     window.location.href = `player.html?code=${encodeURIComponent(game.code)}`;

@@ -88,7 +88,65 @@ export async function leaveCurrentGame(uid) {
   const { gameCode } = membership;
 
   await remove(ref(db, `games/${gameCode}/members/${uid}`));
+  await remove(ref(db, `games/${gameCode}/entries/${uid}`));
   await remove(ref(db, `memberships/${uid}`));
+}
+
+export async function leaveSpecificGame(uid, gameCode) {
+  const normalized = gameCode.trim().toUpperCase();
+  const gameSnap = await get(ref(db, `games/${normalized}`));
+
+  if (!gameSnap.exists()) {
+    throw new Error("Game not found.");
+  }
+
+  const game = gameSnap.val();
+
+  if (game.ownerUid === uid) {
+    throw new Error("The owner cannot leave their own game. Delete it instead.");
+  }
+
+  await remove(ref(db, `games/${normalized}/members/${uid}`));
+  await remove(ref(db, `games/${normalized}/entries/${uid}`));
+
+  const membershipSnap = await get(ref(db, `memberships/${uid}`));
+  if (membershipSnap.exists()) {
+    const membership = membershipSnap.val();
+    if (membership.gameCode === normalized) {
+      await remove(ref(db, `memberships/${uid}`));
+    }
+  }
+}
+
+export async function deleteGame(ownerUid, gameCode) {
+  const normalized = gameCode.trim().toUpperCase();
+  const gameRef = ref(db, `games/${normalized}`);
+  const gameSnap = await get(gameRef);
+
+  if (!gameSnap.exists()) {
+    throw new Error("Game not found.");
+  }
+
+  const game = gameSnap.val();
+
+  if (game.ownerUid !== ownerUid) {
+    throw new Error("Only the owner can delete this game.");
+  }
+
+  const members = game.members || {};
+  const memberIds = Object.keys(members);
+
+  for (const uid of memberIds) {
+    const membershipSnap = await get(ref(db, `memberships/${uid}`));
+    if (membershipSnap.exists()) {
+      const membership = membershipSnap.val();
+      if (membership.gameCode === normalized) {
+        await remove(ref(db, `memberships/${uid}`));
+      }
+    }
+  }
+
+  await remove(gameRef);
 }
 
 export async function loadMembership(uid) {
