@@ -9,10 +9,19 @@ function getGameCode() {
 
 function getEntriesPath() {
     const code = getGameCode();
-    if (!code) {
-        throw new Error("Missing game code in URL.");
-    }
+    if (!code) throw new Error("Missing game code in URL.");
     return `games/${code}/entries`;
+}
+
+function normalizeEntry(id, entry) {
+    return {
+        id,
+        name: entry.name ?? entry.playerName ?? "Unknown",
+        number: entry.number ?? entry.initiative ?? 0,
+        health: entry.health ?? null,
+        ac: entry.ac ?? null,
+        url: entry.url ?? null
+    };
 }
 
 // Function to fetch and display rankings with health update functionality
@@ -24,69 +33,71 @@ function fetchRankings() {
         const rankingList = document.getElementById('rankingList');
         rankingList.innerHTML = '';
 
-        if (data) {
-            const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => (b.number || 0) - (a.number || 0));
-
-            rankings.forEach(({ id, name, ac, health, url }) => {
-                const listItem = document.createElement('li');
-                listItem.className = 'list-item';
-
-                const nameAcContainer = document.createElement('div');
-                nameAcContainer.className = 'name-ac-container';
-
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
-                nameDiv.textContent = name;
-
-                if (url) {
-                    nameDiv.style.cursor = 'pointer';
-                    nameDiv.addEventListener('click', () => {
-                        window.open(url, '_blank');
-                    });
-                }
-                nameAcContainer.appendChild(nameDiv);
-
-                const acDiv = document.createElement('div');
-                acDiv.className = 'ac';
-                acDiv.textContent = `AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}`;
-                nameAcContainer.appendChild(acDiv);
-
-                listItem.appendChild(nameAcContainer);
-
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
-                listItem.appendChild(healthDiv);
-
-                const healthInput = document.createElement('input');
-                healthInput.type = 'number';
-                healthInput.placeholder = 'Damage';
-                healthInput.className = 'damage-input';
-                healthInput.style.width = '50px';
-                healthInput.dataset.entryId = id;
-                healthInput.dataset.currentHealth = health ?? 0;
-                listItem.appendChild(healthInput);
-
-                if (health === 0) {
-                    const removeButton = document.createElement('button');
-                    removeButton.textContent = 'Remove';
-                    removeButton.className = 'remove-button';
-                    removeButton.addEventListener('click', () => {
-                        removeEntry(id, listItem);
-                    });
-                    listItem.appendChild(removeButton);
-                }
-
-                if (health === 0) {
-                    listItem.classList.add('defeated');
-                }
-
-                rankingList.appendChild(listItem);
-            });
-        } else {
+        if (!data) {
             console.log('No data available');
+            return;
         }
+
+        const rankings = Object.entries(data)
+            .map(([id, entry]) => normalizeEntry(id, entry))
+            .sort((a, b) => (b.number || 0) - (a.number || 0));
+
+        rankings.forEach(({ id, name, ac, health, url }) => {
+            const listItem = document.createElement('li');
+            listItem.className = 'list-item';
+
+            const nameAcContainer = document.createElement('div');
+            nameAcContainer.className = 'name-ac-container';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'name';
+            nameDiv.textContent = name;
+
+            if (url) {
+                nameDiv.style.cursor = 'pointer';
+                nameDiv.addEventListener('click', () => {
+                    window.open(url, '_blank');
+                });
+            }
+            nameAcContainer.appendChild(nameDiv);
+
+            const acDiv = document.createElement('div');
+            acDiv.className = 'ac';
+            acDiv.textContent = `AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}`;
+            nameAcContainer.appendChild(acDiv);
+
+            listItem.appendChild(nameAcContainer);
+
+            const healthDiv = document.createElement('div');
+            healthDiv.className = 'health';
+            healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
+            listItem.appendChild(healthDiv);
+
+            const healthInput = document.createElement('input');
+            healthInput.type = 'number';
+            healthInput.placeholder = 'Damage';
+            healthInput.className = 'damage-input';
+            healthInput.style.width = '50px';
+            healthInput.dataset.entryId = id;
+            healthInput.dataset.currentHealth = health ?? 0;
+            listItem.appendChild(healthInput);
+
+            if (health === 0) {
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.className = 'remove-button';
+                removeButton.addEventListener('click', () => {
+                    removeEntry(id, listItem);
+                });
+                listItem.appendChild(removeButton);
+            }
+
+            if (health === 0) {
+                listItem.classList.add('defeated');
+            }
+
+            rankingList.appendChild(listItem);
+        });
     });
 }
 
@@ -98,7 +109,7 @@ function applyDamageToAll() {
         const currentHealth = parseInt(input.dataset.currentHealth, 10);
         const damage = parseInt(input.value, 10);
 
-        if (!isNaN(damage)) {
+        if (!isNaN(damage) && !isNaN(currentHealth)) {
             const updatedHealth = currentHealth - damage;
             updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0, input);
         }
