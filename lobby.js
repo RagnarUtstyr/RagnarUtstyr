@@ -53,21 +53,20 @@ watchOwnedAndJoinedGames(user.uid, (games) => {
     const actionLabel = isOwner ? "Delete game" : "Leave game";
 
     return `
-      <div class="game-card">
-        <a href="${gameLink(game, user.uid)}" style="display:block; text-decoration:none; color:inherit;">
+      <div class="game-card game-card-row">
+        <button
+          type="button"
+          class="game-action-button"
+          data-game-code="${escapeHtml(game.code)}"
+          data-is-owner="${isOwner ? "true" : "false"}"
+        >
+          ${actionLabel}
+        </button>
+
+        <a href="${gameLink(game, user.uid)}" class="game-card-main">
           <div><strong>${escapeHtml(game.title)}</strong></div>
           <div class="muted">${escapeHtml(game.mode)} · Code: ${escapeHtml(game.code)} · ${role}</div>
         </a>
-        <div style="margin-top:10px;">
-          <button
-            type="button"
-            class="game-action-button"
-            data-game-code="${escapeHtml(game.code)}"
-            data-is-owner="${isOwner ? "true" : "false"}"
-          >
-            ${actionLabel}
-          </button>
-        </div>
       </div>
     `;
   }).join("");
