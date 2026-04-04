@@ -34,6 +34,24 @@ if (!game) {
 
 const mode = String(game.mode || "").toLowerCase();
 
+function applyModeStyles(mode) {
+  const openLegendStyle = document.getElementById("style-openlegend");
+  const dndStyle = document.getElementById("style-dnd");
+
+  if (!openLegendStyle || !dndStyle) return;
+
+  openLegendStyle.disabled = true;
+  dndStyle.disabled = true;
+
+  if (mode === "dnd") {
+    dndStyle.disabled = false;
+  } else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
+    openLegendStyle.disabled = false;
+  }
+}
+
+applyModeStyles(mode);
+
 metaEl.innerHTML = `
   <div><strong>${game.title}</strong></div>
   <div class="muted">Code: ${game.code} · ${game.mode} · Admin: ${game.ownerName}</div>
