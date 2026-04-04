@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="auth.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 
-  <script type="module" src="player.js" defer></script>
+  <script type="module" src="player.js?v=3" defer></script>
 </head>
 <body>
   <div class="container auth-shell player-shell player-page">
@@ -104,6 +104,38 @@
             </div>
           </div>
         </div>
+
+        <div class="damage-panel">
+          <div class="field-stack">
+            <label for="dnd-damage-input">Damage</label>
+            <input type="number" id="dnd-damage-input" min="0" placeholder="Damage" />
+          </div>
+
+          <div class="button-row damage-button-row" style="margin-top:0;">
+            <button id="dnd-apply-damage-btn" type="button">Apply</button>
+          </div>
+        </div>
+
+        <div class="ol-recovery-area">
+          <div class="button-row ol-recovery-row">
+            <div class="field-stack compact-heal-field">
+              <label for="dnd-heal-amount">Heal</label>
+              <input type="number" id="dnd-heal-amount" min="0" placeholder="Heal amount" />
+            </div>
+            <button id="dnd-heal-btn" type="button">Heal</button>
+          </div>
+
+          <label class="tracker-form-inline muted">
+            <input type="checkbox" id="dnd-temp-heal" />
+            Temp
+          </label>
+
+          <div class="button-row ol-reset-row">
+            <button id="dnd-reset-hp-btn" type="button">Reset HP</button>
+          </div>
+        </div>
+
+        <div id="dnd-calc-result" class="calc-result muted"></div>
       </div>
     </section>
 

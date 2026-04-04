@@ -158,6 +158,21 @@ function setDndValues(data = {}) {
   document.getElementById("player-cha").value = mapped.cha ?? "";
 }
 
+function getDndBaseHpFromSheet(sheet) {
+  const baseHp = parseNumber(sheet?.baseHp, NaN);
+  if (!Number.isNaN(baseHp)) return baseHp;
+
+  const currentHp = parseNumber(sheet?.currentHp, NaN);
+  if (!Number.isNaN(currentHp)) return currentHp;
+
+  return parseNumber(sheet?.hp, 0);
+}
+
+function setDndResult(message) {
+  const el = document.getElementById("dnd-calc-result");
+  if (el) el.textContent = message || "";
+}
+
 function getOpenLegendValues() {
   return {
     currentHp: numberOrNull(document.getElementById("player-ol-current-hp").value),
@@ -186,6 +201,59 @@ function setOlResult(message) {
 
 function getOlBaseHpFromSheet(sheet) {
   return parseNumber(sheet?.baseHp, 0);
+}
+
+function applyDndDamage() {
+  const damage = parseNumber(document.getElementById("dnd-damage-input").value, NaN);
+  if (Number.isNaN(damage) || damage < 0) {
+    setDndResult("Enter a valid damage amount.");
+    return;
+  }
+
+  const currentHp = parseNumber(document.getElementById("player-hp").value, 0);
+  const nextHp = Math.max(0, currentHp - damage);
+
+  document.getElementById("player-hp").value = nextHp;
+  document.getElementById("dnd-damage-input").value = "";
+  setDndResult(`Took ${damage} damage. HP is now ${nextHp}.`);
+  scheduleAutoSave("D&D damage applied.");
+}
+
+async function healDndHp() {
+  const healAmount = parseNumber(document.getElementById("dnd-heal-amount").value, NaN);
+  if (Number.isNaN(healAmount) || healAmount < 0) {
+    setDndResult("Enter a valid heal amount.");
+    return;
+  }
+
+  const allowTemp = !!document.getElementById("dnd-temp-heal")?.checked;
+  const existing = await getCurrentSheet();
+  const baseHp = getDndBaseHpFromSheet(existing);
+  const currentHp = parseNumber(document.getElementById("player-hp").value, 0);
+
+  const nextHp = allowTemp
+    ? currentHp + healAmount
+    : Math.min(baseHp, currentHp + healAmount);
+
+  document.getElementById("player-hp").value = nextHp;
+  document.getElementById("dnd-heal-amount").value = "";
+
+  if (allowTemp) {
+    setDndResult(`Healed ${healAmount}. HP is now ${nextHp} (temp allowed).`);
+  } else {
+    setDndResult(`Healed ${healAmount}. HP is now ${nextHp}.`);
+  }
+
+  scheduleAutoSave("D&D healing applied.");
+}
+
+async function resetDndHp() {
+  const existing = await getCurrentSheet();
+  const baseHp = getDndBaseHpFromSheet(existing);
+
+  document.getElementById("player-hp").value = baseHp;
+  setDndResult(`HP reset to ${baseHp}.`);
+  scheduleAutoSave("D&D HP reset.");
 }
 
 function applyOpenLegendDamage() {
@@ -328,11 +396,12 @@ function buildSheetPayload(existing = {}) {
 
   if (mode === "dnd") {
     const dnd = getDndValues();
+    const existingBaseHp = parseNumber(existing.baseHp, dnd.hp ?? 0);
 
     payload = {
       ...payload,
       ...dnd,
-
+      baseHp: existingBaseHp,
       currentHp: dnd.hp,
       proficiencyBonus: dnd.prof,
       strength: dnd.str,
@@ -546,6 +615,10 @@ async function deleteTracker(trackerId) {
 }
 
 saveInitiativeBtn?.addEventListener("click", saveInitiativeToGame);
+
+document.getElementById("dnd-apply-damage-btn")?.addEventListener("click", applyDndDamage);
+document.getElementById("dnd-heal-btn")?.addEventListener("click", healDndHp);
+document.getElementById("dnd-reset-hp-btn")?.addEventListener("click", resetDndHp);
 
 document.getElementById("ol-apply-damage-btn")?.addEventListener("click", applyOpenLegendDamage);
 document.getElementById("ol-reset-hp-btn")?.addEventListener("click", resetOpenLegendHp);
