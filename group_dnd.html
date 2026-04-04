@@ -7,20 +7,18 @@
     <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
     <title>Initiative</title>
     <script type="module" src="server_dnd.js" defer></script>
-    <script type="module" src="health_dnd.js" defer></script> 
-    <link rel="stylesheet" href="style_dnd.css"> 
-    <link rel="stylesheet" href="turn_dnd.css"> 
-    <link rel="stylesheet" href="save_dnd.css"> 
-    <script src="turn_dnd.js" defer></script> 
-    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> 
+    <script type="module" src="health_dnd.js" defer></script>
+    <link rel="stylesheet" href="style_dnd.css">
+    <link rel="stylesheet" href="turn_dnd.css">
+    <link rel="stylesheet" href="save_dnd.css">
+    <script src="turn_dnd.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div class="container">
         <h1>Initiative</h1>
-        <br>
-        <a href="lobby.html" class="button-link">Lobby</a>
-        
+
         <ul id="rankingList"></ul>
 
         <div class="button-container">
@@ -31,15 +29,15 @@
         <br>
         <button id="clear-list-button">Clear List</button>
         <br><br>
-       
+
         <br><br>
         <h2>Submit a New Entry</h2>
         <label for="name">Name:</label>
         <input type="text" id="name" required>
-        
+
         <label for="initiative">Initiative:</label>
         <input type="number" id="initiative" required>
-        
+
         <label for="health">Health:</label>
         <input type="number" id="health">
 
@@ -49,8 +47,27 @@
         <button id="submit-button">Submit</button>
 
         <br><br>
-        <a href="save.html" class="button-link">Go to Lists</a>
-        <a href="monster.html" class="button-link">Go to Monster List</a>
+        <a id="save-link" href="save.html" class="button-link">Go to Lists</a>
+        <a id="monster-link" href="monster.html" class="button-link">Go to Monster List</a>
     </div>
+
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const code = (params.get("code") || "").trim().toUpperCase();
+            if (!code) return;
+
+            const saveLink = document.getElementById("save-link");
+            const monsterLink = document.getElementById("monster-link");
+
+            if (saveLink) {
+                saveLink.href = `save.html?code=${encodeURIComponent(code)}`;
+            }
+
+            if (monsterLink) {
+                monsterLink.href = `monster.html?code=${encodeURIComponent(code)}`;
+            }
+        })();
+    </script>
 </body>
 </html>

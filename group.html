@@ -7,12 +7,10 @@
   <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png" />
   <title>Initiative</title>
 
-  <!-- Scripts -->
   <script type="module" src="server.js" defer></script>
   <script type="module" src="health.js" defer></script>
   <script src="turn.js" defer></script>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="turn.css" />
   <link rel="stylesheet" href="save.css" />
@@ -22,8 +20,6 @@
 <body>
   <div class="container">
     <h1>Initiative</h1>
-    <br>
-    <a href="lobby.html" class="button-link">Lobby</a>
 
     <div class="ranking-container">
       <div class="global-stat-selector">
@@ -82,9 +78,28 @@
     <button id="submit-button">Submit</button>
 
     <br /><br />
-    <a href="save.html" class="button-link">Go to Lists</a>
-    <a href="openmonsterlist.html" class="button-link">Go to Monster List</a>
+    <a id="save-link" href="save.html" class="button-link">Go to Lists</a>
+    <a id="monster-link" href="openmonsterlist.html" class="button-link">Go to Monster List</a>
   </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const code = (params.get("code") || "").trim().toUpperCase();
+      if (!code) return;
+
+      const saveLink = document.getElementById("save-link");
+      const monsterLink = document.getElementById("monster-link");
+
+      if (saveLink) {
+        saveLink.href = `save.html?code=${encodeURIComponent(code)}`;
+      }
+
+      if (monsterLink) {
+        monsterLink.href = `openmonsterlist.html?code=${encodeURIComponent(code)}`;
+      }
+    })();
+  </script>
 
   <!-- Stats Modal -->
   <div id="stat-modal" class="ol-modal" aria-hidden="true">
@@ -157,5 +172,4 @@
   </div>
 
 </body>
-
 </html>
