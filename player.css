@@ -337,3 +337,126 @@ body {
     gap: 6px;
   }
 }
+
+/* Make player inputs feel more like square stat boxes */
+.player-page .field-stack input {
+  min-height: 52px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  line-height: 1.2;
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* D&D stat boxes should not feel too long */
+.player-page .dnd-hp-top,
+.player-page .dnd-ac-prof,
+.player-page .dnd-stats-columns {
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Keep ability score boxes compact */
+.player-page .dnd-stat-column .field-stack,
+.player-page .dnd-ac-prof .field-stack {
+  max-width: 150px;
+}
+
+.player-page .dnd-stat-column {
+  justify-content: start;
+}
+
+.player-page .dnd-stats-columns {
+  justify-content: center;
+}
+
+/* Open Legend top fields should also stay compact */
+.player-page .ol-top-grid .field-stack {
+  max-width: 170px;
+}
+
+/* Initiative box should be compact and readable */
+.player-page .initiative-panel .field-stack input {
+  min-height: 56px;
+  font-size: 1.05rem;
+}
+
+/* Phone tuning */
+@media (max-width: 640px) {
+  .player-page .player-panel {
+    padding: 12px;
+  }
+
+  .player-page .field-stack {
+    align-items: center;
+  }
+
+  .player-page .field-stack label {
+    width: 100%;
+    max-width: 170px;
+    text-align: center;
+  }
+
+  .player-page .field-stack input {
+    width: 100%;
+    max-width: 170px;
+    min-height: 54px;
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  .player-page .initiative-panel {
+    max-width: 100%;
+  }
+
+  .player-page .initiative-panel .field-stack input {
+    max-width: 180px;
+  }
+
+  .player-page .dnd-hp-top {
+    max-width: 180px;
+    margin: 0 auto 16px auto;
+  }
+
+  .player-page .dnd-ac-prof {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    justify-content: center;
+    gap: 10px;
+    max-width: 320px;
+    margin: 0 auto 16px auto;
+  }
+
+  .player-page .dnd-ac-prof .field-stack {
+    max-width: 140px;
+    margin: 0 auto;
+  }
+
+  .player-page .dnd-stats-columns {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 10px 12px;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .player-page .dnd-stat-column {
+    gap: 10px;
+  }
+
+  .player-page .dnd-stat-column .field-stack {
+    max-width: 140px;
+    margin: 0 auto;
+  }
+
+  .player-page .ol-top-grid {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 10px;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  .player-page .ol-top-grid .field-stack {
+    max-width: 150px;
+    margin: 0 auto;
+  }
+}
