@@ -17,6 +17,9 @@ const saveInitiativeBtn = document.getElementById("save-initiative-button");
 const dndSection = document.getElementById("player-dnd-section");
 const olSection = document.getElementById("player-openlegend-section");
 
+const dndBuilderLink = document.getElementById("dnd-builder-link");
+const openLegendBuilderLink = document.getElementById("openlegend-builder-link");
+
 const trackerListEl = document.getElementById("tracker-list");
 const trackerEmptyEl = document.getElementById("tracker-empty");
 
@@ -60,11 +63,15 @@ metaEl.innerHTML = `
 
 if (mode === "dnd") {
   dndSection.classList.remove("hidden");
+
+  if (dndBuilderLink) {
+    dndBuilderLink.href = `dnd_character_builder_firebase.html?code=${encodeURIComponent(code)}`;
+  }
 } else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
   olSection.classList.remove("hidden");
-  const builderLink = document.getElementById("openlegend-builder-link");
-  if (builderLink) {
-    builderLink.href = `openlegend_character_builder.html?code=${encodeURIComponent(code)}`;
+
+  if (openLegendBuilderLink) {
+    openLegendBuilderLink.href = `openlegend_character_builder.html?code=${encodeURIComponent(code)}`;
   }
 } else {
   statusEl.textContent = `Unsupported game mode: ${game.mode}`;
