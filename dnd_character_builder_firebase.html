@@ -519,7 +519,7 @@ const BACKGROUNDS = {
   Hermit:{ boosts:['Constitution','Wisdom','Charisma'], feat:'Healer', skills:['Medicine','Religion'], notes:'Hermit grants Healer and boosts among Constitution, Wisdom, Charisma.' },
   Noble:{ boosts:['Strength','Intelligence','Charisma'], feat:'Skilled', skills:['History','Persuasion'], notes:'Noble grants Skilled and boosts among Strength, Intelligence, Charisma.' },
   Sage:{ boosts:['Constitution','Intelligence','Wisdom'], feat:'Magic Initiate', skills:['Arcana','History'], notes:'Sage grants Magic Initiate and boosts among Constitution, Intelligence, Wisdom.' },
-  Soldier:{ boosts:['Strength','Dexterity','Constitution'], feat:'Savage Attacker', skills:['Athletics','Intimidation'], notes:'Soldier grants Savage Attacker and boosts among Strength, Dexterity, Constitution.' },
+  Soldier:{ boosts:['Strength','Dexterity','Constitution'], feat:'Savage Attacker', skills:['Athletics','Intimidation'], notes:'Soldier grants Savage Attacker, stealthy skills, and boosts among Strength, Dexterity, Constitution.' },
   Wayfarer:{ boosts:['Dexterity','Wisdom','Charisma'], feat:'Lucky', skills:['Insight','Stealth'], notes:'Wayfarer grants Lucky and boosts among Dexterity, Wisdom, Charisma.' }
 };
 const CLASSES = {
@@ -701,7 +701,6 @@ const SPELLS = [
   {name:'Fly', level:3, classes:['Sorcerer','Warlock','Wizard']}, {name:'Haste', level:3, classes:['Sorcerer','Wizard']}, {name:'Revivify', level:3, classes:['Cleric','Paladin']}, {name:'Spirit Guardians', level:3, classes:['Cleric']}
 ];
 
-
 const FEAT_DETAILS = {
   'Actor':'+1 Charisma. Advantage on Deception and Performance checks when trying to pass yourself off as a different person, and you can mimic speech and sounds you have heard.',
   'Alert':'+5 bonus to initiative, you can\'t be surprised while conscious, and other creatures don\'t gain advantage on attack rolls against you just for being unseen.',
@@ -794,7 +793,14 @@ function getBaseAbilitiesWithoutBackground(){
 function applyBackgroundBoostsToManualBase(baseMap){
   const boosts = getBackgroundBoostMap();
   const result = {};
-  for (const a of ABILITIES) result[a] = Math.max(1, Math.min(20, Number(baseMap[a]||8) + boosts[a]));
+  for (const a of ABILITIES) {
+    const baseValue = Number(baseMap[a] || 8) + (boosts[a] || 0);
+    if (state.abilityMode === 'pointbuy') {
+      result[a] = Math.max(1, Math.min(20, baseValue));
+    } else {
+      result[a] = Math.max(1, Math.min(30, baseValue));
+    }
+  }
   return result;
 }
 function pointBuySpent(){
@@ -926,9 +932,7 @@ function renderSkillList(){
       .map(skill => {
         const proficient = sourceMap[skill].length > 0;
         const total = mod(state.abilities[ability]) + (proficient ? profBonus() : 0);
-        const sourceText = proficient
-          ? ``
-          : '';
+        const sourceText = proficient ? `` : '';
         return `<div class="skill-line"><span>${skill}</span><strong>${total}</strong></div>${sourceText}`;
       }).join('');
     return `<div class="skill-group"><h4>${ability} ${mod(state.abilities[ability]) >= 0 ? '+' : ''}${mod(state.abilities[ability])}</h4>${skills}</div>`;
@@ -1383,22 +1387,28 @@ qs('asiChoice').addEventListener('change', updateModalFields);
 document.addEventListener('input', (e) => {
   if (e.target.id?.startsWith('base-')) {
     updateBackgroundBoostedAbilitiesFromInputs();
-    renderAbilities();
     renderSkillList();
     renderSummary();
     renderSpells();
     renderNotesSummary();
+    scheduleBuilderSave();
+    return;
   }
   if (e.target.matches('[data-feat-index]')) {
     state.feats[Number(e.target.dataset.featIndex)] = e.target.value;
+    scheduleBuilderSave();
+    return;
   }
   if (e.target.matches('[data-class-level]')) {
     const i = Number(e.target.dataset.classLevel);
     state.classes[i].level = Math.max(1, Number(e.target.value || 1));
     rerender();
+    return;
   }
   if (e.target.matches('[data-resource-current]')) {
     state.resourceTracker[e.target.dataset.resourceCurrent] = e.target.value;
+    scheduleBuilderSave();
+    return;
   }
 });
 document.addEventListener('change', (e) => {
@@ -1466,6 +1476,7 @@ async function saveBuilderToFirebase(message = 'Auto-saved.') {
     const maxHp = hitPointMax();
     const existingCurrentHp = Number(existingPlayer.currentHp);
     const nextCurrentHp = Number.isFinite(existingCurrentHp) ? Math.max(0, Math.min(existingCurrentHp, maxHp)) : maxHp;
+
     const playerPayload = {
       ...(existingPlayer || {}),
       uid: firebaseUser.uid,
@@ -1473,6 +1484,7 @@ async function saveBuilderToFirebase(message = 'Auto-saved.') {
       userName: firebaseUser.displayName || '',
       mode: 'dnd',
       name: state.name || firebaseUser.displayName || '',
+
       ac: armorClass(),
       baseHp: maxHp,
       currentHp: nextCurrentHp,
@@ -1484,9 +1496,21 @@ async function saveBuilderToFirebase(message = 'Auto-saved.') {
       intelligence: state.abilities.Intelligence,
       wisdom: state.abilities.Wisdom,
       charisma: state.abilities.Charisma,
+
+      hp: nextCurrentHp,
+      prof: profBonus(),
+      str: state.abilities.Strength,
+      dex: state.abilities.Dexterity,
+      con: state.abilities.Constitution,
+      int: state.abilities.Intelligence,
+      wis: state.abilities.Wisdom,
+      cha: state.abilities.Charisma,
+      initiative: initiative(),
+
       classSummary: state.classes.map(c => `${c.name} ${c.level}`).join(' / '),
       builderUpdatedAt: Date.now()
     };
+
     await set(ref(db, builderPath()), builderPayload);
     await set(ref(db, playerPath()), playerPayload);
     saveStatusEl.textContent = message;
