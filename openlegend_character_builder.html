@@ -494,7 +494,7 @@
       try {
         syncFromDom();
 
-        const builderPath = `games/${code}/players/${user.uid}/openLegendBuilder`;
+        const builderPath = `games/${code}/builderSheets/${user.uid}`;
         const playerPath = `games/${code}/players/${user.uid}`;
 
         const existingPlayerSnap = await get(ref(db, playerPath));
@@ -553,23 +553,27 @@
     }
 
     async function loadFromFirebase() {
-      const builderPath = `games/${code}/players/${user.uid}/openLegendBuilder`;
+      const builderPath = `games/${code}/builderSheets/${user.uid}`;
       const snap = await get(ref(db, builderPath));
 
       if (snap.exists()) {
         const data = snap.val();
         character.name = data.name || "";
         character.xp = cleanInt(data.xp);
+
         ATTRIBUTE_ORDER.forEach((attr) => {
           character.attributes[attr] = cleanInt(data.attributes?.[attr]);
         });
+
         saveStatusEl.textContent = "Loaded from Firebase.";
       } else {
         character.name = user.displayName || "";
         character.xp = 0;
+
         ATTRIBUTE_ORDER.forEach((attr) => {
           character.attributes[attr] = 0;
         });
+
         saveStatusEl.textContent = "No builder save found yet.";
       }
 
