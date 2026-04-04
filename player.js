@@ -13,7 +13,6 @@ const code = (params.get("code") || "").toUpperCase();
 const metaEl = document.getElementById("player-game-meta");
 const statusEl = document.getElementById("player-status");
 
-const saveCharacterBtn = document.getElementById("save-character-button");
 const saveInitiativeBtn = document.getElementById("save-initiative-button");
 
 const dndSection = document.getElementById("player-dnd-section");
@@ -150,12 +149,7 @@ function setOpenLegendValues(data = {}) {
 }
 
 function renderOpenLegendStats() {
-  const values = getOpenLegendValues();
-
-  document.getElementById("ol-stat-grd").textContent = values.grd ?? "—";
-  document.getElementById("ol-stat-res").textContent = values.res ?? "—";
-  document.getElementById("ol-stat-tgh").textContent = values.tgh ?? "—";
-  document.getElementById("ol-stat-hp").textContent = values.currentHp ?? values.baseHp ?? "—";
+  // visible values are the editable stat-card inputs themselves
 }
 
 function getSelectedOlDefense() {
@@ -513,8 +507,6 @@ async function deleteTracker(trackerId) {
   renderTrackerList(trackers);
   statusEl.textContent = "Tracker deleted.";
 }
-
-saveCharacterBtn?.remove();
 
 saveInitiativeBtn?.addEventListener("click", saveInitiativeToGame);
 

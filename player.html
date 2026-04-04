@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Player Sheet</title>
 
-<link rel="stylesheet" href="player.css" />
-<link rel="stylesheet" id="player-dnd-style" href="player_dnd.css" disabled />
-<link rel="stylesheet" id="player-ol-style" href="player_openlegend.css" disabled />
-<link rel="stylesheet" href="auth.css" />
+  <link rel="stylesheet" href="player.css" />
+  <link rel="stylesheet" id="player-dnd-style" href="player_dnd.css" disabled />
+  <link rel="stylesheet" id="player-ol-style" href="player_openlegend.css" disabled />
+  <link rel="stylesheet" href="auth.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 
   <script type="module" src="player.js" defer></script>
@@ -106,50 +106,31 @@
       <div class="player-panel">
         <h2>Open Legend Sheet</h2>
 
-        <div class="ol-top-grid">
-          <div class="field-stack">
-            <label for="player-ol-base-hp">HP</label>
-            <input type="number" id="player-ol-base-hp" placeholder="30" />
-          </div>
-
-          <div class="field-stack">
-            <label for="player-ol-current-hp">Current HP</label>
-            <input type="number" id="player-ol-current-hp" placeholder="30" />
-          </div>
-
-          <div class="field-stack">
-            <label for="player-ol-grd">GRD</label>
-            <input type="number" id="player-ol-grd" placeholder="14" />
-          </div>
-
-          <div class="field-stack">
-            <label for="player-ol-res">RES</label>
-            <input type="number" id="player-ol-res" placeholder="12" />
-          </div>
-
-          <div class="field-stack">
-            <label for="player-ol-tgh">TGH</label>
-            <input type="number" id="player-ol-tgh" placeholder="13" />
-          </div>
-        </div>
-
-        <div class="stat-grid">
-          <div class="stat-card">
-            <span class="stat-label">GRD</span>
-            <span class="stat-value" id="ol-stat-grd">—</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">RES</span>
-            <span class="stat-value" id="ol-stat-res">—</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">TGH</span>
-            <span class="stat-value" id="ol-stat-tgh">—</span>
-          </div>
-          <div class="stat-card hp-card">
+        <div class="stat-grid ol-edit-grid">
+          <label class="stat-card hp-card editable-stat-card" for="player-ol-base-hp">
             <span class="stat-label">HP</span>
-            <span class="stat-value" id="ol-stat-hp">—</span>
-          </div>
+            <input type="number" id="player-ol-base-hp" class="stat-input" placeholder="30" />
+          </label>
+
+          <label class="stat-card hp-card editable-stat-card" for="player-ol-current-hp">
+            <span class="stat-label">Current HP</span>
+            <input type="number" id="player-ol-current-hp" class="stat-input" placeholder="30" />
+          </label>
+
+          <label class="stat-card editable-stat-card" for="player-ol-grd">
+            <span class="stat-label">GRD</span>
+            <input type="number" id="player-ol-grd" class="stat-input" placeholder="14" />
+          </label>
+
+          <label class="stat-card editable-stat-card" for="player-ol-res">
+            <span class="stat-label">RES</span>
+            <input type="number" id="player-ol-res" class="stat-input" placeholder="12" />
+          </label>
+
+          <label class="stat-card editable-stat-card" for="player-ol-tgh">
+            <span class="stat-label">TGH</span>
+            <input type="number" id="player-ol-tgh" class="stat-input" placeholder="13" />
+          </label>
         </div>
 
         <div class="damage-panel">
@@ -174,7 +155,7 @@
         </div>
 
         <div class="button-row">
-          <div class="field-stack" style="min-width:160px;">
+          <div class="field-stack compact-heal-field">
             <label for="ol-heal-amount">Heal Amount</label>
             <input type="number" id="ol-heal-amount" min="0" placeholder="Heal" />
           </div>
@@ -187,7 +168,7 @@
 
     <div class="player-panel">
       <h2>Trackers</h2>
-      <p class="muted" style="margin-bottom:14px;">Saved with your character in this game.</p>
+      <p class="muted tracker-subtitle">Saved with your character in this game.</p>
 
       <div class="tracker-form">
         <input type="text" id="tracker-name" placeholder="Tracker name" />
