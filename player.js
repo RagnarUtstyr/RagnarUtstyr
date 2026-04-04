@@ -12,7 +12,6 @@ const code = (params.get("code") || "").toUpperCase();
 
 const metaEl = document.getElementById("player-game-meta");
 const statusEl = document.getElementById("player-status");
-
 const saveInitiativeBtn = document.getElementById("save-initiative-button");
 
 const dndSection = document.getElementById("player-dnd-section");
@@ -63,6 +62,10 @@ if (mode === "dnd") {
   dndSection.classList.remove("hidden");
 } else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
   olSection.classList.remove("hidden");
+  const builderLink = document.getElementById("openlegend-builder-link");
+  if (builderLink) {
+    builderLink.href = `openlegend_character_builder_v3.html?code=${encodeURIComponent(code)}`;
+  }
 } else {
   statusEl.textContent = `Unsupported game mode: ${game.mode}`;
   throw new Error(`Unsupported game mode: ${game.mode}`);
@@ -131,24 +134,18 @@ function setDndValues(data = {}) {
 
 function getOpenLegendValues() {
   return {
-    baseHp: numberOrNull(document.getElementById("player-ol-base-hp").value),
     currentHp: numberOrNull(document.getElementById("player-ol-current-hp").value),
-    grd: numberOrNull(document.getElementById("player-ol-grd").value),
-    res: numberOrNull(document.getElementById("player-ol-res").value),
-    tgh: numberOrNull(document.getElementById("player-ol-tgh").value)
+    grd: parseNumber(document.getElementById("player-ol-grd-view")?.textContent, 0),
+    res: parseNumber(document.getElementById("player-ol-res-view")?.textContent, 0),
+    tgh: parseNumber(document.getElementById("player-ol-tgh-view")?.textContent, 0)
   };
 }
 
 function setOpenLegendValues(data = {}) {
-  document.getElementById("player-ol-base-hp").value = data.baseHp ?? data.hp ?? "";
-  document.getElementById("player-ol-current-hp").value = data.currentHp ?? data.hp ?? "";
-  document.getElementById("player-ol-grd").value = data.grd ?? "";
-  document.getElementById("player-ol-res").value = data.res ?? "";
-  document.getElementById("player-ol-tgh").value = data.tgh ?? "";
-}
-
-function renderOpenLegendStats() {
-  // visible values are the editable stat-card inputs themselves
+  document.getElementById("player-ol-current-hp").value = data.currentHp ?? "";
+  document.getElementById("player-ol-grd-view").textContent = data.grd ?? "—";
+  document.getElementById("player-ol-res-view").textContent = data.res ?? "—";
+  document.getElementById("player-ol-tgh-view").textContent = data.tgh ?? "—";
 }
 
 function getSelectedOlDefense() {
@@ -159,6 +156,10 @@ function getSelectedOlDefense() {
 function setOlResult(message) {
   const el = document.getElementById("ol-calc-result");
   if (el) el.textContent = message || "";
+}
+
+function getOlBaseHpFromSheet(sheet) {
+  return parseNumber(sheet?.baseHp, 0);
 }
 
 function applyOpenLegendDamage() {
@@ -175,7 +176,7 @@ function applyOpenLegendDamage() {
   }
 
   const values = getOpenLegendValues();
-  const currentHp = parseNumber(values.currentHp, parseNumber(values.baseHp, 0));
+  const currentHp = parseNumber(values.currentHp, 0);
   const defenseValue = parseNumber(values[defenseKey], 0);
 
   let hpLoss = 0;
@@ -196,8 +197,9 @@ function applyOpenLegendDamage() {
   scheduleAutoSave("Open Legend damage applied.");
 }
 
-function resetOpenLegendHp() {
-  const baseHp = parseNumber(document.getElementById("player-ol-base-hp").value, 0);
+async function resetOpenLegendHp() {
+  const existing = await getCurrentSheet();
+  const baseHp = getOlBaseHpFromSheet(existing);
   document.getElementById("player-ol-current-hp").value = baseHp;
   setOlResult("HP reset to base HP.");
   scheduleAutoSave("HP reset.");
@@ -210,14 +212,16 @@ function healOpenLegendHp() {
     return;
   }
 
-  const baseHp = parseNumber(document.getElementById("player-ol-base-hp").value, 0);
-  const currentHp = parseNumber(document.getElementById("player-ol-current-hp").value, baseHp);
-  const nextHp = Math.min(baseHp, currentHp + healAmount);
+  getCurrentSheet().then((existing) => {
+    const baseHp = getOlBaseHpFromSheet(existing);
+    const currentHp = parseNumber(document.getElementById("player-ol-current-hp").value, baseHp);
+    const nextHp = Math.min(baseHp, currentHp + healAmount);
 
-  document.getElementById("player-ol-current-hp").value = nextHp;
-  setOlResult(`Healed ${healAmount}. Current HP is now ${nextHp}.`);
-  document.getElementById("ol-heal-amount").value = "";
-  scheduleAutoSave("HP healed.");
+    document.getElementById("player-ol-current-hp").value = nextHp;
+    setOlResult(`Healed ${healAmount}. Current HP is now ${nextHp}.`);
+    document.getElementById("ol-heal-amount").value = "";
+    scheduleAutoSave("HP healed.");
+  });
 }
 
 function normalizeTrackers(trackers) {
@@ -284,6 +288,7 @@ function buildSheetPayload(existing = {}) {
   const shared = getSharedValues();
 
   let payload = {
+    ...(existing || {}),
     uid: user.uid,
     userEmail: user.email || "",
     userName: user.displayName || "",
@@ -300,9 +305,13 @@ function buildSheetPayload(existing = {}) {
       ...getDndValues()
     };
   } else {
+    const ol = getOpenLegendValues();
     payload = {
       ...payload,
-      ...getOpenLegendValues()
+      currentHp: ol.currentHp,
+      grd: ol.grd,
+      res: ol.res,
+      tgh: ol.tgh
     };
   }
 
@@ -346,7 +355,12 @@ async function loadExistingCharacter() {
     if (mode === "dnd") {
       setDndValues(data);
     } else {
-      setOpenLegendValues(data);
+      setOpenLegendValues({
+        currentHp: data.currentHp ?? "",
+        grd: data.grd ?? "—",
+        res: data.res ?? "—",
+        tgh: data.tgh ?? "—"
+      });
     }
 
     renderTrackerList(data.trackers || []);
@@ -377,11 +391,10 @@ async function loadExistingCharacter() {
       });
     } else {
       setOpenLegendValues({
-        baseHp: entry.baseHp ?? entry.health ?? "",
-        currentHp: entry.currentHp ?? entry.health ?? "",
-        grd: entry.grd ?? "",
-        res: entry.res ?? "",
-        tgh: entry.tgh ?? ""
+        currentHp: "",
+        grd: "—",
+        res: "—",
+        tgh: "—"
       });
     }
 
@@ -532,11 +545,7 @@ document.querySelectorAll(".ol-defense-choice").forEach((checkbox) => {
   "player-int",
   "player-wis",
   "player-cha",
-  "player-ol-base-hp",
-  "player-ol-current-hp",
-  "player-ol-grd",
-  "player-ol-res",
-  "player-ol-tgh"
+  "player-ol-current-hp"
 ].forEach((id) => {
   document.getElementById(id)?.addEventListener("input", () => {
     scheduleAutoSave("Character auto-saved.");

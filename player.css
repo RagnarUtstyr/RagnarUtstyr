@@ -615,3 +615,60 @@ body {
     gap: 6px;
   }
 }
+
+.builder-link-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ol-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(90px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto 14px auto;
+}
+
+.summary-card {
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 0.82rem;
+  opacity: 0.85;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.summary-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.summary-input {
+  width: 100%;
+  max-width: 90px;
+  min-height: 42px;
+  margin: 0 auto;
+  display: block;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .ol-summary-grid {
+    grid-template-columns: repeat(2, minmax(90px, 120px));
+    justify-content: center;
+    max-width: 280px;
+    gap: 10px;
+  }
+
+  .builder-link-row {
+    justify-content: center;
+  }
+}

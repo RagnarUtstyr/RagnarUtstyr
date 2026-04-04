@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Player Sheet</title>
+
+  <link rel="stylesheet" href="player.css" />
+  <link rel="stylesheet" id="player-dnd-style" href="player_dnd.css" disabled />
+  <link rel="stylesheet" id="player-ol-style" href="player_openlegend.css" disabled />
+  <link rel="stylesheet" href="auth.css" />
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
+
+  <script type="module" src="player.js" defer></script>
+</head>
+<body>
+  <div class="container auth-shell player-shell player-page">
+    <div class="top-row">
+      <h1>Player Sheet</h1>
+      <a class="button-link" href="lobby.html">Back to lobby</a>
+    </div>
+
+    <div id="player-game-meta" class="player-panel"></div>
+
+    <div class="top-character-row">
+      <div class="player-panel compact-panel name-panel">
+        <h2>Name</h2>
+        <div class="name-grid">
+          <div class="field-stack">
+            <label for="player-name">Character Name</label>
+            <input type="text" id="player-name" placeholder="Character name" />
+          </div>
+        </div>
+      </div>
+
+      <div class="player-panel compact-panel initiative-panel">
+        <h2>Initiative</h2>
+        <div class="field-stack">
+          <label for="player-initiative">Initiative</label>
+          <input type="number" id="player-initiative" placeholder="17" />
+        </div>
+        <button id="save-initiative-button" type="button">Initiative</button>
+      </div>
+    </div>
+
+    <section id="player-dnd-section" class="hidden">
+      <div class="player-panel">
+        <h2>D&amp;D Sheet</h2>
+
+        <div class="dnd-hp-top">
+          <div class="field-stack">
+            <label for="player-hp">HP</label>
+            <input type="number" id="player-hp" placeholder="24" />
+          </div>
+        </div>
+
+        <div class="dnd-ac-prof">
+          <div class="field-stack">
+            <label for="player-ac">AC</label>
+            <input type="number" id="player-ac" placeholder="16" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-prof">Prof</label>
+            <input type="number" id="player-prof" placeholder="2" />
+          </div>
+        </div>
+
+        <div class="dnd-stats-columns">
+          <div class="dnd-stat-column">
+            <div class="field-stack">
+              <label for="player-str">STR</label>
+              <input type="number" id="player-str" placeholder="10" />
+            </div>
+
+            <div class="field-stack">
+              <label for="player-dex">DEX</label>
+              <input type="number" id="player-dex" placeholder="14" />
+            </div>
+
+            <div class="field-stack">
+              <label for="player-con">CON</label>
+              <input type="number" id="player-con" placeholder="12" />
+            </div>
+          </div>
+
+          <div class="dnd-stat-column">
+            <div class="field-stack">
+              <label for="player-int">INT</label>
+              <input type="number" id="player-int" placeholder="8" />
+            </div>
+
+            <div class="field-stack">
+              <label for="player-wis">WIS</label>
+              <input type="number" id="player-wis" placeholder="13" />
+            </div>
+
+            <div class="field-stack">
+              <label for="player-cha">CHA</label>
+              <input type="number" id="player-cha" placeholder="15" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="player-openlegend-section" class="hidden">
+      <div class="player-panel">
+        <div class="builder-link-row">
+          <h2>Open Legend Sheet</h2>
+          <a id="openlegend-builder-link" class="button-link" href="openlegend_character_builder_v3.html">Open Builder</a>
+        </div>
+
+        <div class="ol-summary-grid">
+          <div class="summary-card hp-card">
+            <div class="summary-label">Current HP</div>
+            <input type="number" id="player-ol-current-hp" class="summary-input" placeholder="0" />
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-label">GRD</div>
+            <div id="player-ol-grd-view" class="summary-value">—</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-label">RES</div>
+            <div id="player-ol-res-view" class="summary-value">—</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-label">TGH</div>
+            <div id="player-ol-tgh-view" class="summary-value">—</div>
+          </div>
+        </div>
+
+        <div class="damage-panel">
+          <div class="field-stack">
+            <label for="ol-damage-input">DMG</label>
+            <input type="number" id="ol-damage-input" min="0" placeholder="Damage" />
+          </div>
+
+          <div class="field-stack">
+            <label>Reduce with</label>
+            <div class="damage-options">
+              <label><span>GRD</span><input type="checkbox" class="ol-defense-choice" value="grd" /></label>
+              <label><span>RES</span><input type="checkbox" class="ol-defense-choice" value="res" /></label>
+              <label><span>TGH</span><input type="checkbox" class="ol-defense-choice" value="tgh" /></label>
+            </div>
+          </div>
+
+          <div class="button-row damage-button-row" style="margin-top:0;">
+            <button id="ol-apply-damage-btn" type="button">Apply Damage</button>
+          </div>
+        </div>
+
+        <div class="ol-recovery-area">
+          <div class="button-row ol-recovery-row">
+            <div class="field-stack compact-heal-field">
+              <label for="ol-heal-amount">Heal Amount</label>
+              <input type="number" id="ol-heal-amount" min="0" placeholder="Heal" />
+            </div>
+            <button id="ol-heal-btn" type="button">Heal</button>
+          </div>
+
+          <div class="button-row ol-reset-row">
+            <button id="ol-reset-hp-btn" type="button">Reset HP</button>
+          </div>
+        </div>
+
+        <div id="ol-calc-result" class="calc-result muted"></div>
+      </div>
+    </section>
+
+    <div class="player-panel">
+      <h2>Trackers</h2>
+      <p class="muted tracker-subtitle">Saved with your character in this game.</p>
+
+      <div class="tracker-form">
+        <input type="text" id="tracker-name" placeholder="Tracker name" />
+        <input type="number" id="tracker-amount" min="1" placeholder="Amount" />
+        <button id="create-tracker-btn" type="button">Add tracker</button>
+      </div>
+
+      <label class="tracker-form-inline muted">
+        <input type="checkbox" id="tracker-start-full" />
+        Start fully checked
+      </label>
+
+      <ul id="tracker-list" class="tracker-list"></ul>
+      <div id="tracker-empty" class="empty-state">No trackers yet for this character.</div>
+    </div>
+
+    <p id="player-status" class="muted"></p>
+  </div>
+</body>
+</html>
