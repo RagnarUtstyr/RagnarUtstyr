@@ -201,6 +201,7 @@ function applyOpenLegendDamage() {
   }
 
   document.getElementById("ol-damage-input").value = "";
+  scheduleAutoSave("Open Legend damage applied.");
 }
 
 function resetOpenLegendHp() {
@@ -208,6 +209,7 @@ function resetOpenLegendHp() {
   document.getElementById("player-ol-current-hp").value = baseHp;
   renderOpenLegendStats();
   setOlResult("HP reset to base HP.");
+  scheduleAutoSave("HP reset.");
 }
 
 function healOpenLegendHp() {
@@ -225,6 +227,7 @@ function healOpenLegendHp() {
   renderOpenLegendStats();
   setOlResult(`Healed ${healAmount}. Current HP is now ${nextHp}.`);
   document.getElementById("ol-heal-amount").value = "";
+  scheduleAutoSave("HP healed.");
 }
 
 function normalizeTrackers(trackers) {
@@ -285,9 +288,60 @@ async function getCurrentSheet() {
   return snap.exists() ? snap.val() : null;
 }
 
-async function saveCurrentSheetPayload(payload, statusMessage = "") {
-  await set(ref(db, playerSheetPath()), payload);
-  if (statusMessage) statusEl.textContent = statusMessage;
+function buildSheetPayload(existing = {}) {
+  const shared = getSharedValues();
+
+  let payload = {
+    uid: user.uid,
+    userEmail: user.email || "",
+    userName: user.displayName || "",
+    mode,
+    name: shared.name,
+    initiative: shared.initiative,
+    trackers: existing.trackers || [],
+    updatedAt: Date.now()
+  };
+
+  if (mode === "dnd") {
+    payload = {
+      ...payload,
+      ...getDndValues()
+    };
+  } else {
+    payload = {
+      ...payload,
+      ...getOpenLegendValues()
+    };
+  }
+
+  return payload;
+}
+
+let autoSaveTimer = null;
+let isAutoSaving = false;
+
+function scheduleAutoSave(message = "Saved.") {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(async () => {
+    await autoSaveCharacter(message);
+  }, 500);
+}
+
+async function autoSaveCharacter(message = "Saved.") {
+  if (isAutoSaving) return;
+  isAutoSaving = true;
+
+  try {
+    const existing = (await getCurrentSheet()) || {};
+    const payload = buildSheetPayload(existing);
+    await set(ref(db, playerSheetPath()), payload);
+    statusEl.textContent = message;
+  } catch (error) {
+    console.error(error);
+    statusEl.textContent = error.message || "Could not auto-save character sheet.";
+  } finally {
+    isAutoSaving = false;
+  }
 }
 
 async function loadExistingCharacter() {
@@ -351,46 +405,6 @@ async function loadExistingCharacter() {
   }
 }
 
-async function saveCharacterSheet() {
-  const shared = getSharedValues();
-
-  if (!shared.name) {
-    statusEl.textContent = "Please enter a character name.";
-    return;
-  }
-
-  const existing = (await getCurrentSheet()) || {};
-  let payload = {
-    uid: user.uid,
-    userEmail: user.email || "",
-    userName: user.displayName || "",
-    mode,
-    name: shared.name,
-    initiative: shared.initiative,
-    trackers: existing.trackers || [],
-    updatedAt: Date.now()
-  };
-
-  if (mode === "dnd") {
-    payload = {
-      ...payload,
-      ...getDndValues()
-    };
-  } else {
-    payload = {
-      ...payload,
-      ...getOpenLegendValues()
-    };
-  }
-
-  try {
-    await saveCurrentSheetPayload(payload, "Character sheet saved.");
-  } catch (error) {
-    console.error(error);
-    statusEl.textContent = error.message || "Could not save character sheet.";
-  }
-}
-
 async function saveInitiativeToGame() {
   const shared = getSharedValues();
 
@@ -405,19 +419,9 @@ async function saveInitiativeToGame() {
   }
 
   const existing = (await getCurrentSheet()) || {};
+  const sheetPayload = buildSheetPayload(existing);
 
-  let sheetPayload = {
-    uid: user.uid,
-    userEmail: user.email || "",
-    userName: user.displayName || "",
-    mode,
-    name: shared.name,
-    initiative: shared.initiative,
-    trackers: existing.trackers || [],
-    updatedAt: Date.now()
-  };
-
-  let entryPayload = {
+  const entryPayload = {
     uid: user.uid,
     playerName: shared.name,
     initiative: shared.initiative,
@@ -425,32 +429,6 @@ async function saveInitiativeToGame() {
     number: shared.initiative,
     updatedAt: Date.now()
   };
-
-  if (mode === "dnd") {
-    const dnd = getDndValues();
-
-    sheetPayload = {
-      ...sheetPayload,
-      ...dnd
-    };
-
-    // Admin sees only name + initiative
-    entryPayload = {
-      ...entryPayload
-    };
-  } else {
-    const ol = getOpenLegendValues();
-
-    sheetPayload = {
-      ...sheetPayload,
-      ...ol
-    };
-
-    // Admin sees only name + initiative
-    entryPayload = {
-      ...entryPayload
-    };
-  }
 
   try {
     await set(ref(db, playerSheetPath()), sheetPayload);
@@ -476,42 +454,23 @@ async function createTracker() {
   }
 
   const existing = (await getCurrentSheet()) || {};
-  const shared = getSharedValues();
+  const payload = buildSheetPayload(existing);
 
-  let payload = {
-    uid: user.uid,
-    userEmail: user.email || "",
-    userName: user.displayName || "",
-    mode,
-    name: shared.name || user.displayName || "",
-    initiative: shared.initiative,
-    trackers: [
-      ...(existing.trackers || []),
-      {
-        id: makeId(),
-        name: trackerName,
-        amount,
-        value: startFull.checked ? amount : 0,
-        createdAt: Date.now()
-      }
-    ],
-    updatedAt: Date.now()
-  };
+  payload.trackers = [
+    ...(existing.trackers || []),
+    {
+      id: makeId(),
+      name: trackerName,
+      amount,
+      value: startFull.checked ? amount : 0,
+      createdAt: Date.now()
+    }
+  ];
+  payload.updatedAt = Date.now();
 
-  if (mode === "dnd") {
-    payload = {
-      ...payload,
-      ...getDndValues()
-    };
-  } else {
-    payload = {
-      ...payload,
-      ...getOpenLegendValues()
-    };
-  }
-
-  await saveCurrentSheetPayload(payload, "Tracker added.");
+  await set(ref(db, playerSheetPath()), payload);
   renderTrackerList(payload.trackers);
+  statusEl.textContent = "Tracker added.";
 
   nameInput.value = "";
   amountInput.value = "";
@@ -534,7 +493,7 @@ async function changeTrackerValue(trackerId, nextValue) {
     updatedAt: Date.now()
   };
 
-  await saveCurrentSheetPayload(payload);
+  await set(ref(db, playerSheetPath()), payload);
   renderTrackerList(trackers);
 }
 
@@ -550,11 +509,13 @@ async function deleteTracker(trackerId) {
     updatedAt: Date.now()
   };
 
-  await saveCurrentSheetPayload(payload, "Tracker deleted.");
+  await set(ref(db, playerSheetPath()), payload);
   renderTrackerList(trackers);
+  statusEl.textContent = "Tracker deleted.";
 }
 
-saveCharacterBtn?.addEventListener("click", saveCharacterSheet);
+saveCharacterBtn?.remove();
+
 saveInitiativeBtn?.addEventListener("click", saveInitiativeToGame);
 
 document.getElementById("ol-apply-damage-btn")?.addEventListener("click", applyOpenLegendDamage);
@@ -573,13 +534,29 @@ document.querySelectorAll(".ol-defense-choice").forEach((checkbox) => {
 });
 
 [
+  "player-name",
+  "player-initiative",
+  "player-hp",
+  "player-ac",
+  "player-prof",
+  "player-str",
+  "player-dex",
+  "player-con",
+  "player-int",
+  "player-wis",
+  "player-cha",
   "player-ol-base-hp",
   "player-ol-current-hp",
   "player-ol-grd",
   "player-ol-res",
   "player-ol-tgh"
 ].forEach((id) => {
-  document.getElementById(id)?.addEventListener("input", renderOpenLegendStats);
+  document.getElementById(id)?.addEventListener("input", () => {
+    if (id.startsWith("player-ol-")) {
+      renderOpenLegendStats();
+    }
+    scheduleAutoSave("Character auto-saved.");
+  });
 });
 
 await loadExistingCharacter();
