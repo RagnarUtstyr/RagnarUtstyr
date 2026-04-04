@@ -168,97 +168,69 @@ body {
   max-width: 140px;
 }
 
-/* Open Legend layout */
-.ol-hp-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(110px, 150px));
-  justify-content: center;
+/* Open Legend */
+.builder-link-row {
+  display: flex;
+  justify-content: space-between;
   gap: 12px;
-  width: 100%;
-  max-width: 330px;
-  margin: 0 auto 12px auto;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.ol-defense-row {
+.ol-summary-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(90px, 120px));
-  justify-content: center;
+  grid-template-columns: repeat(4, minmax(90px, 1fr));
   gap: 12px;
   width: 100%;
-  max-width: 420px;
+  max-width: 560px;
   margin: 0 auto 14px auto;
 }
 
-.stat-card {
+.summary-card {
   border-radius: 8px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: center;
-  min-width: 0;
-}
-
-.editable-stat-card {
-  cursor: text;
   padding: 12px;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  opacity: 0.85;
-}
-
-.stat-input {
-  width: 100%;
-  max-width: none !important;
-  min-height: 0 !important;
-  height: auto;
-  padding: 4px 6px;
-  margin: 0;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
   text-align: center;
-  font-size: 2rem;
-  font-weight: bold;
-  font-family: inherit;
-  color: inherit;
-  outline: none;
 }
 
-.stat-input::placeholder {
-  opacity: 0.45;
+.summary-label {
+  font-size: 0.82rem;
+  opacity: 0.85;
+  margin-bottom: 8px;
+  text-transform: uppercase;
 }
 
-.stat-input::-webkit-outer-spin-button,
-.stat-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.summary-value {
+  font-size: 1.8rem;
+  font-weight: 700;
 }
 
-.stat-input[type="number"] {
-  appearance: textfield;
-  -moz-appearance: textfield;
+.summary-input {
+  width: 100%;
+  max-width: 90px;
+  min-height: 42px;
+  margin: 0 auto;
+  display: block;
+  text-align: center;
 }
 
 .damage-panel {
   display: grid;
-  grid-template-columns: 100px 1fr auto;
-  gap: 10px;
+  grid-template-columns: 120px 1fr auto;
+  gap: 12px;
   align-items: end;
+  margin-top: 18px;
   width: 100%;
-  max-width: 620px;
-  margin: 14px auto 0 auto;
+  min-width: 0;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #ol-damage-input {
-  max-width: 90px;
-  min-height: 38px;
-  padding: 6px 8px;
-  font-size: 0.92rem;
+  max-width: 110px;
+  min-height: 42px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
 }
 
 .damage-options {
@@ -298,14 +270,14 @@ body {
 }
 
 .compact-heal-field {
-  min-width: 120px;
+  min-width: 160px;
 }
 
 #ol-heal-amount {
-  max-width: 90px;
-  min-height: 38px;
-  padding: 6px 8px;
-  font-size: 0.92rem;
+  max-width: 110px;
+  min-height: 42px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
 }
 
 .ol-recovery-area {
@@ -324,9 +296,6 @@ body {
 .calc-result {
   min-height: 1.4em;
   margin-top: 12px;
-  max-width: 620px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* Trackers */
@@ -443,7 +412,6 @@ body {
   line-height: 1.1;
 }
 
-/* Tablet */
 @media (max-width: 900px) {
   .damage-panel,
   .tracker-form,
@@ -452,7 +420,6 @@ body {
   }
 }
 
-/* Phone */
 @media (max-width: 640px) {
   .player-page.container {
     width: calc(100% - 16px);
@@ -535,24 +502,15 @@ body {
     max-width: 126px;
   }
 
-  .ol-hp-row {
-    grid-template-columns: repeat(2, minmax(110px, 132px));
+  .ol-summary-grid {
+    grid-template-columns: repeat(2, minmax(90px, 120px));
+    justify-content: center;
+    max-width: 280px;
     gap: 10px;
-    max-width: 290px;
   }
 
-  .ol-defense-row {
-    grid-template-columns: repeat(3, minmax(78px, 96px));
-    gap: 8px;
-    max-width: 310px;
-  }
-
-  .editable-stat-card {
-    padding: 10px;
-  }
-
-  .stat-input {
-    font-size: 1.55rem;
+  .builder-link-row {
+    justify-content: center;
   }
 
   .damage-panel,
@@ -565,14 +523,14 @@ body {
 
   #ol-damage-input,
   #ol-heal-amount {
-    max-width: 82px;
-    min-height: 36px;
-    font-size: 0.88rem;
+    max-width: 100px;
+    min-height: 40px;
+    font-size: 0.9rem;
   }
 
   .damage-options {
     grid-template-columns: repeat(3, max-content);
-    column-gap: 6px;
+    column-gap: 8px;
     justify-content: center;
   }
 
@@ -613,62 +571,5 @@ body {
   .tracker-boxes {
     grid-template-columns: repeat(8, 20px);
     gap: 6px;
-  }
-}
-
-.builder-link-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.ol-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(90px, 1fr));
-  gap: 12px;
-  width: 100%;
-  max-width: 560px;
-  margin: 0 auto 14px auto;
-}
-
-.summary-card {
-  border-radius: 8px;
-  padding: 12px;
-  text-align: center;
-}
-
-.summary-label {
-  font-size: 0.82rem;
-  opacity: 0.85;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-.summary-value {
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-.summary-input {
-  width: 100%;
-  max-width: 90px;
-  min-height: 42px;
-  margin: 0 auto;
-  display: block;
-  text-align: center;
-}
-
-@media (max-width: 640px) {
-  .ol-summary-grid {
-    grid-template-columns: repeat(2, minmax(90px, 120px));
-    justify-content: center;
-    max-width: 280px;
-    gap: 10px;
-  }
-
-  .builder-link-row {
-    justify-content: center;
   }
 }

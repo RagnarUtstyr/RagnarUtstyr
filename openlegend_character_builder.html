@@ -631,9 +631,8 @@
         return;
       }
 
-      if (String(game.mode || "").toLowerCase() !== "openlegend" &&
-          String(game.mode || "").toLowerCase() !== "ol" &&
-          String(game.mode || "").toLowerCase() !== "open_legend") {
+      const normalizedMode = String(game.mode || "").toLowerCase();
+      if (normalizedMode !== "openlegend" && normalizedMode !== "ol" && normalizedMode !== "open_legend") {
         metaEl.textContent = "This builder is for Open Legend games only.";
         saveStatusEl.textContent = "Wrong game mode.";
         return;
@@ -778,13 +777,20 @@
         }
         const initAttr = root.querySelector("[data-init-attr]");
         if (initAttr) character.modifiers.initiativeAttribute = initAttr.value;
+
         character.name = root.querySelector('[data-field="name"]').value;
         character.concept = root.querySelector('[data-field="concept"]').value;
         character.xp = cleanInt(root.querySelector('[data-field="xp"]').value);
         character.level = getXpAwards(character.xp).level;
         character.notes = root.querySelector('[data-field="notes"]').value;
-        character.perks = Array.from(root.querySelectorAll("[data-perk-index]")).map((el) => el.value.trim()).filter(Boolean);
-        character.flaws = Array.from(root.querySelectorAll("[data-flaw-index]")).map((el) => el.value.trim()).filter(Boolean);
+
+        character.perks = Array.from(root.querySelectorAll("[data-perk-index]"))
+          .map((el) => el.value.trim())
+          .filter(Boolean);
+
+        character.flaws = Array.from(root.querySelectorAll("[data-flaw-index]"))
+          .map((el) => el.value.trim())
+          .filter(Boolean);
       }
 
       function renderAttributes() {
@@ -924,12 +930,12 @@
       async function saveToFirebase() {
         if (isSaving) return;
         isSaving = true;
+
         try {
           syncFromDom();
           const result = validateCharacter(character, featRegistry);
-          const existingPlayerNow = (await get(ref(db, playerPath))).exists()
-            ? (await get(ref(db, playerPath))).val()
-            : {};
+          const existingSnap = await get(ref(db, playerPath));
+          const existingPlayerNow = existingSnap.exists() ? existingSnap.val() : {};
 
           const derived = result.derived;
           const derivedBaseHp = Number(derived.hitPoints.total) || 0;
