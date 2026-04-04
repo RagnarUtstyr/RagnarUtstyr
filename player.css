@@ -9,14 +9,25 @@ body {
   max-width: 980px;
 }
 
-.player-page.container {
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
   width: 100%;
+  overflow-x: hidden;
+}
+
+.player-page.container {
+  width: min(100%, 980px);
   max-width: 980px;
   margin: 0 auto;
   display: block;
   border-radius: 12px;
   box-shadow: 0 0 12px #000;
   padding: 20px;
+  overflow-x: hidden;
 }
 
 .player-panel {
@@ -83,7 +94,8 @@ body {
 }
 
 .dnd-hp-top {
-  max-width: 200px;
+  width: 100%;
+  max-width: 300px;
   margin: 0 auto 18px auto;
   text-align: center;
 }
@@ -94,10 +106,16 @@ body {
 
 .dnd-ac-prof {
   display: grid;
-  grid-template-columns: repeat(2, minmax(120px, 140px));
+  grid-template-columns: repeat(2, minmax(0, 140px));
   justify-content: center;
   gap: 12px;
-  margin-bottom: 18px;
+  margin: 0 auto 18px auto;
+  width: 100%;
+  max-width: 320px;
+}
+
+.dnd-ac-prof .field-stack {
+  width: 100%;
 }
 
 .dnd-ac-prof .field-stack input {
@@ -106,14 +124,22 @@ body {
 
 .dnd-stats-columns {
   display: grid;
-  grid-template-columns: repeat(2, minmax(120px, 140px));
+  grid-template-columns: repeat(2, minmax(0, 140px));
   justify-content: center;
   gap: 12px 18px;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
 }
 
 .dnd-stat-column {
   display: grid;
   gap: 12px;
+  width: 100%;
+}
+
+.dnd-stat-column .field-stack {
+  width: 100%;
 }
 
 .dnd-stat-column .field-stack input {
@@ -311,17 +337,26 @@ body {
   }
 }
 
-@media (max-width: 640px) {
+@@media (max-width: 640px) {
   .player-page.container {
-    max-width: 100%;
-    padding: 14px;
+    width: calc(100% - 16px);
+    max-width: none;
+    margin: 8px auto;
+    padding: 12px;
+    overflow-x: hidden;
   }
 
   .player-panel {
     padding: 12px;
+    overflow-x: hidden;
+  }
+
+  .field-stack {
+    width: 100%;
   }
 
   .field-stack input {
+    width: 100%;
     max-width: 132px;
     min-height: 56px;
     padding: 10px;
@@ -347,8 +382,10 @@ body {
   }
 
   .dnd-ac-prof {
-    grid-template-columns: repeat(2, minmax(110px, 126px));
+    grid-template-columns: repeat(2, minmax(0, 126px));
     gap: 10px;
+    width: 100%;
+    max-width: 280px;
     margin: 0 auto 16px auto;
   }
 
@@ -357,8 +394,10 @@ body {
   }
 
   .dnd-stats-columns {
-    grid-template-columns: repeat(2, minmax(110px, 126px));
+    grid-template-columns: repeat(2, minmax(0, 126px));
     gap: 10px 12px;
+    width: 100%;
+    max-width: 280px;
     margin: 0 auto;
   }
 
@@ -371,8 +410,10 @@ body {
   }
 
   .ol-top-grid {
-    grid-template-columns: repeat(2, minmax(110px, 132px));
+    grid-template-columns: repeat(2, minmax(0, 132px));
     gap: 10px;
+    width: 100%;
+    max-width: 290px;
     margin: 0 auto;
   }
 
@@ -385,6 +426,8 @@ body {
   .tracker-form,
   .tracker-card {
     grid-template-columns: 1fr;
+    width: 100%;
+    min-width: 0;
   }
 
   .button-row {
@@ -399,6 +442,7 @@ body {
   .tracker-controls {
     justify-content: flex-start;
     flex-wrap: nowrap;
+    min-width: 0;
   }
 
   .tracker-controls button {
@@ -411,5 +455,6 @@ body {
   .tracker-boxes {
     grid-template-columns: repeat(8, 20px);
     gap: 6px;
+    min-width: 0;
   }
 }
