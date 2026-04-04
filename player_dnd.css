@@ -132,13 +132,3 @@ body::before {
   .player-page.container {
     background-color: rgba(46, 27, 24, 0.9);
   }
-
-  .player-page .initiative-panel {
-    max-width: 100%;
-  }
-
-  .player-page .dnd-ac-prof,
-  .player-page .dnd-stats-columns {
-    max-width: 100%;
-  }
-}
