@@ -479,3 +479,73 @@ body {
     gap: 6px;
   }
 }
+
+/* Open Legend damage section should be more compact */
+.player-page .damage-panel {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.player-page #ol-damage-input {
+  max-width: 110px;
+  min-height: 42px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+}
+
+.player-page .damage-options {
+  gap: 10px;
+  min-height: auto;
+}
+
+.player-page .damage-options label {
+  gap: 6px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.player-page .damage-options input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  margin: 0;
+  transform: none;
+}
+
+.player-page #ol-heal-amount {
+  max-width: 110px;
+  min-height: 42px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .player-page .damage-panel {
+    max-width: 100%;
+  }
+
+  .player-page #ol-damage-input,
+  .player-page #ol-heal-amount {
+    max-width: 100px;
+    min-height: 40px;
+    font-size: 0.9rem;
+  }
+
+  .player-page .damage-options {
+    gap: 8px;
+  }
+
+  .player-page .damage-options label {
+    font-size: 0.85rem;
+    gap: 5px;
+  }
+
+  .player-page .damage-options input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    min-height: 14px;
+  }
+}
