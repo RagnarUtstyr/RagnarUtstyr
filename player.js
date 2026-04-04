@@ -38,7 +38,7 @@ if (!game) {
 
 const mode = String(game.mode || "").toLowerCase();
 
-function applyModeStyles(currentMode) {
+function applyModeStyles(mode) {
   const dndStyle = document.getElementById("player-dnd-style");
   const olStyle = document.getElementById("player-ol-style");
 
@@ -47,13 +47,9 @@ function applyModeStyles(currentMode) {
   dndStyle.disabled = true;
   olStyle.disabled = true;
 
-  if (currentMode === "dnd") {
+  if (mode === "dnd") {
     dndStyle.disabled = false;
-  } else if (
-    currentMode === "openlegend" ||
-    currentMode === "ol" ||
-    currentMode === "open_legend"
-  ) {
+  } else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
     olStyle.disabled = false;
   }
 }
@@ -71,11 +67,7 @@ if (mode === "dnd") {
   if (dndBuilderLink) {
     dndBuilderLink.href = `dnd_character_builder_firebase.html?code=${encodeURIComponent(code)}`;
   }
-} else if (
-  mode === "openlegend" ||
-  mode === "ol" ||
-  mode === "open_legend"
-) {
+} else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
   olSection.classList.remove("hidden");
 
   if (openLegendBuilderLink) {
@@ -121,10 +113,7 @@ function setSharedValues(data = {}) {
     data.name ?? data.playerName ?? user.displayName ?? "";
 
   document.getElementById("player-initiative").value =
-    data.initiative ??
-    data.number ??
-    data.initiativeBonus ??
-    "";
+    data.initiative ?? data.initiativeBonus ?? data.number ?? "";
 }
 
 function getDndValues() {
@@ -143,41 +132,15 @@ function getDndValues() {
 
 function mapDndFirebaseToPlayerValues(data = {}) {
   return {
-    hp:
-      data.hp ??
-      data.currentHp ??
-      data.health ??
-      data.baseHp ??
-      "",
+    hp: data.hp ?? data.currentHp ?? data.health ?? data.baseHp ?? "",
     ac: data.ac ?? "",
-    prof:
-      data.prof ??
-      data.proficiencyBonus ??
-      "",
-    str:
-      data.str ??
-      data.strength ??
-      "",
-    dex:
-      data.dex ??
-      data.dexterity ??
-      "",
-    con:
-      data.con ??
-      data.constitution ??
-      "",
-    int:
-      data.int ??
-      data.intelligence ??
-      "",
-    wis:
-      data.wis ??
-      data.wisdom ??
-      "",
-    cha:
-      data.cha ??
-      data.charisma ??
-      ""
+    prof: data.prof ?? data.proficiencyBonus ?? "",
+    str: data.str ?? data.strength ?? "",
+    dex: data.dex ?? data.dexterity ?? "",
+    con: data.con ?? data.constitution ?? "",
+    int: data.int ?? data.intelligence ?? "",
+    wis: data.wis ?? data.wisdom ?? "",
+    cha: data.cha ?? data.charisma ?? ""
   };
 }
 
@@ -277,10 +240,7 @@ function healOpenLegendHp() {
 
   getCurrentSheet().then((existing) => {
     const baseHp = getOlBaseHpFromSheet(existing);
-    const currentHp = parseNumber(
-      document.getElementById("player-ol-current-hp").value,
-      baseHp
-    );
+    const currentHp = parseNumber(document.getElementById("player-ol-current-hp").value, baseHp);
     const nextHp = Math.min(baseHp, currentHp + healAmount);
 
     document.getElementById("player-ol-current-hp").value = nextHp;
@@ -371,11 +331,8 @@ function buildSheetPayload(existing = {}) {
 
     payload = {
       ...payload,
-
-      // old player.js-compatible keys
       ...dnd,
 
-      // builder-compatible keys
       currentHp: dnd.hp,
       proficiencyBonus: dnd.prof,
       strength: dnd.str,
@@ -431,11 +388,7 @@ async function loadExistingCharacter() {
 
   if (sheetSnap.exists()) {
     const data = sheetSnap.val();
-
-    setSharedValues({
-      name: data.name ?? data.playerName ?? user.displayName ?? "",
-      initiative: data.initiative ?? data.number ?? data.initiativeBonus ?? ""
-    });
+    setSharedValues(data);
 
     if (mode === "dnd") {
       setDndValues(data);
@@ -579,9 +532,7 @@ async function deleteTracker(trackerId) {
   const existing = await getCurrentSheet();
   if (!existing) return;
 
-  const trackers = normalizeTrackers(existing.trackers).filter(
-    (tracker) => tracker.id !== trackerId
-  );
+  const trackers = normalizeTrackers(existing.trackers).filter((tracker) => tracker.id !== trackerId);
 
   const payload = {
     ...existing,
