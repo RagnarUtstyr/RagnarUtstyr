@@ -371,12 +371,6 @@
       margin-top: 10px;
     }
 
-    .debug-box {
-      font-size: 0.9rem;
-      white-space: pre-wrap;
-      color: #d8cfac;
-    }
-
     @media (max-width: 920px) {
       .grid-top,
       .budget-grid,
@@ -421,11 +415,6 @@
       </div>
       <div id="save-status" class="save-status"></div>
     </div>
-
-    <div class="sheet-box">
-      <h3>Debug</h3>
-      <div id="debug-output" class="debug-box"></div>
-    </div>
   </div>
 
   <script type="module">
@@ -444,7 +433,6 @@
     const metaEl = document.getElementById("builder-meta");
     const backLink = document.getElementById("back-to-player-link");
     const saveStatusEl = document.getElementById("save-status");
-    const debugEl = document.getElementById("debug-output");
     const builderRoot = document.getElementById("builder");
     const saveNowBtn = document.getElementById("save-now-btn");
     const reloadBtn = document.getElementById("reload-btn");
@@ -1044,7 +1032,6 @@
     let weaponListWrap = null;
     let statusWrap = null;
     let messagesWrap = null;
-    let jsonArea = null;
     let featPicker = null;
     let featCostPreview = null;
     let featHelper = null;
@@ -1292,16 +1279,6 @@
       renderDerived(result);
       renderStatus(result);
 
-      debugEl.textContent = JSON.stringify({
-        code,
-        userUid: user?.uid || null,
-        builderPath: user ? builderPath() : null,
-        playerPath: user ? playerPath() : null,
-        feats: character.feats,
-        modifiers: character.modifiers,
-        weapons: character.weapons
-      }, null, 2);
-
       return result;
     }
 
@@ -1393,14 +1370,9 @@
           </div>
 
           <div class="sheet-box" style="margin-top:16px;">
-            <h2>Validation & Export</h2>
+            <h2>Validation</h2>
             <div data-status></div>
             <div class="messages" data-messages></div>
-            <div class="export-row">
-              <button type="button" data-export>Export JSON</button>
-              <button type="button" data-import>Import JSON</button>
-            </div>
-            <textarea data-json placeholder="Character JSON will appear here."></textarea>
           </div>
         </section>
       `;
@@ -1414,7 +1386,6 @@
       weaponListWrap = root.querySelector("[data-weapon-list]");
       statusWrap = root.querySelector("[data-status]");
       messagesWrap = root.querySelector("[data-messages]");
-      jsonArea = root.querySelector("[data-json]");
       featPicker = root.querySelector("[data-feat-picker]");
       featCostPreview = root.querySelector("[data-feat-cost-preview]");
       featHelper = root.querySelector("[data-feat-helper]");
@@ -1540,27 +1511,6 @@
           scheduleSave();
           return;
         }
-
-        if (button.matches("[data-export]")) {
-          syncFromDom();
-          jsonArea.value = JSON.stringify(character, null, 2);
-          return;
-        }
-
-        if (button.matches("[data-import]")) {
-          try {
-            const parsed = JSON.parse(jsonArea.value || "{}");
-            const next = makeCharacter(parsed);
-            character = next;
-            renderBuilder();
-            rerender();
-            refreshFeatPreview();
-            await saveToFirebase("Imported and saved.");
-          } catch (err) {
-            alert("Could not import JSON. Please check the format.");
-          }
-          return;
-        }
       });
 
       rerender();
@@ -1620,15 +1570,6 @@
         await set(ref(db, playerPath()), playerPayload);
 
         saveStatusEl.textContent = successMessage;
-        debugEl.textContent = JSON.stringify({
-          code,
-          userUid: user.uid,
-          builderPath: builderPath(),
-          playerPath: playerPath(),
-          savedFeats: builderPayload.feats,
-          savedModifiers: builderPayload.modifiers,
-          savedWeapons: builderPayload.weapons
-        }, null, 2);
       } catch (error) {
         console.error("Builder save failed:", error);
         saveStatusEl.textContent = `Save failed: ${error.message || error}`;
