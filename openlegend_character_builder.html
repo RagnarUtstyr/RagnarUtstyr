@@ -488,6 +488,24 @@
       ...RULES.categories.extraordinary
     ];
 
+    const WEAPON_PRESETS = [
+      { name: "Unarmed Strike", attribute: "Agility", boon: 0, bane: 0, damage: "1d4", notes: "Melee, basic attack" },
+      { name: "Dagger", attribute: "Agility", boon: 0, bane: 0, damage: "1d6", notes: "Melee or thrown, precise" },
+      { name: "Shortsword", attribute: "Agility", boon: 0, bane: 0, damage: "1d6", notes: "Melee, precise" },
+      { name: "Longsword", attribute: "Might", boon: 0, bane: 0, damage: "1d8", notes: "Versatile melee" },
+      { name: "Greatsword", attribute: "Might", boon: 0, bane: 0, damage: "1d10", notes: "Two-handed melee, forceful" },
+      { name: "Spear", attribute: "Might", boon: 0, bane: 0, damage: "1d8", notes: "Melee, can be thrown" },
+      { name: "Warhammer", attribute: "Might", boon: 0, bane: 0, damage: "1d8", notes: "Melee, forceful" },
+      { name: "Bow", attribute: "Agility", boon: 0, bane: 0, damage: "1d8", notes: "Long ranged, two-handed" },
+      { name: "Crossbow", attribute: "Agility", boon: 0, bane: 0, damage: "1d8", notes: "Ranged, heavy/slow feel" },
+      { name: "Revolver", attribute: "Agility", boon: 0, bane: 0, damage: "1d8", notes: "Short ranged, swift" },
+      { name: "Rifle", attribute: "Agility", boon: 0, bane: 0, damage: "1d10", notes: "Long ranged, two-handed" },
+      { name: "Sniper Rifle", attribute: "Agility", boon: 0, bane: 0, damage: "1d10", notes: "Extreme ranged, precise" },
+      { name: "Grenade", attribute: "Agility", boon: 0, bane: 0, damage: "1d8", notes: "Close ranged, area, expendable" },
+      { name: "Flamethrower", attribute: "Agility", boon: 0, bane: 0, damage: "1d10", notes: "Area, heavy, slow" },
+      { name: "Cannon", attribute: "Agility", boon: 0, bane: 0, damage: "2d10", notes: "Extreme ranged, heavy, slow, stationary" }
+    ];
+
     function createEmptyAttributes() {
       return ATTRIBUTE_ORDER.reduce((acc, key) => {
         acc[key] = 0;
@@ -959,6 +977,16 @@
         <div class="weapon-card" data-weapon-index="${index}">
           <div class="weapon-grid">
             <label>
+              Preset
+              <select data-weapon-preset="${index}">
+                <option value="">Custom</option>
+                ${WEAPON_PRESETS.map((preset) => `
+                  <option value="${escapeHtml(preset.name)}">${escapeHtml(preset.name)}</option>
+                `).join("")}
+              </select>
+            </label>
+
+            <label>
               Weapon Name
               <input data-weapon-name="${index}" type="text" value="${escapeHtml(weapon.name || "")}" placeholder="Longsword">
             </label>
@@ -987,9 +1015,9 @@
               <input data-weapon-bane="${index}" type="number" min="0" value="${cleanInt(weapon.bane)}">
             </label>
 
-            <label>
+            <label style="grid-column: 1 / -1;">
               Notes
-              <input data-weapon-notes="${index}" type="text" value="${escapeHtml(weapon.notes || "")}" placeholder="Reach, fire, etc.">
+              <input data-weapon-notes="${index}" type="text" value="${escapeHtml(weapon.notes || "")}" placeholder="Reach, precise, area, etc.">
             </label>
           </div>
 
@@ -1171,12 +1199,45 @@
           refreshFeatPreview();
           return;
         }
+
         syncFromDom();
-        rerender();
+
+        const isWeaponField =
+          event.target.matches("[data-weapon-name]") ||
+          event.target.matches("[data-weapon-damage]") ||
+          event.target.matches("[data-weapon-notes]") ||
+          event.target.matches("[data-weapon-boon]") ||
+          event.target.matches("[data-weapon-bane]");
+
+        if (!isWeaponField) {
+          rerender();
+        }
+
         scheduleSave();
       });
 
-      root.addEventListener("change", () => {
+      root.addEventListener("change", (event) => {
+        const presetSelect = event.target.closest("[data-weapon-preset]");
+        if (presetSelect) {
+          const index = Number(presetSelect.dataset.weaponPreset);
+          const preset = WEAPON_PRESETS.find((item) => item.name === presetSelect.value);
+
+          if (preset && character.weapons[index]) {
+            character.weapons[index] = {
+              ...character.weapons[index],
+              name: preset.name,
+              attribute: preset.attribute,
+              boon: preset.boon,
+              bane: preset.bane,
+              damage: preset.damage,
+              notes: preset.notes
+            };
+            renderWeapons();
+            scheduleSave();
+            return;
+          }
+        }
+
         syncFromDom();
         rerender();
         scheduleSave();
