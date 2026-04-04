@@ -145,7 +145,6 @@ function setOpenLegendValues(data = {}) {
   document.getElementById("player-ol-grd").value = data.grd ?? "";
   document.getElementById("player-ol-res").value = data.res ?? "";
   document.getElementById("player-ol-tgh").value = data.tgh ?? "";
-  renderOpenLegendStats();
 }
 
 function renderOpenLegendStats() {
@@ -186,7 +185,6 @@ function applyOpenLegendDamage() {
 
   const nextHp = Math.max(0, currentHp - hpLoss);
   document.getElementById("player-ol-current-hp").value = nextHp;
-  renderOpenLegendStats();
 
   if (hpLoss > 0) {
     setOlResult(`DMG ${damage} vs ${defenseKey.toUpperCase()} ${defenseValue}. HP reduced by ${hpLoss}.`);
@@ -201,7 +199,6 @@ function applyOpenLegendDamage() {
 function resetOpenLegendHp() {
   const baseHp = parseNumber(document.getElementById("player-ol-base-hp").value, 0);
   document.getElementById("player-ol-current-hp").value = baseHp;
-  renderOpenLegendStats();
   setOlResult("HP reset to base HP.");
   scheduleAutoSave("HP reset.");
 }
@@ -218,7 +215,6 @@ function healOpenLegendHp() {
   const nextHp = Math.min(baseHp, currentHp + healAmount);
 
   document.getElementById("player-ol-current-hp").value = nextHp;
-  renderOpenLegendStats();
   setOlResult(`Healed ${healAmount}. Current HP is now ${nextHp}.`);
   document.getElementById("ol-heal-amount").value = "";
   scheduleAutoSave("HP healed.");
@@ -269,8 +265,10 @@ function renderTrackerList(trackers = []) {
       changeTrackerValue(tracker.id, value + 1);
     });
 
-    li.querySelector(".delete-tracker-btn").addEventListener("click", () => {
-      deleteTracker(tracker.id);
+    li.querySelector(".delete-tracker-btn").addEventListener("click", async () => {
+      const confirmed = confirm(`Delete tracker "${tracker.name || "Tracker"}"?`);
+      if (!confirmed) return;
+      await deleteTracker(tracker.id);
     });
 
     trackerListEl.appendChild(li);
@@ -394,9 +392,6 @@ async function loadExistingCharacter() {
 
   setSharedValues({ name: user.displayName ?? "" });
   renderTrackerList([]);
-  if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
-    renderOpenLegendStats();
-  }
 }
 
 async function saveInitiativeToGame() {
@@ -544,9 +539,6 @@ document.querySelectorAll(".ol-defense-choice").forEach((checkbox) => {
   "player-ol-tgh"
 ].forEach((id) => {
   document.getElementById(id)?.addEventListener("input", () => {
-    if (id.startsWith("player-ol-")) {
-      renderOpenLegendStats();
-    }
     scheduleAutoSave("Character auto-saved.");
   });
 });

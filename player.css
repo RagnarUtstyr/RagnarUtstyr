@@ -37,6 +37,14 @@ body {
   overflow-x: hidden;
 }
 
+.compact-panel {
+  max-width: 220px;
+}
+
+.name-panel {
+  max-width: 260px;
+}
+
 .hidden {
   display: none !important;
 }
@@ -75,12 +83,8 @@ body {
   box-sizing: border-box;
 }
 
-.initiative-panel {
-  max-width: 240px;
-}
-
 .initiative-panel .field-stack input {
-  max-width: 180px;
+  max-width: 140px;
 }
 
 .initiative-panel button {
@@ -149,18 +153,25 @@ body {
   max-width: 140px;
 }
 
-/* Open Legend editable stat cards */
-.ol-edit-grid {
-  grid-template-columns: repeat(5, minmax(110px, 1fr));
-  align-items: stretch;
+/* Open Legend layout */
+.ol-hp-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(110px, 150px));
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 330px;
+  margin: 0 auto 12px auto;
 }
 
-.stat-grid {
+.ol-defense-row {
   display: grid;
+  grid-template-columns: repeat(3, minmax(90px, 120px));
+  justify-content: center;
   gap: 12px;
-  margin-top: 12px;
   width: 100%;
-  min-width: 0;
+  max-width: 420px;
+  margin: 0 auto 14px auto;
 }
 
 .stat-card {
@@ -183,11 +194,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   opacity: 0.85;
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: bold;
 }
 
 .stat-input {
@@ -225,22 +231,19 @@ body {
 
 .damage-panel {
   display: grid;
-  grid-template-columns: 120px 1fr auto;
-  gap: 12px;
+  grid-template-columns: 100px 1fr auto;
+  gap: 10px;
   align-items: end;
-  margin-top: 18px;
   width: 100%;
-  min-width: 0;
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 620px;
+  margin: 14px auto 0 auto;
 }
 
 #ol-damage-input {
-  max-width: 110px;
-  min-height: 42px;
-  padding: 8px 10px;
-  font-size: 0.95rem;
+  max-width: 90px;
+  min-height: 38px;
+  padding: 6px 8px;
+  font-size: 0.92rem;
 }
 
 .damage-options {
@@ -250,39 +253,60 @@ body {
   align-items: center;
   min-height: auto;
   min-width: 0;
+  justify-content: flex-start;
 }
 
 .damage-options label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
+  gap: 5px;
+  font-size: 0.85rem;
   white-space: nowrap;
 }
 
 .damage-options input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  min-width: 16px;
-  min-height: 16px;
+  width: 13px;
+  height: 13px;
+  min-width: 13px;
+  min-height: 13px;
   margin: 0;
   transform: none;
 }
 
+.damage-button-row {
+  justify-content: flex-start;
+}
+
 .compact-heal-field {
-  min-width: 160px;
+  min-width: 120px;
 }
 
 #ol-heal-amount {
-  max-width: 110px;
-  min-height: 42px;
-  padding: 8px 10px;
-  font-size: 0.95rem;
+  max-width: 90px;
+  min-height: 38px;
+  padding: 6px 8px;
+  font-size: 0.92rem;
+}
+
+.ol-recovery-area {
+  max-width: 620px;
+  margin: 10px auto 0 auto;
+}
+
+.ol-recovery-row {
+  align-items: end;
+}
+
+.ol-reset-row {
+  margin-top: 8px;
 }
 
 .calc-result {
   min-height: 1.4em;
   margin-top: 12px;
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Trackers */
@@ -406,18 +430,6 @@ body {
   .tracker-card {
     grid-template-columns: 1fr;
   }
-
-  .dnd-ac-prof {
-    grid-template-columns: repeat(2, minmax(0, 140px));
-  }
-
-  .dnd-stats-columns {
-    grid-template-columns: repeat(2, minmax(0, 140px));
-  }
-
-  .ol-edit-grid {
-    grid-template-columns: repeat(3, minmax(110px, 1fr));
-  }
 }
 
 /* Phone */
@@ -435,25 +447,21 @@ body {
     overflow-x: hidden;
   }
 
-  .field-stack {
-    width: 100%;
+  .compact-panel,
+  .name-panel {
+    max-width: 190px;
   }
 
   .field-stack input {
     width: 100%;
-    max-width: 132px;
-    min-height: 56px;
+    max-width: 126px;
+    min-height: 54px;
     padding: 10px;
     font-size: 1rem;
   }
 
-  .initiative-panel {
-    max-width: 100%;
-    margin: 0 auto;
-  }
-
   .initiative-panel .field-stack input {
-    max-width: 150px;
+    max-width: 126px;
   }
 
   .dnd-hp-top {
@@ -493,12 +501,16 @@ body {
     max-width: 126px;
   }
 
-  .ol-edit-grid {
+  .ol-hp-row {
     grid-template-columns: repeat(2, minmax(110px, 132px));
-    justify-content: center;
     gap: 10px;
     max-width: 290px;
-    margin: 0 auto;
+  }
+
+  .ol-defense-row {
+    grid-template-columns: repeat(3, minmax(78px, 96px));
+    gap: 8px;
+    max-width: 310px;
   }
 
   .editable-stat-card {
@@ -506,7 +518,7 @@ body {
   }
 
   .stat-input {
-    font-size: 1.6rem;
+    font-size: 1.55rem;
   }
 
   .damage-panel,
@@ -519,25 +531,26 @@ body {
 
   #ol-damage-input,
   #ol-heal-amount {
-    max-width: 100px;
-    min-height: 40px;
-    font-size: 0.9rem;
+    max-width: 82px;
+    min-height: 36px;
+    font-size: 0.88rem;
   }
 
   .damage-options {
     gap: 8px;
+    justify-content: center;
   }
 
   .damage-options label {
-    font-size: 0.85rem;
-    gap: 5px;
+    font-size: 0.8rem;
+    gap: 4px;
   }
 
   .damage-options input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    min-width: 14px;
-    min-height: 14px;
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    min-height: 12px;
   }
 
   .button-row {
