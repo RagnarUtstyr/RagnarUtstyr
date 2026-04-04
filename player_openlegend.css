@@ -1,0 +1,124 @@
+/* Open Legend player theme */
+
+body {
+  background: url('background.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.player-page.container {
+  background-color: rgba(31, 29, 26, 0.9);
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.5);
+}
+
+.player-page .player-panel {
+  background: rgba(11, 41, 36, 0.55);
+  border: 1px solid #2d3d73;
+}
+
+.player-page h1,
+.player-page h2,
+.player-page .tracker-name,
+.player-page .stat-value {
+  color: #e3cf95;
+}
+
+.player-page .muted,
+.player-page .tracker-progress,
+.player-page .stat-label,
+.player-page .field-stack label {
+  color: #bdb382;
+}
+
+.player-page .field-stack input,
+.player-page input[type="text"],
+.player-page input[type="number"] {
+  background: rgba(255, 255, 255, 0.15);
+  color: #e3cf95;
+  border: 2px solid #2d3d73;
+}
+
+.player-page .field-stack input:focus,
+.player-page input[type="text"]:focus,
+.player-page input[type="number"]:focus {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #4b63b3;
+}
+
+.player-page button,
+.player-page .button-link {
+  background-color: #0b2621;
+  color: #bdb382;
+  border: 2px solid #2d3d73;
+}
+
+.player-page button:hover,
+.player-page .button-link:hover {
+  background-color: #1a3b4a;
+  color: #ffffff;
+}
+
+.player-page .remove-button {
+  background-color: #a8342d;
+  border-color: transparent;
+  color: #fff;
+}
+
+.player-page .remove-button:hover {
+  background-color: #851f1a;
+}
+
+.player-page .stat-card {
+  background: rgba(20, 22, 30, 0.92);
+  border-color: #2d3d73;
+}
+
+.player-page .hp-card {
+  border-color: #8b0000;
+}
+
+.player-page .tracker-card {
+  background: rgba(11, 41, 36, 0.88);
+  border-color: #1a3b4a;
+}
+
+.player-page .tracker-boxes input[type="checkbox"] {
+  background: #1b1b1b;
+  border-color: #2d3d73;
+}
+
+.player-page .tracker-boxes input[type="checkbox"]:checked {
+  background: #8b0000;
+  border-color: #8b0000;
+}
+
+.player-page .empty-state {
+  border-color: #2d3d73;
+  color: #bdb382;
+}
+
+/* Open Legend-specific emphasis */
+.player-page .initiative-panel {
+  background: rgba(20, 22, 30, 0.75);
+  border-color: #2d3d73;
+}
+
+.player-page .ol-top-grid {
+  margin-top: 8px;
+}
+
+.player-page .damage-panel {
+  background: rgba(20, 22, 30, 0.45);
+  border: 1px solid #2d3d73;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.player-page .damage-options {
+  background: rgba(11, 41, 36, 0.45);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.player-page .calc-result {
+  color: #e3cf95;
+}
