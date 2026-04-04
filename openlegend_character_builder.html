@@ -7,6 +7,7 @@
   <style>
     * { box-sizing: border-box; }
     html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -17,7 +18,9 @@
       display: flex;
       justify-content: center;
     }
+
     h1, h2, h3, h4 { color: #e3cf95; margin-top: 0; }
+
     .container {
       width: min(1100px, 100%);
       background-color: rgba(31, 29, 26, 0.9);
@@ -26,6 +29,7 @@
       border: 1px solid rgba(45,61,115,0.75);
       padding: 18px;
     }
+
     .topbar {
       display: flex;
       justify-content: space-between;
@@ -34,11 +38,17 @@
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
+
     .meta {
       color: #d4c89a;
       font-size: 0.95rem;
     }
-    .intro-copy { margin: 0 0 14px; color: #d4c89a; }
+
+    .intro-copy {
+      margin: 0 0 14px;
+      color: #d4c89a;
+    }
+
     .save-status {
       margin: 10px 0 0;
       min-height: 1.3em;
@@ -46,7 +56,11 @@
       font-size: 0.95rem;
     }
 
-    label { display: block; font-size: 0.95rem; }
+    label {
+      display: block;
+      font-size: 0.95rem;
+    }
+
     input[type="text"],
     input[type="number"],
     select,
@@ -61,10 +75,22 @@
       font-size: 1rem;
       font-family: inherit;
     }
-    textarea { min-height: 92px; resize: vertical; }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
     input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
 
     button,
     .button-link {
@@ -79,15 +105,22 @@
       text-decoration: none;
       display: inline-block;
     }
+
     button:hover,
-    .button-link:hover { background-color: #1a3b4a; color: #fff; }
+    .button-link:hover {
+      background-color: #1a3b4a;
+      color: #fff;
+    }
 
     .remove-button {
       background-color: #a8342d;
       border-color: #7c241f;
       color: #fff;
     }
-    .remove-button:hover { background-color: #851f1a; }
+
+    .remove-button:hover {
+      background-color: #851f1a;
+    }
 
     .grid-top {
       display: grid;
@@ -102,6 +135,7 @@
       gap: 12px;
       margin-bottom: 16px;
     }
+
     .budget-card,
     .sheet-box {
       background: rgba(11, 41, 36, 0.55);
@@ -109,16 +143,19 @@
       border-radius: 10px;
       padding: 12px;
     }
+
     .budget-card .label {
       color: #e3cf95;
       font-size: 0.9rem;
       margin-bottom: 6px;
     }
+
     .budget-card .value {
       font-size: 1.2rem;
       font-weight: 700;
       color: #fff4c2;
     }
+
     .budget-card .detail {
       margin-top: 4px;
       font-size: 0.85rem;
@@ -131,19 +168,27 @@
       gap: 16px;
       align-items: start;
     }
+
     .attributes-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
+
     .category-box fieldset,
-    .category-box { border: 0; padding: 0; margin: 0; }
+    .category-box {
+      border: 0;
+      padding: 0;
+      margin: 0;
+    }
+
     .category-title {
       margin-bottom: 10px;
       color: #e3cf95;
       font-size: 1rem;
       letter-spacing: 0.02em;
     }
+
     .attribute-row {
       display: grid;
       grid-template-columns: minmax(110px, 1fr) 84px 74px;
@@ -151,7 +196,11 @@
       align-items: center;
       margin-bottom: 8px;
     }
-    .attribute-row .attr-name { color: #ddd2a8; }
+
+    .attribute-row .attr-name {
+      color: #ddd2a8;
+    }
+
     .attribute-row .attr-cost {
       text-align: center;
       font-size: 0.92rem;
@@ -167,6 +216,7 @@
       grid-template-columns: 1fr;
       gap: 12px;
     }
+
     .derived-card .derived-top {
       display: flex;
       justify-content: space-between;
@@ -174,13 +224,24 @@
       align-items: baseline;
       margin-bottom: 10px;
     }
-    .derived-card .derived-name { color: #e3cf95; font-size: 1rem; }
-    .derived-card .derived-total { color: #fff4c2; font-size: 1.4rem; font-weight: 700; }
+
+    .derived-card .derived-name {
+      color: #e3cf95;
+      font-size: 1rem;
+    }
+
+    .derived-card .derived-total {
+      color: #fff4c2;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
     .formula-list {
       display: grid;
       gap: 6px;
       font-size: 0.92rem;
     }
+
     .formula-row {
       display: flex;
       justify-content: space-between;
@@ -189,7 +250,10 @@
       border-radius: 6px;
       background: rgba(255,255,255,0.05);
     }
-    .formula-row span:last-child { color: #fff; }
+
+    .formula-row span:last-child {
+      color: #fff;
+    }
 
     .feat-controls {
       display: grid;
@@ -198,12 +262,18 @@
       align-items: end;
       margin-bottom: 10px;
     }
+
     .helper-text {
       font-size: 0.88rem;
       color: #c9bf96;
       margin: 4px 0 0;
     }
-    .tag-list { display: grid; gap: 8px; }
+
+    .tag-list {
+      display: grid;
+      gap: 8px;
+    }
+
     .tag-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 74px auto;
@@ -214,8 +284,14 @@
       border-radius: 8px;
       background: rgba(255,255,255,0.04);
     }
-    .tag-row .tag-name { color: #fff1bf; }
-    .tag-row .tag-cost { text-align: center; }
+
+    .tag-row .tag-name {
+      color: #fff1bf;
+    }
+
+    .tag-row .tag-cost {
+      text-align: center;
+    }
 
     .two-col {
       display: grid;
@@ -223,7 +299,12 @@
       gap: 16px;
       margin-top: 16px;
     }
-    .simple-list { display: grid; gap: 8px; }
+
+    .simple-list {
+      display: grid;
+      gap: 8px;
+    }
+
     .simple-list-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -231,32 +312,65 @@
       align-items: center;
     }
 
+    .weapon-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .weapon-card {
+      border: 1px solid rgba(45,61,115,0.55);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      padding: 10px;
+    }
+
+    .weapon-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .weapon-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
     .status-ok {
       color: #d6f5a3;
       font-weight: 700;
     }
+
     .status-bad {
       color: #ffb2a8;
       font-weight: 700;
     }
+
     .messages {
       margin-top: 12px;
       display: grid;
       gap: 10px;
     }
+
     .message-box {
       border-radius: 8px;
       padding: 10px 12px;
       border: 1px solid rgba(45,61,115,0.55);
       background: rgba(255,255,255,0.04);
     }
-    .message-box ul { margin: 8px 0 0; padding-left: 18px; }
+
+    .message-box ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
     .export-row {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       margin-top: 10px;
     }
+
     .debug-box {
       font-size: 0.9rem;
       white-space: pre-wrap;
@@ -264,8 +378,16 @@
     }
 
     @media (max-width: 920px) {
-      .grid-top, .budget-grid, .attributes-grid, .two-col, .main-layout { grid-template-columns: 1fr; }
+      .grid-top,
+      .budget-grid,
+      .attributes-grid,
+      .two-col,
+      .main-layout,
+      .weapon-grid {
+        grid-template-columns: 1fr;
+      }
     }
+
     @media (max-width: 600px) {
       body { padding: 6px; }
       .container { padding: 10px; }
@@ -286,7 +408,9 @@
       <a id="back-to-player-link" class="button-link" href="player.html">Back to player</a>
     </div>
 
-    <p class="intro-copy">Character creation and XP advancement builder with corrected cumulative attribute costs, derived-stat breakdowns, and a searchable feat picker.</p>
+    <p class="intro-copy">
+      Full builder with room-based autosave. Combat stats sync to your player page while the full build is stored separately.
+    </p>
 
     <div id="builder"></div>
 
@@ -369,6 +493,17 @@
         acc[key] = 0;
         return acc;
       }, {});
+    }
+
+    function createEmptyWeapon() {
+      return {
+        name: "",
+        attribute: "Agility",
+        boon: 0,
+        bane: 0,
+        damage: "",
+        notes: ""
+      };
     }
 
     function clone(value) {
@@ -480,17 +615,25 @@
       const attributes = createEmptyAttributes();
       Object.assign(attributes, seed.attributes || {});
       const xpAwards = getXpAwards(seed.xp);
+
+      const modifiers = Object.assign({}, clone(RULES.defaults), seed.modifiers || {});
+      const feats = Array.isArray(seed.feats) ? clone(seed.feats) : [];
+      const perks = Array.isArray(seed.perks) ? clone(seed.perks) : [];
+      const flaws = Array.isArray(seed.flaws) ? clone(seed.flaws) : [];
+      const weapons = Array.isArray(seed.weapons) ? clone(seed.weapons) : [];
+
       return {
         name: seed.name || "",
         concept: seed.concept || "",
         xp: cleanInt(seed.xp),
         level: numberOrZero(seed.level) || xpAwards.level,
         attributes,
-        feats: clone(seed.feats || []),
-        perks: clone(seed.perks || []),
-        flaws: clone(seed.flaws || []),
+        feats,
+        perks,
+        flaws,
+        weapons,
         notes: seed.notes || "",
-        modifiers: Object.assign({}, clone(RULES.defaults), seed.modifiers || {})
+        modifiers
       };
     }
 
@@ -574,7 +717,13 @@
         errors.push(`You have spent ${spent} feat points, but only ${budgets.featPointsTotal} are available (${RULES.creation.featPoints} base + ${budgets.bonusFeatPoints} from XP).`);
       }
 
-      return { spent, remaining: budgets.featPointsTotal - spent, totalAvailable: budgets.featPointsTotal, errors, warnings };
+      return {
+        spent,
+        remaining: budgets.featPointsTotal - spent,
+        totalAvailable: budgets.featPointsTotal,
+        errors,
+        warnings
+      };
     }
 
     function validateCharacter(character, featRegistry = {}) {
@@ -597,6 +746,7 @@
       if (character.perks.length > RULES.creation.maxPerks) {
         errors.push(`A character may select up to ${RULES.creation.maxPerks} perks at character creation.`);
       }
+
       if (character.flaws.length > RULES.creation.maxFlaws) {
         errors.push(`A character may select up to ${RULES.creation.maxFlaws} flaws at character creation.`);
       }
@@ -648,6 +798,7 @@
     let featListWrap = null;
     let perkListWrap = null;
     let flawListWrap = null;
+    let weaponListWrap = null;
     let statusWrap = null;
     let messagesWrap = null;
     let jsonArea = null;
@@ -690,6 +841,18 @@
       character.flaws = Array.from(root.querySelectorAll("[data-flaw-index]"))
         .map((el) => el.value.trim())
         .filter(Boolean);
+
+      character.weapons = Array.from(root.querySelectorAll("[data-weapon-index]")).map((card) => {
+        const index = Number(card.dataset.weaponIndex);
+        return {
+          name: root.querySelector(`[data-weapon-name="${index}"]`)?.value?.trim() || "",
+          attribute: root.querySelector(`[data-weapon-attribute="${index}"]`)?.value || "Agility",
+          boon: cleanInt(root.querySelector(`[data-weapon-boon="${index}"]`)?.value),
+          bane: cleanInt(root.querySelector(`[data-weapon-bane="${index}"]`)?.value),
+          damage: root.querySelector(`[data-weapon-damage="${index}"]`)?.value?.trim() || "",
+          notes: root.querySelector(`[data-weapon-notes="${index}"]`)?.value?.trim() || ""
+        };
+      });
     }
 
     function renderAttributes() {
@@ -791,16 +954,64 @@
       }).join("");
     }
 
+    function renderWeapons() {
+      weaponListWrap.innerHTML = character.weapons.map((weapon, index) => `
+        <div class="weapon-card" data-weapon-index="${index}">
+          <div class="weapon-grid">
+            <label>
+              Weapon Name
+              <input data-weapon-name="${index}" type="text" value="${escapeHtml(weapon.name || "")}" placeholder="Longsword">
+            </label>
+
+            <label>
+              Attack Attribute
+              <select data-weapon-attribute="${index}">
+                ${ATTRIBUTE_ORDER.map((attr) => `
+                  <option value="${escapeHtml(attr)}" ${weapon.attribute === attr ? "selected" : ""}>${escapeHtml(attr)}</option>
+                `).join("")}
+              </select>
+            </label>
+
+            <label>
+              Damage
+              <input data-weapon-damage="${index}" type="text" value="${escapeHtml(weapon.damage || "")}" placeholder="1d8">
+            </label>
+
+            <label>
+              Boon
+              <input data-weapon-boon="${index}" type="number" min="0" value="${cleanInt(weapon.boon)}">
+            </label>
+
+            <label>
+              Bane
+              <input data-weapon-bane="${index}" type="number" min="0" value="${cleanInt(weapon.bane)}">
+            </label>
+
+            <label>
+              Notes
+              <input data-weapon-notes="${index}" type="text" value="${escapeHtml(weapon.notes || "")}" placeholder="Reach, fire, etc.">
+            </label>
+          </div>
+
+          <div class="weapon-actions">
+            <button type="button" class="remove-button" data-remove-weapon="${index}">Remove Weapon</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
     function renderStatus(result) {
       statusWrap.innerHTML = `<div class="${result.ok ? "status-ok" : "status-bad"}">${result.ok ? "Character is currently valid." : "Character needs fixes."}</div>`;
       const blocks = [];
+
       if (result.errors.length) {
         blocks.push(`<div class="message-box"><strong>Errors</strong><ul>${result.errors.map((e) => `<li>${escapeHtml(e)}</li>`).join("")}</ul></div>`);
       }
+
       if (result.warnings.length) {
         blocks.push(`<div class="message-box"><strong>Warnings</strong><ul>${result.warnings.map((w) => `<li>${escapeHtml(w)}</li>`).join("")}</ul></div>`);
       }
-      blocks.push(`<div class="message-box"><strong>Attribute Cost Notes</strong><ul>${ATTRIBUTE_ORDER.map((attr) => `<li>${escapeHtml(attr)} ${cleanInt(character.attributes[attr])} costs ${result.attributeCostBreakdown[attr]} points</li>`).join("")}</ul></div>`);
+
       messagesWrap.innerHTML = blocks.join("");
     }
 
@@ -818,9 +1029,12 @@
       renderFeatList();
       renderSimpleList(perkListWrap, character.perks, "perk", "Perk name");
       renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
+      renderWeapons();
+
       const result = validateCharacter(character, featRegistry);
       const levelField = root.querySelector('[data-field="level"]');
       if (levelField) levelField.value = result.level;
+
       renderBudgets(result);
       renderDerived(result);
       renderStatus(result);
@@ -830,15 +1044,9 @@
         userUid: user?.uid || null,
         builderPath: user ? builderPath() : null,
         playerPath: user ? playerPath() : null,
-        name: character.name,
-        xp: character.xp,
-        level: result.level,
-        derived: {
-          guard: result.derived.guard.total,
-          toughness: result.derived.toughness.total,
-          resolve: result.derived.resolve.total,
-          hp: result.derived.hitPoints.total
-        }
+        feats: character.feats,
+        modifiers: character.modifiers,
+        weapons: character.weapons
       }, null, 2);
 
       return result;
@@ -905,6 +1113,14 @@
             </div>
           </div>
 
+          <div class="sheet-box" style="margin-top:16px;">
+            <h2>Weapons</h2>
+            <div class="weapon-list" data-weapon-list></div>
+            <div class="export-row">
+              <button type="button" data-add-weapon>Add Weapon</button>
+            </div>
+          </div>
+
           <div class="two-col">
             <div class="sheet-box">
               <h2>Perks</h2>
@@ -942,6 +1158,7 @@
       featListWrap = root.querySelector("[data-feat-list]");
       perkListWrap = root.querySelector("[data-perk-list]");
       flawListWrap = root.querySelector("[data-flaw-list]");
+      weaponListWrap = root.querySelector("[data-weapon-list]");
       statusWrap = root.querySelector("[data-status]");
       messagesWrap = root.querySelector("[data-messages]");
       jsonArea = root.querySelector("[data-json]");
@@ -997,6 +1214,14 @@
           return;
         }
 
+        if (button.matches("[data-add-weapon]")) {
+          syncFromDom();
+          character.weapons.push(createEmptyWeapon());
+          renderWeapons();
+          scheduleSave();
+          return;
+        }
+
         if (button.dataset.removeFeat !== undefined) {
           character.feats.splice(Number(button.dataset.removeFeat), 1);
           rerender();
@@ -1017,6 +1242,15 @@
           syncFromDom();
           character.flaws.splice(Number(button.dataset.removeFlaw), 1);
           renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
+          rerender();
+          scheduleSave();
+          return;
+        }
+
+        if (button.dataset.removeWeapon !== undefined) {
+          syncFromDom();
+          character.weapons.splice(Number(button.dataset.removeWeapon), 1);
+          renderWeapons();
           rerender();
           scheduleSave();
           return;
@@ -1068,7 +1302,17 @@
           : derivedBaseHp;
 
         const builderPayload = {
-          ...clone(character),
+          name: character.name,
+          concept: character.concept,
+          xp: character.xp,
+          level: result.level,
+          attributes: clone(character.attributes),
+          feats: clone(character.feats),
+          perks: clone(character.perks),
+          flaws: clone(character.flaws),
+          weapons: clone(character.weapons),
+          notes: character.notes,
+          modifiers: clone(character.modifiers),
           updatedAt: Date.now()
         };
 
@@ -1096,8 +1340,9 @@
           userUid: user.uid,
           builderPath: builderPath(),
           playerPath: playerPath(),
-          builderSavedAt: builderPayload.updatedAt,
-          playerSavedAt: playerPayload.builderUpdatedAt
+          savedFeats: builderPayload.feats,
+          savedModifiers: builderPayload.modifiers,
+          savedWeapons: builderPayload.weapons
         }, null, 2);
       } catch (error) {
         console.error("Builder save failed:", error);
