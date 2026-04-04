@@ -38,7 +38,7 @@ if (!game) {
 
 const mode = String(game.mode || "").toLowerCase();
 
-function applyModeStyles(mode) {
+function applyModeStyles(currentMode) {
   const dndStyle = document.getElementById("player-dnd-style");
   const olStyle = document.getElementById("player-ol-style");
 
@@ -47,9 +47,13 @@ function applyModeStyles(mode) {
   dndStyle.disabled = true;
   olStyle.disabled = true;
 
-  if (mode === "dnd") {
+  if (currentMode === "dnd") {
     dndStyle.disabled = false;
-  } else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
+  } else if (
+    currentMode === "openlegend" ||
+    currentMode === "ol" ||
+    currentMode === "open_legend"
+  ) {
     olStyle.disabled = false;
   }
 }
@@ -67,7 +71,11 @@ if (mode === "dnd") {
   if (dndBuilderLink) {
     dndBuilderLink.href = `dnd_character_builder_firebase.html?code=${encodeURIComponent(code)}`;
   }
-} else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
+} else if (
+  mode === "openlegend" ||
+  mode === "ol" ||
+  mode === "open_legend"
+) {
   olSection.classList.remove("hidden");
 
   if (openLegendBuilderLink) {
@@ -247,13 +255,17 @@ async function healDndHp() {
   scheduleAutoSave("D&D healing applied.");
 }
 
-async function resetDndHp() {
+async function resetDndFromBuilder() {
   const existing = await getCurrentSheet();
-  const baseHp = getDndBaseHpFromSheet(existing);
 
-  document.getElementById("player-hp").value = baseHp;
-  setDndResult(`HP reset to ${baseHp}.`);
-  scheduleAutoSave("D&D HP reset.");
+  if (!existing) {
+    setDndResult("No builder values found to reset from.");
+    return;
+  }
+
+  setDndValues(existing);
+  setDndResult("D&D fields reloaded from builder values.");
+  scheduleAutoSave("D&D fields reset from builder.");
 }
 
 function applyOpenLegendDamage() {
@@ -601,7 +613,9 @@ async function deleteTracker(trackerId) {
   const existing = await getCurrentSheet();
   if (!existing) return;
 
-  const trackers = normalizeTrackers(existing.trackers).filter((tracker) => tracker.id !== trackerId);
+  const trackers = normalizeTrackers(existing.trackers).filter(
+    (tracker) => tracker.id !== trackerId
+  );
 
   const payload = {
     ...existing,
@@ -618,7 +632,7 @@ saveInitiativeBtn?.addEventListener("click", saveInitiativeToGame);
 
 document.getElementById("dnd-apply-damage-btn")?.addEventListener("click", applyDndDamage);
 document.getElementById("dnd-heal-btn")?.addEventListener("click", healDndHp);
-document.getElementById("dnd-reset-hp-btn")?.addEventListener("click", resetDndHp);
+document.getElementById("dnd-reset-hp-btn")?.addEventListener("click", resetDndFromBuilder);
 
 document.getElementById("ol-apply-damage-btn")?.addEventListener("click", applyOpenLegendDamage);
 document.getElementById("ol-reset-hp-btn")?.addEventListener("click", resetOpenLegendHp);
