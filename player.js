@@ -38,18 +38,18 @@ if (!game) {
 const mode = String(game.mode || "").toLowerCase();
 
 function applyModeStyles(mode) {
-  const openLegendStyle = document.getElementById("style-openlegend");
-  const dndStyle = document.getElementById("style-dnd");
+  const dndStyle = document.getElementById("player-dnd-style");
+  const olStyle = document.getElementById("player-ol-style");
 
-  if (!openLegendStyle || !dndStyle) return;
+  if (!dndStyle || !olStyle) return;
 
-  openLegendStyle.disabled = true;
   dndStyle.disabled = true;
+  olStyle.disabled = true;
 
   if (mode === "dnd") {
     dndStyle.disabled = false;
   } else if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
-    openLegendStyle.disabled = false;
+    olStyle.disabled = false;
   }
 }
 
