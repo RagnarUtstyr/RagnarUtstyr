@@ -94,6 +94,10 @@ function playerEntryPath() {
   return `games/${code}/entries/${user.uid}`;
 }
 
+function dndBuilderSheetPath() {
+  return `games/${code}/builderSheetsDnd/${user.uid}`;
+}
+
 function numberOrNull(value) {
   if (value === "" || value === null || value === undefined) return null;
   const parsed = parseInt(value, 10);
@@ -166,16 +170,6 @@ function setDndValues(data = {}) {
   document.getElementById("player-cha").value = mapped.cha ?? "";
 }
 
-function getDndBaseHpFromSheet(sheet) {
-  const baseHp = parseNumber(sheet?.baseHp, NaN);
-  if (!Number.isNaN(baseHp)) return baseHp;
-
-  const currentHp = parseNumber(sheet?.currentHp, NaN);
-  if (!Number.isNaN(currentHp)) return currentHp;
-
-  return parseNumber(sheet?.hp, 0);
-}
-
 function setDndResult(message) {
   const el = document.getElementById("dnd-calc-result");
   if (el) el.textContent = message || "";
@@ -235,8 +229,24 @@ async function healDndHp() {
   }
 
   const allowTemp = !!document.getElementById("dnd-temp-heal")?.checked;
-  const existing = await getCurrentSheet();
-  const baseHp = getDndBaseHpFromSheet(existing);
+  const builderSnap = await get(ref(db, dndBuilderSheetPath()));
+  const builderData = builderSnap.exists() ? builderSnap.val() : null;
+
+  const totalLevels = parseNumber(
+    (builderData?.classes || []).reduce((sum, c) => sum + Number(c?.level || 0), 0),
+    0
+  );
+  const hpRolled = parseNumber(
+    (builderData?.classes || []).reduce((sum, c) => {
+      const hpLog = Array.isArray(c?.hpLog) ? c.hpLog : [];
+      return sum + hpLog.reduce((a, b) => a + Number(b || 0), 0);
+    }, 0),
+    0
+  );
+  const conScore = Number(builderData?.abilities?.Constitution || 10);
+  const conMod = Math.floor((conScore - 10) / 2);
+  const baseHp = Math.max(totalLevels, hpRolled + (conMod * totalLevels));
+
   const currentHp = parseNumber(document.getElementById("player-hp").value, 0);
 
   const nextHp = allowTemp
@@ -256,15 +266,84 @@ async function healDndHp() {
 }
 
 async function resetDndFromBuilder() {
-  const existing = await getCurrentSheet();
+  const builderSnap = await get(ref(db, dndBuilderSheetPath()));
 
-  if (!existing) {
+  if (!builderSnap.exists()) {
     setDndResult("No builder values found to reset from.");
     return;
   }
 
-  setDndValues(existing);
-  setDndResult("D&D fields reloaded from builder values.");
+  const builderData = builderSnap.val();
+
+  const totalLevels = parseNumber(
+    (builderData?.classes || []).reduce((sum, c) => sum + Number(c?.level || 0), 0),
+    0
+  );
+
+  const hpRolled = parseNumber(
+    (builderData?.classes || []).reduce((sum, c) => {
+      const hpLog = Array.isArray(c?.hpLog) ? c.hpLog : [];
+      return sum + hpLog.reduce((a, b) => a + Number(b || 0), 0);
+    }, 0),
+    0
+  );
+
+  const conScore = Number(builderData?.abilities?.Constitution || 10);
+  const conMod = Math.floor((conScore - 10) / 2);
+  const rebuiltHp = Math.max(totalLevels, hpRolled + (conMod * totalLevels));
+
+  const armorTable = {
+    None:{base:10, dex:"full", maxDex:null},
+    Padded:{base:11, dex:"full", maxDex:null},
+    Leather:{base:11, dex:"full", maxDex:null},
+    StuddedLeather:{base:12, dex:"full", maxDex:null},
+    Hide:{base:12, dex:"cap", maxDex:2},
+    ChainShirt:{base:13, dex:"cap", maxDex:2},
+    ScaleMail:{base:14, dex:"cap", maxDex:2},
+    Breastplate:{base:14, dex:"cap", maxDex:2},
+    HalfPlate:{base:15, dex:"cap", maxDex:2},
+    RingMail:{base:14, dex:"none", maxDex:0},
+    ChainMail:{base:16, dex:"none", maxDex:0},
+    Splint:{base:17, dex:"none", maxDex:0},
+    Plate:{base:18, dex:"none", maxDex:0}
+  };
+  const shieldTable = { None: 0, Shield: 2 };
+
+  const dexScore = Number(builderData?.abilities?.Dexterity || 10);
+  const dexMod = Math.floor((dexScore - 10) / 2);
+  const armorKey = builderData?.armor || "None";
+  const shieldKey = builderData?.shield || "None";
+  const armorData = armorTable[armorKey] || armorTable.None;
+
+  const dexPart =
+    armorData.dex === "full"
+      ? dexMod
+      : armorData.dex === "cap"
+        ? Math.min(dexMod, armorData.maxDex)
+        : 0;
+
+  const rebuiltAc =
+    armorData.base +
+    dexPart +
+    Number(shieldTable[shieldKey] || 0) +
+    Number(builderData?.armorMagic || 0) +
+    Number(builderData?.shieldMagic || 0);
+
+  const rebuiltProf = 2 + Math.floor((Math.max(1, totalLevels) - 1) / 4);
+
+  setDndValues({
+    hp: rebuiltHp,
+    ac: rebuiltAc,
+    prof: rebuiltProf,
+    str: Number(builderData?.abilities?.Strength ?? ""),
+    dex: Number(builderData?.abilities?.Dexterity ?? ""),
+    con: Number(builderData?.abilities?.Constitution ?? ""),
+    int: Number(builderData?.abilities?.Intelligence ?? ""),
+    wis: Number(builderData?.abilities?.Wisdom ?? ""),
+    cha: Number(builderData?.abilities?.Charisma ?? "")
+  });
+
+  setDndResult("D&D fields reset from character builder.");
   scheduleAutoSave("D&D fields reset from builder.");
 }
 
