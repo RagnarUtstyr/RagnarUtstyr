@@ -16,21 +16,6 @@
   <link rel="stylesheet" href="save.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 </head>
-
-<script>
-  (function () {
-    const params = new URLSearchParams(window.location.search);
-    const code = (params.get("code") || "").trim().toUpperCase();
-    const badge = document.getElementById("game-code-badge");
-
-    if (!badge) return;
-
-    badge.textContent = code ? `Code: ${code}` : `No code in URL`;
-    console.log("Full URL:", window.location.href);
-    console.log("Code from URL:", code);
-  })();
-</script>
-
 <style>
   #game-code-badge {
     position: fixed;
@@ -204,6 +189,19 @@
       <div id="banes-modal-list" class="banes-modal-list"></div>
     </div>
   </div>
+  <script>
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const code = (params.get("code") || "").trim().toUpperCase();
+    const badge = document.getElementById("game-code-badge");
+
+    if (!badge) return;
+
+    badge.textContent = code ? `Code: ${code}` : `No code in URL`;
+    console.log("Full URL:", window.location.href);
+    console.log("Code from URL:", code);
+  })();
+</script>
 
 </body>
 </html>
