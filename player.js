@@ -64,7 +64,7 @@ if (mode === "dnd") {
   olSection.classList.remove("hidden");
   const builderLink = document.getElementById("openlegend-builder-link");
   if (builderLink) {
-    builderLink.href = `openlegend_character_builder.html?code=${encodeURIComponent(code)}`;
+    builderLink.href = `openlegend_character_builder_v3.html?code=${encodeURIComponent(code)}`;
   }
 } else {
   statusEl.textContent = `Unsupported game mode: ${game.mode}`;
