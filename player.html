@@ -3,34 +3,318 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Player Page</title>
+  <title>Player Sheet</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="auth.css" />
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
+
+  <style>
+    .player-shell {
+      max-width: 980px;
+    }
+
+    .player-panel {
+      background: rgba(11, 41, 36, 0.55);
+      border: 1px solid #2d3d73;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .player-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .field-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field-stack label {
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .field-stack input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stat-card {
+      background: rgba(20, 22, 30, 0.9);
+      border: 1px solid #2d3d73;
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .hp-card {
+      border-color: #8b0000;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      opacity: 0.85;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #e3cf95;
+    }
+
+    .damage-panel {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 12px;
+      align-items: end;
+      margin-top: 18px;
+    }
+
+    .damage-options {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      min-height: 40px;
+    }
+
+    .damage-options label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .calc-result {
+      min-height: 1.4em;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .player-grid,
+      .player-stats-grid,
+      .stat-grid,
+      .damage-panel {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .player-grid,
+      .player-stats-grid,
+      .stat-grid,
+      .damage-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
   <script type="module" src="player.js" defer></script>
 </head>
 <body>
-  <div class="container auth-shell">
+  <div class="container auth-shell player-shell">
     <div class="top-row">
-      <h1>Player View</h1>
+      <h1>Player Sheet</h1>
       <a class="button-link" href="lobby.html">Back to lobby</a>
     </div>
 
-    <div id="player-game-meta" class="panel"></div>
+    <div id="player-game-meta" class="player-panel"></div>
 
-    <div class="panel">
-      <h2>Submit your initiative</h2>
-      <label for="player-name">Character name</label>
-      <input type="text" id="player-name" placeholder="Aria" />
+    <!-- Shared basics -->
+    <div class="player-panel">
+      <h2>Character</h2>
 
-      <label for="player-initiative">Initiative</label>
-      <input type="number" id="player-initiative" placeholder="17" />
+      <div class="player-grid">
+        <div class="field-stack">
+          <label for="player-name">Name</label>
+          <input type="text" id="player-name" placeholder="Character name" />
+        </div>
 
-      <button id="save-initiative-button" type="button">Save initiative</button>
+        <div class="field-stack">
+          <label for="player-initiative">Initiative</label>
+          <input type="number" id="player-initiative" placeholder="17" />
+        </div>
+      </div>
     </div>
 
-    <div class="panel">
-      <h2>Current order</h2>
-      <ul id="player-entry-list" class="simple-list"></ul>
+    <!-- D&D section -->
+    <section id="player-dnd-section" class="hidden">
+      <div class="player-panel">
+        <h2>D&amp;D Sheet</h2>
+
+        <div class="player-grid">
+          <div class="field-stack">
+            <label for="player-hp">HP</label>
+            <input type="number" id="player-hp" placeholder="24" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-ac">AC</label>
+            <input type="number" id="player-ac" placeholder="16" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-prof">Prof</label>
+            <input type="number" id="player-prof" placeholder="2" />
+          </div>
+        </div>
+
+        <div class="player-stats-grid" style="margin-top:14px;">
+          <div class="field-stack">
+            <label for="player-str">STR</label>
+            <input type="number" id="player-str" placeholder="10" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-dex">DEX</label>
+            <input type="number" id="player-dex" placeholder="14" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-con">CON</label>
+            <input type="number" id="player-con" placeholder="12" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-int">INT</label>
+            <input type="number" id="player-int" placeholder="8" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-wis">WIS</label>
+            <input type="number" id="player-wis" placeholder="13" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-cha">CHA</label>
+            <input type="number" id="player-cha" placeholder="15" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Open Legend section -->
+    <section id="player-openlegend-section" class="hidden">
+      <div class="player-panel">
+        <h2>Open Legend Sheet</h2>
+
+        <div class="player-grid">
+          <div class="field-stack">
+            <label for="player-ol-base-hp">HP</label>
+            <input type="number" id="player-ol-base-hp" placeholder="30" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-ol-current-hp">Current HP</label>
+            <input type="number" id="player-ol-current-hp" placeholder="30" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-ol-grd">GRD</label>
+            <input type="number" id="player-ol-grd" placeholder="14" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-ol-res">RES</label>
+            <input type="number" id="player-ol-res" placeholder="12" />
+          </div>
+
+          <div class="field-stack">
+            <label for="player-ol-tgh">TGH</label>
+            <input type="number" id="player-ol-tgh" placeholder="13" />
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <span class="stat-label">GRD</span>
+            <span class="stat-value" id="ol-stat-grd">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">RES</span>
+            <span class="stat-value" id="ol-stat-res">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">TGH</span>
+            <span class="stat-value" id="ol-stat-tgh">—</span>
+          </div>
+          <div class="stat-card hp-card">
+            <span class="stat-label">HP</span>
+            <span class="stat-value" id="ol-stat-hp">—</span>
+          </div>
+        </div>
+
+        <div class="damage-panel">
+          <div class="field-stack">
+            <label for="ol-damage-input">DMG</label>
+            <input type="number" id="ol-damage-input" min="0" placeholder="Damage" />
+          </div>
+
+          <div class="field-stack">
+            <label>Reduce with</label>
+            <div class="damage-options">
+              <label><input type="checkbox" class="ol-defense-choice" value="grd" /> GRD</label>
+              <label><input type="checkbox" class="ol-defense-choice" value="res" /> RES</label>
+              <label><input type="checkbox" class="ol-defense-choice" value="tgh" /> TGH</label>
+            </div>
+          </div>
+
+          <div class="button-row" style="margin-top:0;">
+            <button id="ol-apply-damage-btn" type="button">Apply Damage</button>
+            <button id="ol-reset-hp-btn" type="button">Reset HP</button>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <div class="field-stack" style="min-width:160px;">
+            <label for="ol-heal-amount">Heal Amount</label>
+            <input type="number" id="ol-heal-amount" min="0" placeholder="Heal" />
+          </div>
+          <button id="ol-heal-btn" type="button">Heal</button>
+        </div>
+
+        <div id="ol-calc-result" class="calc-result muted"></div>
+      </div>
+    </section>
+
+    <div class="player-panel">
+      <div class="button-row">
+        <button id="save-character-button" type="button">Save Character</button>
+        <button id="save-initiative-button" type="button">Save to Game</button>
+      </div>
     </div>
 
     <p id="player-status" class="muted"></p>
