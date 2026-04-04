@@ -1428,7 +1428,9 @@
         syncFromDom();
 
         const isWeaponField =
+          event.target.matches("[data-weapon-preset]") ||
           event.target.matches("[data-weapon-name]") ||
+          event.target.matches("[data-weapon-attribute]") ||
           event.target.matches("[data-weapon-damage]") ||
           event.target.matches("[data-weapon-notes]") ||
           event.target.matches("[data-weapon-boon]") ||
@@ -1487,7 +1489,7 @@
         if (button.matches("[data-add-perk]")) {
           syncFromDom();
           character.perks.push("");
-          renderSimpleList(perkListWrap, character.perks, "perk", "Perk name");
+          rerender();
           scheduleSave();
           return;
         }
@@ -1495,7 +1497,7 @@
         if (button.matches("[data-add-flaw]")) {
           syncFromDom();
           character.flaws.push("");
-          renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
+          rerender();
           scheduleSave();
           return;
         }
@@ -1503,7 +1505,7 @@
         if (button.matches("[data-add-weapon]")) {
           syncFromDom();
           character.weapons.push(createEmptyWeapon());
-          renderWeapons();
+          rerender();
           scheduleSave();
           return;
         }
@@ -1518,7 +1520,6 @@
         if (button.dataset.removePerk !== undefined) {
           syncFromDom();
           character.perks.splice(Number(button.dataset.removePerk), 1);
-          renderSimpleList(perkListWrap, character.perks, "perk", "Perk name");
           rerender();
           scheduleSave();
           return;
@@ -1527,7 +1528,6 @@
         if (button.dataset.removeFlaw !== undefined) {
           syncFromDom();
           character.flaws.splice(Number(button.dataset.removeFlaw), 1);
-          renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
           rerender();
           scheduleSave();
           return;
@@ -1536,7 +1536,6 @@
         if (button.dataset.removeWeapon !== undefined) {
           syncFromDom();
           character.weapons.splice(Number(button.dataset.removeWeapon), 1);
-          renderWeapons();
           rerender();
           scheduleSave();
           return;
