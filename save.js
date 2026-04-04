@@ -1,8 +1,7 @@
-// Import Firebase modules
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase configuration (same as in group.html and server.js)
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
   authDomain: "roll202-c0b0d.firebaseapp.com",
@@ -14,29 +13,44 @@ const firebaseConfig = {
   measurementId: "G-L3JB5YC43M"
 };
 
-// Initialize Firebase app once
 function ensureApp() {
   return getApps().length ? getApp() : initializeApp(firebaseConfig);
 }
 ensureApp();
 const db = getDatabase();
 
+function getGameCode() {
+  const params = new URLSearchParams(window.location.search);
+  return (params.get("code") || "").trim().toUpperCase();
+}
+
+function getEntriesPath() {
+  const code = getGameCode();
+  if (!code) throw new Error("Missing game code in URL.");
+  return `games/${code}/entries`;
+}
+
+function getSavedListsPath() {
+  const code = getGameCode();
+  if (!code) throw new Error("Missing game code in URL.");
+  return `games/${code}/savedLists`;
+}
+
 // -------------- Helpers --------------
 function normalizeEntries(listLike) {
-  // Accepts an Array of entries or an Object keyed by id -> entry
   if (!listLike) return [];
   if (Array.isArray(listLike)) return listLike.filter(Boolean);
   return Object.values(listLike).filter(Boolean);
 }
 
 async function fetchCurrentListFromFirebase() {
-  const rankingsRef = ref(db, "rankings/");
+  const rankingsRef = ref(db, getEntriesPath());
   const snap = await get(rankingsRef);
   return snap.exists() ? snap.val() : null;
 }
 
 async function fetchSavedLists() {
-  const savedRef = ref(db, "savedLists/");
+  const savedRef = ref(db, getSavedListsPath());
   const snap = await get(savedRef);
   return snap.exists() ? snap.val() : {};
 }
@@ -44,14 +58,17 @@ async function fetchSavedLists() {
 function renderSavedLists(saved) {
   const ul = document.getElementById("savedLists");
   if (!ul) return;
+
   ul.innerHTML = "";
   const names = Object.keys(saved);
+
   if (names.length === 0) {
     const li = document.createElement("li");
     li.textContent = "No saved lists yet.";
     ul.appendChild(li);
     return;
   }
+
   names.sort().forEach((name) => {
     const li = document.createElement("li");
     li.className = "saved-list-item";
@@ -70,6 +87,7 @@ function renderSavedLists(saved) {
 async function saveList() {
   const listNameEl = document.getElementById("list-name");
   const listName = (listNameEl?.value || "").trim();
+
   if (!listName) {
     alert("Please enter a name for the list.");
     return;
@@ -81,28 +99,29 @@ async function saveList() {
     return;
   }
 
-  const saveRef = ref(db, "savedLists/" + listName);
+  const saveRef = ref(db, `${getSavedListsPath()}/${listName}`);
   await set(saveRef, {
     list: current,
     savedAt: Date.now()
   });
 
-  alert(`List "${listName}" saved.`);
-  // refresh the list UI
+  alert(`List "${listName}" saved for this game.`);
   loadSavedLists();
 }
 
-// -------------- LOAD a named list: APPEND to current --------------
+// -------------- Load a named list and append it to this room --------------
 async function loadList() {
   const listNameEl = document.getElementById("list-name");
   const listName = (listNameEl?.value || "").trim();
+
   if (!listName) {
     alert("Please enter the name of the list to load.");
     return;
   }
 
-  const loadRef = ref(db, "savedLists/" + listName);
+  const loadRef = ref(db, `${getSavedListsPath()}/${listName}`);
   const snap = await get(loadRef);
+
   if (!snap.exists()) {
     alert(`No list found with the name "${listName}".`);
     return;
@@ -110,16 +129,17 @@ async function loadList() {
 
   const savedList = snap.val().list;
   const entries = normalizeEntries(savedList);
+
   if (entries.length === 0) {
     alert(`Saved list "${listName}" is empty.`);
     return;
   }
 
-  // APPEND: for each entry, create a new child under /rankings with a new key
-  const rankingsRef = ref(db, "rankings/");
+  const rankingsRef = ref(db, getEntriesPath());
+
   for (const entry of entries) {
-    // Be defensive: only copy known fields
-    const { name, number, health, grd, res, tgh, url } = entry || {};
+    const { name, number, health, grd, res, tgh, url, ac } = entry || {};
+
     await set(push(rankingsRef), {
       name: name ?? "Unknown",
       number: typeof number === "number" ? number : 0,
@@ -127,26 +147,33 @@ async function loadList() {
       grd: typeof grd === "number" ? grd : null,
       res: typeof res === "number" ? res : null,
       tgh: typeof tgh === "number" ? tgh : null,
-      url: url ?? null
+      ac: typeof ac === "number" ? ac : null,
+      url: url ?? null,
+      loadedFromSavedList: true,
+      updatedAt: Date.now()
     });
   }
 
-  alert(`List "${listName}" loaded and appended to the current rankings. Redirecting to group.html.`);
-  window.location.href = "group.html";
+  const code = getGameCode();
+  alert(`List "${listName}" loaded into this game.`);
+  window.location.href = `group_dnd.html?code=${encodeURIComponent(code)}`;
 }
 
 // -------------- Delete a named list --------------
 async function deleteList() {
   const listNameEl = document.getElementById("list-name");
   const listName = (listNameEl?.value || "").trim();
+
   if (!listName) {
     alert("Please enter the name of the list to delete.");
     return;
   }
+
   if (!confirm(`Delete saved list "${listName}"? This cannot be undone.`)) return;
 
-  const delRef = ref(db, "savedLists/" + listName);
+  const delRef = ref(db, `${getSavedListsPath()}/${listName}`);
   await remove(delRef);
+
   alert(`List "${listName}" deleted.`);
   loadSavedLists();
 }
@@ -161,10 +188,16 @@ async function loadSavedLists() {
   }
 }
 
-// Attach event listeners for Save, Load, and Delete buttons
 document.getElementById("save-list-button")?.addEventListener("click", saveList);
 document.getElementById("load-list-button")?.addEventListener("click", loadList);
 document.getElementById("delete-list-button")?.addEventListener("click", deleteList);
 
-// Load saved lists when the page is loaded
-document.addEventListener("DOMContentLoaded", loadSavedLists);
+document.addEventListener("DOMContentLoaded", () => {
+  loadSavedLists();
+
+  const backLink = document.getElementById("view-rankings-link");
+  const code = getGameCode();
+  if (backLink && code) {
+    backLink.href = `group_dnd.html?code=${encodeURIComponent(code)}`;
+  }
+});

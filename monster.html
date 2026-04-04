@@ -5,18 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monster List</title>
     <link rel="stylesheet" href="list.css">
-	<link rel="stylesheet" href="style_dnd.css">
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="style_dnd.css">
     <script type="module" src="monster.js" defer></script>
-    <script type="module" src="server.js" defer></script>
-	<script src="search.js"></script>
+    <script src="search.js"></script>
 </head>
 <body>
-    <a href="group_dnd.html" class="button-link">View Initiative</a>
+    <a id="view-initiative-link" href="group_dnd.html" class="button-link">View Initiative</a>
+
     <!-- Search bar on top -->
     <input type="text" id="search" placeholder="Search by name..." />
-	<br><br>
+    <br><br>
 
     <div class='table-container'>
         <div class='table-entry'>
