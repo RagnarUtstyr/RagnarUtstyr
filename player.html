@@ -23,18 +23,6 @@
       margin-bottom: 16px;
     }
 
-    .player-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(180px, 1fr));
-      gap: 12px;
-    }
-
-    .player-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
-      gap: 12px;
-    }
-
     .field-stack {
       display: flex;
       flex-direction: column;
@@ -61,6 +49,51 @@
 
     .hidden {
       display: none !important;
+    }
+
+    .name-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .initiative-panel {
+      max-width: 280px;
+    }
+
+    .initiative-panel button {
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .dnd-hp-top {
+      max-width: 240px;
+      margin: 0 auto 18px auto;
+      text-align: center;
+    }
+
+    .dnd-ac-prof {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .dnd-stats-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 18px;
+    }
+
+    .dnd-stat-column {
+      display: grid;
+      gap: 12px;
+    }
+
+    .ol-top-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 12px;
     }
 
     .stat-grid {
@@ -125,21 +158,134 @@
       margin-top: 12px;
     }
 
+    .tracker-form {
+      display: grid;
+      grid-template-columns: 1.3fr 110px auto;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tracker-form-inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: -6px 0 18px 0;
+    }
+
+    .tracker-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .tracker-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      background: rgba(11, 41, 36, 0.85);
+      border: 1px solid #1a3b4a;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .tracker-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .tracker-name {
+      font-weight: bold;
+      color: #e3cf95;
+      font-size: 1.05rem;
+    }
+
+    .tracker-progress {
+      color: #bdb382;
+    }
+
+    .tracker-boxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(20px, 20px));
+      gap: 8px;
+      align-items: center;
+      justify-content: start;
+    }
+
+    .tracker-boxes input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #2d3d73;
+      border-radius: 4px;
+      background: #1b1b1b;
+      display: inline-block;
+      position: relative;
+      pointer-events: none;
+      margin: 0;
+    }
+
+    .tracker-boxes input[type="checkbox"]:checked {
+      background: #8b0000;
+      border-color: #8b0000;
+    }
+
+    .tracker-boxes input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 1px;
+      width: 6px;
+      height: 12px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .tracker-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .empty-state {
+      padding: 14px;
+      border: 1px dashed #2d3d73;
+      border-radius: 8px;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .button-small {
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      line-height: 1.1;
+    }
+
     @media (max-width: 900px) {
-      .player-grid,
-      .player-stats-grid,
+      .dnd-ac-prof,
+      .dnd-stats-columns,
+      .ol-top-grid,
       .stat-grid,
-      .damage-panel {
-        grid-template-columns: 1fr 1fr;
+      .damage-panel,
+      .tracker-form,
+      .tracker-card {
+        grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 640px) {
-      .player-grid,
-      .player-stats-grid,
-      .stat-grid,
-      .damage-panel {
-        grid-template-columns: 1fr;
+      .tracker-boxes {
+        grid-template-columns: repeat(10, 20px);
+        gap: 6px;
       }
     }
   </style>
@@ -156,31 +302,36 @@
     <div id="player-game-meta" class="player-panel"></div>
 
     <div class="player-panel">
-      <h2>Character</h2>
-
-      <div class="player-grid">
+      <h2>Name</h2>
+      <div class="name-grid">
         <div class="field-stack">
-          <label for="player-name">Name</label>
+          <label for="player-name">Character Name</label>
           <input type="text" id="player-name" placeholder="Character name" />
         </div>
-
-        <div class="field-stack">
-          <label for="player-initiative">Initiative</label>
-          <input type="number" id="player-initiative" placeholder="17" />
-        </div>
       </div>
+    </div>
+
+    <div class="player-panel initiative-panel">
+      <h2>Initiative</h2>
+      <div class="field-stack">
+        <label for="player-initiative">Initiative</label>
+        <input type="number" id="player-initiative" placeholder="17" />
+      </div>
+      <button id="save-initiative-button" type="button">Initiative</button>
     </div>
 
     <section id="player-dnd-section" class="hidden">
       <div class="player-panel">
         <h2>D&amp;D Sheet</h2>
 
-        <div class="player-grid">
+        <div class="dnd-hp-top">
           <div class="field-stack">
             <label for="player-hp">HP</label>
             <input type="number" id="player-hp" placeholder="24" />
           </div>
+        </div>
 
+        <div class="dnd-ac-prof">
           <div class="field-stack">
             <label for="player-ac">AC</label>
             <input type="number" id="player-ac" placeholder="16" />
@@ -192,35 +343,39 @@
           </div>
         </div>
 
-        <div class="player-stats-grid" style="margin-top:14px;">
-          <div class="field-stack">
-            <label for="player-str">STR</label>
-            <input type="number" id="player-str" placeholder="10" />
+        <div class="dnd-stats-columns">
+          <div class="dnd-stat-column">
+            <div class="field-stack">
+              <label for="player-str">STR</label>
+              <input type="number" id="player-str" placeholder="10" />
+            </div>
+
+            <div class="field-stack">
+              <label for="player-dex">DEX</label>
+              <input type="number" id="player-dex" placeholder="14" />
+            </div>
+
+            <div class="field-stack">
+              <label for="player-con">CON</label>
+              <input type="number" id="player-con" placeholder="12" />
+            </div>
           </div>
 
-          <div class="field-stack">
-            <label for="player-dex">DEX</label>
-            <input type="number" id="player-dex" placeholder="14" />
-          </div>
+          <div class="dnd-stat-column">
+            <div class="field-stack">
+              <label for="player-int">INT</label>
+              <input type="number" id="player-int" placeholder="8" />
+            </div>
 
-          <div class="field-stack">
-            <label for="player-con">CON</label>
-            <input type="number" id="player-con" placeholder="12" />
-          </div>
+            <div class="field-stack">
+              <label for="player-wis">WIS</label>
+              <input type="number" id="player-wis" placeholder="13" />
+            </div>
 
-          <div class="field-stack">
-            <label for="player-int">INT</label>
-            <input type="number" id="player-int" placeholder="8" />
-          </div>
-
-          <div class="field-stack">
-            <label for="player-wis">WIS</label>
-            <input type="number" id="player-wis" placeholder="13" />
-          </div>
-
-          <div class="field-stack">
-            <label for="player-cha">CHA</label>
-            <input type="number" id="player-cha" placeholder="15" />
+            <div class="field-stack">
+              <label for="player-cha">CHA</label>
+              <input type="number" id="player-cha" placeholder="15" />
+            </div>
           </div>
         </div>
       </div>
@@ -230,7 +385,7 @@
       <div class="player-panel">
         <h2>Open Legend Sheet</h2>
 
-        <div class="player-grid">
+        <div class="ol-top-grid">
           <div class="field-stack">
             <label for="player-ol-base-hp">HP</label>
             <input type="number" id="player-ol-base-hp" placeholder="30" />
@@ -310,9 +465,27 @@
     </section>
 
     <div class="player-panel">
+      <h2>Trackers</h2>
+      <p class="muted" style="margin-bottom:14px;">Saved with your character in this game.</p>
+
+      <div class="tracker-form">
+        <input type="text" id="tracker-name" placeholder="Tracker name" />
+        <input type="number" id="tracker-amount" min="1" placeholder="Amount" />
+        <button id="create-tracker-btn" type="button">Add tracker</button>
+      </div>
+
+      <label class="tracker-form-inline muted">
+        <input type="checkbox" id="tracker-start-full" />
+        Start fully checked
+      </label>
+
+      <ul id="tracker-list" class="tracker-list"></ul>
+      <div id="tracker-empty" class="empty-state">No trackers yet for this character.</div>
+    </div>
+
+    <div class="player-panel">
       <div class="button-row">
         <button id="save-character-button" type="button">Save Character</button>
-        <button id="save-initiative-button" type="button">Save to Game</button>
       </div>
     </div>
 

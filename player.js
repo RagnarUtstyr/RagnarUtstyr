@@ -19,6 +19,9 @@ const saveInitiativeBtn = document.getElementById("save-initiative-button");
 const dndSection = document.getElementById("player-dnd-section");
 const olSection = document.getElementById("player-openlegend-section");
 
+const trackerListEl = document.getElementById("tracker-list");
+const trackerEmptyEl = document.getElementById("tracker-empty");
+
 const user = await requireAuth();
 
 if (!code) {
@@ -83,6 +86,10 @@ function numberOrNull(value) {
 function parseNumber(value, fallback = 0) {
   const parsed = parseInt(String(value ?? "").trim(), 10);
   return Number.isNaN(parsed) ? fallback : parsed;
+}
+
+function makeId() {
+  return "id-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
 }
 
 function getSharedValues() {
@@ -220,6 +227,69 @@ function healOpenLegendHp() {
   document.getElementById("ol-heal-amount").value = "";
 }
 
+function normalizeTrackers(trackers) {
+  if (!Array.isArray(trackers)) return [];
+  return trackers.filter(Boolean);
+}
+
+function renderTrackerList(trackers = []) {
+  trackerListEl.innerHTML = "";
+  const safeTrackers = normalizeTrackers(trackers);
+  trackerEmptyEl.classList.toggle("hidden", safeTrackers.length > 0);
+
+  for (const tracker of safeTrackers) {
+    const li = document.createElement("li");
+    li.className = "tracker-card";
+
+    const total = Math.max(0, Number(tracker.amount) || 0);
+    const value = Math.max(0, Math.min(total, Number(tracker.value) || 0));
+
+    let boxesHtml = "";
+    for (let i = 0; i < total; i += 1) {
+      boxesHtml += `<input type="checkbox" ${i < value ? "checked" : ""} disabled />`;
+    }
+
+    li.innerHTML = `
+      <div>
+        <div class="tracker-top">
+          <span class="tracker-name">${tracker.name || "Tracker"}</span>
+          <span class="tracker-progress">${value} / ${total}</span>
+        </div>
+        <div class="tracker-boxes">${boxesHtml || '<span class="muted">No boxes</span>'}</div>
+      </div>
+      <div class="tracker-controls">
+        <button type="button" class="button-small deduct-btn">Deduct</button>
+        <button type="button" class="button-small add-btn">Add</button>
+        <button type="button" class="remove-button button-small delete-tracker-btn">Delete</button>
+      </div>
+    `;
+
+    li.querySelector(".deduct-btn").addEventListener("click", () => {
+      changeTrackerValue(tracker.id, value - 1);
+    });
+
+    li.querySelector(".add-btn").addEventListener("click", () => {
+      changeTrackerValue(tracker.id, value + 1);
+    });
+
+    li.querySelector(".delete-tracker-btn").addEventListener("click", () => {
+      deleteTracker(tracker.id);
+    });
+
+    trackerListEl.appendChild(li);
+  }
+}
+
+async function getCurrentSheet() {
+  const snap = await get(ref(db, playerSheetPath()));
+  return snap.exists() ? snap.val() : null;
+}
+
+async function saveCurrentSheetPayload(payload, statusMessage = "") {
+  await set(ref(db, playerSheetPath()), payload);
+  if (statusMessage) statusEl.textContent = statusMessage;
+}
+
 async function loadExistingCharacter() {
   const sheetSnap = await get(ref(db, playerSheetPath()));
 
@@ -233,6 +303,7 @@ async function loadExistingCharacter() {
       setOpenLegendValues(data);
     }
 
+    renderTrackerList(data.trackers || []);
     statusEl.textContent = "Loaded saved character sheet.";
     return;
   }
@@ -268,11 +339,13 @@ async function loadExistingCharacter() {
       });
     }
 
+    renderTrackerList([]);
     statusEl.textContent = "Loaded existing room character data.";
     return;
   }
 
   setSharedValues({ name: user.displayName ?? "" });
+  renderTrackerList([]);
   if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
     renderOpenLegendStats();
   }
@@ -286,6 +359,7 @@ async function saveCharacterSheet() {
     return;
   }
 
+  const existing = (await getCurrentSheet()) || {};
   let payload = {
     uid: user.uid,
     userEmail: user.email || "",
@@ -293,6 +367,7 @@ async function saveCharacterSheet() {
     mode,
     name: shared.name,
     initiative: shared.initiative,
+    trackers: existing.trackers || [],
     updatedAt: Date.now()
   };
 
@@ -309,15 +384,14 @@ async function saveCharacterSheet() {
   }
 
   try {
-    await set(ref(db, playerSheetPath()), payload);
-    statusEl.textContent = "Character sheet saved.";
+    await saveCurrentSheetPayload(payload, "Character sheet saved.");
   } catch (error) {
     console.error(error);
     statusEl.textContent = error.message || "Could not save character sheet.";
   }
 }
 
-async function saveToGame() {
+async function saveInitiativeToGame() {
   const shared = getSharedValues();
 
   if (!shared.name) {
@@ -330,6 +404,8 @@ async function saveToGame() {
     return;
   }
 
+  const existing = (await getCurrentSheet()) || {};
+
   let sheetPayload = {
     uid: user.uid,
     userEmail: user.email || "",
@@ -337,6 +413,7 @@ async function saveToGame() {
     mode,
     name: shared.name,
     initiative: shared.initiative,
+    trackers: existing.trackers || [],
     updatedAt: Date.now()
   };
 
@@ -357,17 +434,9 @@ async function saveToGame() {
       ...dnd
     };
 
+    // Admin sees only name + initiative
     entryPayload = {
-      ...entryPayload,
-      health: dnd.hp,
-      ac: dnd.ac,
-      prof: dnd.prof,
-      str: dnd.str,
-      dex: dnd.dex,
-      con: dnd.con,
-      int: dnd.int,
-      wis: dnd.wis,
-      cha: dnd.cha
+      ...entryPayload
     };
   } else {
     const ol = getOpenLegendValues();
@@ -377,33 +446,122 @@ async function saveToGame() {
       ...ol
     };
 
+    // Admin sees only name + initiative
     entryPayload = {
-      ...entryPayload,
-      baseHp: ol.baseHp,
-      currentHp: ol.currentHp,
-      health: ol.currentHp ?? ol.baseHp,
-      grd: ol.grd,
-      res: ol.res,
-      tgh: ol.tgh
+      ...entryPayload
     };
   }
 
   try {
     await set(ref(db, playerSheetPath()), sheetPayload);
     await set(ref(db, playerEntryPath()), entryPayload);
-    statusEl.textContent = "Character and initiative saved to this game.";
+    statusEl.textContent = "Initiative saved to this game.";
   } catch (error) {
     console.error(error);
-    statusEl.textContent = error.message || "Could not save to this game.";
+    statusEl.textContent = error.message || "Could not save initiative to this game.";
   }
 }
 
+async function createTracker() {
+  const nameInput = document.getElementById("tracker-name");
+  const amountInput = document.getElementById("tracker-amount");
+  const startFull = document.getElementById("tracker-start-full");
+
+  const trackerName = nameInput.value.trim();
+  const amount = parseInt(amountInput.value, 10);
+
+  if (!trackerName || Number.isNaN(amount) || amount < 1) {
+    statusEl.textContent = "Enter a tracker name and amount.";
+    return;
+  }
+
+  const existing = (await getCurrentSheet()) || {};
+  const shared = getSharedValues();
+
+  let payload = {
+    uid: user.uid,
+    userEmail: user.email || "",
+    userName: user.displayName || "",
+    mode,
+    name: shared.name || user.displayName || "",
+    initiative: shared.initiative,
+    trackers: [
+      ...(existing.trackers || []),
+      {
+        id: makeId(),
+        name: trackerName,
+        amount,
+        value: startFull.checked ? amount : 0,
+        createdAt: Date.now()
+      }
+    ],
+    updatedAt: Date.now()
+  };
+
+  if (mode === "dnd") {
+    payload = {
+      ...payload,
+      ...getDndValues()
+    };
+  } else {
+    payload = {
+      ...payload,
+      ...getOpenLegendValues()
+    };
+  }
+
+  await saveCurrentSheetPayload(payload, "Tracker added.");
+  renderTrackerList(payload.trackers);
+
+  nameInput.value = "";
+  amountInput.value = "";
+  startFull.checked = false;
+}
+
+async function changeTrackerValue(trackerId, nextValue) {
+  const existing = await getCurrentSheet();
+  if (!existing) return;
+
+  const trackers = normalizeTrackers(existing.trackers).map((tracker) => {
+    if (tracker.id !== trackerId) return tracker;
+    const bounded = Math.max(0, Math.min(Number(tracker.amount) || 0, nextValue));
+    return { ...tracker, value: bounded };
+  });
+
+  const payload = {
+    ...existing,
+    trackers,
+    updatedAt: Date.now()
+  };
+
+  await saveCurrentSheetPayload(payload);
+  renderTrackerList(trackers);
+}
+
+async function deleteTracker(trackerId) {
+  const existing = await getCurrentSheet();
+  if (!existing) return;
+
+  const trackers = normalizeTrackers(existing.trackers).filter((tracker) => tracker.id !== trackerId);
+
+  const payload = {
+    ...existing,
+    trackers,
+    updatedAt: Date.now()
+  };
+
+  await saveCurrentSheetPayload(payload, "Tracker deleted.");
+  renderTrackerList(trackers);
+}
+
 saveCharacterBtn?.addEventListener("click", saveCharacterSheet);
-saveInitiativeBtn?.addEventListener("click", saveToGame);
+saveInitiativeBtn?.addEventListener("click", saveInitiativeToGame);
 
 document.getElementById("ol-apply-damage-btn")?.addEventListener("click", applyOpenLegendDamage);
 document.getElementById("ol-reset-hp-btn")?.addEventListener("click", resetOpenLegendHp);
 document.getElementById("ol-heal-btn")?.addEventListener("click", healOpenLegendHp);
+
+document.getElementById("create-tracker-btn")?.addEventListener("click", createTracker);
 
 document.querySelectorAll(".ol-defense-choice").forEach((checkbox) => {
   checkbox.addEventListener("change", () => {
