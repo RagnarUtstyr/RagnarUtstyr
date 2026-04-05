@@ -1189,11 +1189,11 @@ function renderSummary(){
   const spell = spellcastingProfile();
   const cardsHtml = [
     ['HP', hitPointMax()],
-    ['Armor Class', armorClass()],
+    ['AC', armorClass()],
     ['Initiative', `${initiative()>=0?'+':''}${initiative()}`],
     ['Hit Dice', hitDiceSummary()],
     ['Speed', speciesSpeed()],
-    ['Passive Perception', passivePerception()],
+    ['PP', passivePerception()],
     ['Prof. Bonus', `+${profBonus()}`],
     ['Spell Save DC', spell.casterLevel || spell.pactLevel ? spellSaveDC() : '—'],
     ['Spell Attack', spell.casterLevel || spell.pactLevel ? `${spellAttackBonus()>=0?'+':''}${spellAttackBonus()}` : '—']
