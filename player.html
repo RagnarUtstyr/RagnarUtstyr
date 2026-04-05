@@ -58,23 +58,50 @@
       background-color: rgba(255, 255, 255, 0.25);
     }
 
-    .dnd-action-btn,
-    #save-initiative-button,
-    #create-tracker-btn,
-    #ol-apply-damage-btn,
-    #ol-heal-btn,
-    #ol-reset-hp-btn {
-      background-color: #2E1B18;
-      color: #E0D8B0;
-      border: 2px solid #D4AF37;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 5px;
-      font-size: 1em;
-      font-family: 'MedievalSharp', serif;
-      transition: background-color 0.3s, color 0.3s;
-      width: 100%;
-    }
+.dnd-action-btn,
+#save-initiative-button,
+#create-tracker-btn {
+  background-color: #2E1B18;
+  color: #E0D8B0;
+  border: 2px solid #D4AF37;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1em;
+  font-family: 'MedievalSharp', serif;
+  transition: background-color 0.3s, color 0.3s;
+  width: 100%;
+}
+
+.dnd-action-btn:hover,
+#save-initiative-button:hover,
+#create-tracker-btn:hover {
+  background-color: #8C5A4A;
+  color: #2E1B18;
+}
+
+/* Open Legend buttons styled like style.css */
+#ol-apply-damage-btn,
+#ol-heal-btn,
+#ol-reset-hp-btn {
+  background-color: #0b2621;
+  color: #bdb382;
+  border: 2px solid #2d3d73;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1em;
+  font-family: 'MedievalSharp', cursive;
+  transition: background-color 0.3s, color 0.3s;
+  width: 100%;
+}
+
+#ol-apply-damage-btn:hover,
+#ol-heal-btn:hover,
+#ol-reset-hp-btn:hover {
+  background-color: #1a3b4a;
+  color: #237768;
+}
 
     .dnd-action-btn:hover,
     #save-initiative-button:hover,
@@ -146,7 +173,7 @@
     <section id="player-dnd-section" class="hidden">
       <div class="player-panel">
         <div class="builder-link-row">
-          <h2>D&amp;D Sheet</h2>
+          <h2>Stats</h2>
           <a id="dnd-builder-link" class="button-link" href="dnd_character_builder_firebase.html">Open Builder</a>
         </div>
 
