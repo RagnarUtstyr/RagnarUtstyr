@@ -36,6 +36,25 @@ function getSavedListsPath() {
   return `games/${code}/savedLists`;
 }
 
+async function getGameMode() {
+  const code = getGameCode();
+  if (!code) throw new Error("Missing game code in URL.");
+
+  const snap = await get(ref(db, `games/${code}`));
+  if (!snap.exists()) return "dnd";
+
+  const mode = String(snap.val()?.mode || "").toLowerCase();
+  if (mode === "openlegend" || mode === "ol" || mode === "open_legend") {
+    return "openlegend";
+  }
+  return "dnd";
+}
+
+async function getGroupPageForCurrentGame() {
+  const mode = await getGameMode();
+  return mode === "openlegend" ? "group.html" : "group_dnd.html";
+}
+
 // -------------- Helpers --------------
 function normalizeEntries(listLike) {
   if (!listLike) return [];
@@ -138,25 +157,68 @@ async function loadList() {
   const rankingsRef = ref(db, getEntriesPath());
 
   for (const entry of entries) {
-    const { name, number, health, grd, res, tgh, url, ac } = entry || {};
+    const {
+      name,
+      playerName,
+      number,
+      initiative,
+      initiativeBonus,
+      health,
+      currentHp,
+      grd,
+      res,
+      tgh,
+      url,
+      ac,
+      banes,
+      countdownRemaining,
+      countdownActive,
+      countdownEnded
+    } = entry || {};
 
     await set(push(rankingsRef), {
-      name: name ?? "Unknown",
-      number: typeof number === "number" ? number : 0,
-      health: typeof health === "number" ? health : null,
+      name: name ?? playerName ?? "Unknown",
+      playerName: playerName ?? name ?? "Unknown",
+      number: typeof number === "number"
+        ? number
+        : typeof initiative === "number"
+          ? initiative
+          : typeof initiativeBonus === "number"
+            ? initiativeBonus
+            : 0,
+      initiative: typeof initiative === "number"
+        ? initiative
+        : typeof number === "number"
+          ? number
+          : 0,
+      health: typeof health === "number"
+        ? health
+        : typeof currentHp === "number"
+          ? currentHp
+          : null,
+      currentHp: typeof currentHp === "number"
+        ? currentHp
+        : typeof health === "number"
+          ? health
+          : null,
       grd: typeof grd === "number" ? grd : null,
       res: typeof res === "number" ? res : null,
       tgh: typeof tgh === "number" ? tgh : null,
       ac: typeof ac === "number" ? ac : null,
       url: url ?? null,
+      banes: banes ?? null,
+      countdownRemaining: typeof countdownRemaining === "number" ? countdownRemaining : null,
+      countdownActive: !!countdownActive,
+      countdownEnded: !!countdownEnded,
       loadedFromSavedList: true,
       updatedAt: Date.now()
     });
   }
 
   const code = getGameCode();
+  const groupPage = await getGroupPageForCurrentGame();
   alert(`List "${listName}" loaded into this game.`);
-  window.location.href = `group_dnd.html?code=${encodeURIComponent(code)}`;
+  window.location.href = `${groupPage}?code=${encodeURIComponent(code)}`;
 }
 
 // -------------- Delete a named list --------------
@@ -192,12 +254,13 @@ document.getElementById("save-list-button")?.addEventListener("click", saveList)
 document.getElementById("load-list-button")?.addEventListener("click", loadList);
 document.getElementById("delete-list-button")?.addEventListener("click", deleteList);
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   loadSavedLists();
 
   const backLink = document.getElementById("view-rankings-link");
   const code = getGameCode();
   if (backLink && code) {
-    backLink.href = `group_dnd.html?code=${encodeURIComponent(code)}`;
+    const groupPage = await getGroupPageForCurrentGame();
+    backLink.href = `${groupPage}?code=${encodeURIComponent(code)}`;
   }
 });

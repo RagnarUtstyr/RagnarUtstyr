@@ -1,93 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Monster List</title>
-  <link rel="stylesheet" href="list.css">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    #searchBar {
-      width: 100%;
-      max-width: 300px;
-      margin: 1em 0;
-      padding: 0.5em;
-      font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-  </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+<script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-      authDomain: "roll202-c0b0d.firebaseapp.com",
-      databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "roll202-c0b0d",
-      storageBucket: "roll202-c0b0d.appspot.com",
-      messagingSenderId: "607661730400",
-      appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-      measurementId: "G-6X5L39W56C"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+    authDomain: "roll202-c0b0d.firebaseapp.com",
+    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "roll202-c0b0d",
+    storageBucket: "roll202-c0b0d.appspot.com",
+    messagingSenderId: "607661730400",
+    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+    measurementId: "G-6X5L39W56C"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-    const container = document.getElementById("monster-list");
-    const searchInput = document.getElementById("searchBar");
+  function getGameCode() {
+    const params = new URLSearchParams(window.location.search);
+    return (params.get("code") || "").trim().toUpperCase();
+  }
 
-    let allMonsters = [];
+  function getEntriesPath() {
+    const code = getGameCode();
+    if (!code) throw new Error("Missing game code in URL.");
+    return `games/${code}/entries`;
+  }
 
-    function isValid(monster) {
-      return monster.name && monster.health && monster.grd && monster.res && monster.tgh;
-    }
+  const container = document.getElementById("monster-list");
+  const searchInput = document.getElementById("searchBar");
 
-    function createMonsterElement(monster) {
-      const entry = document.createElement("div");
-      entry.className = "table-entry";
-      entry.dataset.name = monster.name.toLowerCase();
+  let allMonsters = [];
 
-      entry.innerHTML = `
-        <div><span class="label">Name:</span><span class="content">${monster.name}</span></div>
-        <div><span class="label">HP:</span><span class="content">${monster.health}</span></div>
-        <div><span class="label">GRD:</span><span class="content">${monster.grd}</span></div>
-        <div><span class="label">RES:</span><span class="content">${monster.res}</span></div>
-        <div><span class="label">TGH:</span><span class="content">${monster.tgh}</span></div>
-        <div class="link-button">
-          <button>Add to Initiative</button>
-        </div>
-      `;
+  function isValid(monster) {
+    return monster.name && monster.health && monster.grd && monster.res && monster.tgh;
+  }
 
-      entry.querySelector("button").addEventListener("click", async () => {
-        const initiative = prompt("Enter initiative:");
-        if (initiative === null || isNaN(parseInt(initiative))) return;
+  function createMonsterElement(monster) {
+    const entry = document.createElement("div");
+    entry.className = "table-entry";
+    entry.dataset.name = monster.name.toLowerCase();
 
-        const refList = ref(db, "rankings/");
-        await push(refList, {
-          name: monster.name,
-          number: parseInt(initiative),
-          health: monster.health,
-          grd: monster.grd,
-          res: monster.res,
-          tgh: monster.tgh
-        });
+    entry.innerHTML = `
+      <div><span class="label">Name:</span><span class="content">${monster.name}</span></div>
+      <div><span class="label">HP:</span><span class="content">${monster.health}</span></div>
+      <div><span class="label">GRD:</span><span class="content">${monster.grd}</span></div>
+      <div><span class="label">RES:</span><span class="content">${monster.res}</span></div>
+      <div><span class="label">TGH:</span><span class="content">${monster.tgh}</span></div>
+      <div class="link-button">
+        <button>Add to Initiative</button>
+      </div>
+    `;
+
+    entry.querySelector("button").addEventListener("click", async () => {
+      const initiative = prompt("Enter initiative:");
+      if (initiative === null || isNaN(parseInt(initiative, 10))) return;
+
+      const refList = ref(db, getEntriesPath());
+      await push(refList, {
+        name: monster.name,
+        number: parseInt(initiative, 10),
+        initiative: parseInt(initiative, 10),
+        health: monster.health,
+        grd: monster.grd,
+        res: monster.res,
+        tgh: monster.tgh,
+        updatedAt: Date.now()
       });
+    });
 
-      return entry;
+    return entry;
+  }
+
+  function renderMonsters(list) {
+    container.innerHTML = '';
+    list.forEach(monster => {
+      const el = createMonsterElement(monster);
+      container.appendChild(el);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const backLink = document.querySelector('a.button-link[href="group.html"]');
+    const code = getGameCode();
+    if (backLink && code) {
+      backLink.href = `group.html?code=${encodeURIComponent(code)}`;
     }
 
-    function renderMonsters(list) {
-      container.innerHTML = '';
-      list.forEach(monster => {
-        const el = createMonsterElement(monster);
-        container.appendChild(el);
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const monsters = [
+    const monsters = [
 
       {name: "Geir",
         health: 20,
