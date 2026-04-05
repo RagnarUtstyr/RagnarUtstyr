@@ -116,8 +116,6 @@ body {
   color: #e3cf95;
 }
 
-/* ===== Open Legend summary layout ===== */
-
 .player-page .ol-summary-wrap {
   display: flex;
   flex-direction: column;
