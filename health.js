@@ -14,15 +14,32 @@ function getEntriesPath() {
   return `games/${code}/entries`;
 }
 
+function normalizeEntry(id, entry = {}) {
+  return {
+    id,
+    name: entry.name ?? entry.playerName ?? "Unknown",
+    number: entry.number ?? entry.initiative ?? entry.initiativeBonus ?? 0,
+    health: entry.health ?? entry.currentHp ?? null,
+    grd: entry.grd ?? null,
+    res: entry.res ?? null,
+    tgh: entry.tgh ?? null,
+    url: entry.url ?? null,
+    countdownRemaining: entry.countdownRemaining ?? null,
+    countdownActive: !!entry.countdownActive,
+    countdownEnded: !!entry.countdownEnded,
+    banes: entry.banes ?? null
+  };
+}
+
 function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded }) {
   const modal = document.getElementById('stat-modal');
   if (!modal) return;
 
   document.getElementById('stat-modal-title').textContent = name ?? '';
-  document.getElementById('stat-init').textContent = (initiative ?? 'N/A');
-  document.getElementById('stat-grd').textContent = (grd ?? 'N/A');
-  document.getElementById('stat-res').textContent = (res ?? 'N/A');
-  document.getElementById('stat-tgh').textContent = (tgh ?? 'N/A');
+  document.getElementById('stat-init').textContent = initiative ?? 'N/A';
+  document.getElementById('stat-grd').textContent = grd ?? 'N/A';
+  document.getElementById('stat-res').textContent = res ?? 'N/A';
+  document.getElementById('stat-tgh').textContent = tgh ?? 'N/A';
 
   const link = document.getElementById('stat-url');
   if (url) {
@@ -137,7 +154,7 @@ function __rowFor(id) {
 }
 
 function __sanitizeBaneKey(value) {
-  return String(value ?? '').replace(/[.#$\[\]/]/g, '_');
+  return String(value ?? '').replace(/[.#$\\[\\]/]/g, '_');
 }
 
 function __normalizeBanes(banes) {
@@ -211,6 +228,8 @@ function openBanesModal(entryId, banes, titleText = 'Banes') {
 
   modal.setAttribute('aria-hidden', 'false');
 }
+
+let __currentEntryId = null;
 
 function openBanePickerModal() {
   const modal = document.getElementById('bane-picker-modal');
@@ -288,8 +307,7 @@ function __updateCountdownBadge(row, state) {
     nameCol.appendChild(badge);
   }
 
-  if (state.ended) badge.textContent = `CD: ENDED`;
-  else badge.textContent = `CD: ${state.remaining}`;
+  badge.textContent = state.ended ? 'CD: ENDED' : `CD: ${state.remaining}`;
 }
 
 function __applyRowCountdownClasses(entryId, state) {
@@ -303,29 +321,31 @@ function __applyRowCountdownClasses(entryId, state) {
   }
 
   if (!state.ended) row.classList.remove('countdown-expired');
-
   __updateCountdownBadge(row, state);
 }
 
 function fetchRankings() {
   const reference = ref(db, getEntriesPath());
+
   onValue(reference, (snapshot) => {
     const data = snapshot.val();
-    const rankingList = document.querySelector('.ranking-body');
+    const rankingList = document.querySelector('.ranking-body') || document.getElementById('rankingList');
     if (!rankingList) return;
-    rankingList.innerHTML = '';
 
+    rankingList.innerHTML = '';
     __countdownById.clear();
+
     if (!data) return;
 
-    const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-    rankings.sort((a, b) => (b.number ?? 0) - (a.number ?? 0));
+    const rankings = Object.entries(data)
+      .map(([id, entry]) => normalizeEntry(id, entry))
+      .sort((a, b) => (b.number || 0) - (a.number || 0));
 
     rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded, banes }) => {
       __setCountdownState(id, {
-        remaining: (typeof countdownRemaining === 'number') ? countdownRemaining : null,
-        active: !!countdownActive,
-        ended: !!countdownEnded
+        remaining: countdownRemaining,
+        active: countdownActive,
+        ended: countdownEnded
       });
 
       const listItem = document.createElement('li');
@@ -343,14 +363,17 @@ function fetchRankings() {
         __currentEntryId = id;
         const s = __getCountdownState(id);
         openStatModal({
-          name, grd, res, tgh, url, initiative: number,
+          name,
+          grd,
+          res,
+          tgh,
+          url,
+          initiative: number,
           countdownRemaining: s.remaining,
           countdownActive: s.active,
           countdownEnded: s.ended
         });
       });
-
-      const baneArray = __normalizeBanes(banes);
 
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
@@ -364,6 +387,7 @@ function fetchRankings() {
 
       const dmgCol = document.createElement('div');
       dmgCol.className = 'column dmg';
+
       const dmgInput = document.createElement('input');
       dmgInput.type = 'number';
       dmgInput.placeholder = 'DMG';
@@ -383,6 +407,7 @@ function fetchRankings() {
       listItem.appendChild(hpCol);
       listItem.appendChild(dmgCol);
 
+      const baneArray = __normalizeBanes(banes);
       if (baneArray.length > 0) {
         const baneWrap = document.createElement('div');
         baneWrap.className = 'row-banes';
@@ -416,8 +441,8 @@ function fetchRankings() {
           __currentEntryId = id;
           openBanesModal(id, baneArray, `${name ?? 'Unknown'} - Banes`);
         });
-        baneWrap.appendChild(banesButton);
 
+        baneWrap.appendChild(banesButton);
         listItem.appendChild(baneWrap);
       }
 
@@ -430,7 +455,6 @@ function fetchRankings() {
       }
 
       rankingList.appendChild(listItem);
-
       __applyRowCountdownClasses(id, __getCountdownState(id));
     });
   });
@@ -461,8 +485,7 @@ function applyDamageToAll() {
 
     const finalDamage = Math.max(effective, 0);
     if (finalDamage > 0) {
-      const updated = Math.max(currentHealth - finalDamage, 0);
-      updateHealth(id, updated, input);
+      updateHealth(id, Math.max(currentHealth - finalDamage, 0), input);
     }
 
     input.value = '';
@@ -516,22 +539,16 @@ function clearList() {
     .catch(err => console.error('Error clearing list:', err));
 }
 
-let __currentEntryId = null;
-
 document.addEventListener('DOMContentLoaded', () => {
-  const delBtn = document.getElementById('stat-delete');
-  if (delBtn) {
-    delBtn.addEventListener('click', () => {
-      if (!__currentEntryId) return;
-      if (!confirm('Delete this entry from the list?')) return;
+  document.getElementById('stat-delete')?.addEventListener('click', () => {
+    if (!__currentEntryId) return;
+    if (!confirm('Delete this entry from the list?')) return;
 
-      const row = __rowFor(__currentEntryId);
-      removeEntry(__currentEntryId, row || undefined);
-
-      document.getElementById('stat-modal')?.setAttribute('aria-hidden', 'true');
-      __currentEntryId = null;
-    });
-  }
+    const row = __rowFor(__currentEntryId);
+    removeEntry(__currentEntryId, row || undefined);
+    document.getElementById('stat-modal')?.setAttribute('aria-hidden', 'true');
+    __currentEntryId = null;
+  });
 
   const healBtn = document.getElementById('stat-heal');
   const healAmtInput = document.getElementById('stat-heal-amount');
@@ -549,9 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const current = parseInt(dmgInput.dataset.health, 10) || 0;
-      const newHealth = Math.max(current + amount, 0);
-      updateHealth(__currentEntryId, newHealth, dmgInput);
-
+      updateHealth(__currentEntryId, Math.max(current + amount, 0), dmgInput);
       healAmtInput.value = '';
     });
   }
@@ -587,7 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function setCountdown(id, turns) {
   const reference = ref(db, `${getEntriesPath()}/${id}`);
-
   __setCountdownState(id, { remaining: turns, active: true, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
 
@@ -600,7 +614,6 @@ function setCountdown(id, turns) {
 
 function clearCountdown(id) {
   const reference = ref(db, `${getEntriesPath()}/${id}`);
-
   __setCountdownState(id, { remaining: null, active: false, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
 
@@ -724,7 +737,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   fetchRankings();
-
   document.getElementById('apply-damage-button')?.addEventListener('click', applyDamageToAll);
   document.getElementById('clear-list-button')?.addEventListener('click', clearList);
 });
