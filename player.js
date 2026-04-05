@@ -1,6 +1,7 @@
 import { requireAuth } from "./auth.js";
 import { db } from "./firebase-config.js";
 import { watchOrLoadGame } from "./game-service.js";
+import { BANES } from "./banes.js";
 import {
   ref,
   get,
@@ -22,6 +23,8 @@ const openLegendBuilderLink = document.getElementById("openlegend-builder-link")
 
 const trackerListEl = document.getElementById("tracker-list");
 const trackerEmptyEl = document.getElementById("tracker-empty");
+const playerBanesPanel = document.getElementById("player-banes-panel");
+const playerBanesPreviewEl = document.getElementById("player-banes-preview");
 
 const user = await requireAuth();
 
@@ -81,6 +84,8 @@ if (mode === "dnd") {
   if (openLegendBuilderLink) {
     openLegendBuilderLink.href = `openlegend_character_builder.html?code=${encodeURIComponent(code)}`;
   }
+
+  playerBanesPanel?.classList.remove("hidden");
 } else {
   statusEl.textContent = `Unsupported game mode: ${game.mode}`;
   throw new Error(`Unsupported game mode: ${game.mode}`);
@@ -111,6 +116,214 @@ function parseNumber(value, fallback = 0) {
 
 function makeId() {
   return "id-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+}
+
+function sanitizeBaneKey(value) {
+  return String(value ?? "").replace(/[.#$\[\]/]/g, "_");
+}
+
+function normalizeBanes(banes) {
+  if (!banes) return [];
+  if (Array.isArray(banes)) return banes.filter(Boolean);
+  return Object.values(banes).filter(Boolean);
+}
+
+function getCurrentBanes() {
+  return normalizeBanes(getCurrentSheetCache()?.banes);
+}
+
+function getCurrentSheetCache() {
+  return window.__playerSheetCache || null;
+}
+
+function setCurrentSheetCache(data) {
+  window.__playerSheetCache = data || null;
+}
+
+function setPlayerBanes(banes) {
+  const safeBanes = normalizeBanes(banes);
+  const existing = getCurrentSheetCache() || {};
+  setCurrentSheetCache({ ...existing, banes: safeBanes });
+  renderPlayerBanes(safeBanes);
+}
+
+function renderPlayerBanes(banes = []) {
+  if (!playerBanesPreviewEl) return;
+
+  const safeBanes = normalizeBanes(banes);
+  if (!safeBanes.length) {
+    playerBanesPreviewEl.innerHTML = '<span class="muted player-banes-empty">No banes added.</span>';
+    return;
+  }
+
+  playerBanesPreviewEl.innerHTML = "";
+  safeBanes.slice(0, 4).forEach((bane) => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "player-bane-chip";
+    chip.title = bane.name || "Bane";
+    chip.innerHTML = `
+      <img src="${bane.icon || "icons/banes/test.png"}" alt="${bane.name || "Bane"}">
+      <span>${bane.name || "Unknown"}</span>
+    `;
+    chip.addEventListener("click", () => {
+      openBanesModal();
+    });
+    playerBanesPreviewEl.appendChild(chip);
+  });
+
+  if (safeBanes.length > 4) {
+    const more = document.createElement("span");
+    more.className = "muted";
+    more.textContent = `+${safeBanes.length - 4} more`;
+    playerBanesPreviewEl.appendChild(more);
+  }
+}
+
+function closeBanePickerModal() {
+  document.getElementById("bane-picker-modal")?.setAttribute("aria-hidden", "true");
+}
+
+function closeBanesModal() {
+  document.getElementById("banes-modal")?.setAttribute("aria-hidden", "true");
+}
+
+function openBanePickerModal() {
+  if (mode !== "openlegend" && mode !== "ol" && mode !== "open_legend") return;
+
+  const modal = document.getElementById("bane-picker-modal");
+  const list = document.getElementById("bane-picker-list");
+  if (!modal || !list) return;
+
+  const selectedNames = new Set(getCurrentBanes().map((bane) => bane.name));
+  list.innerHTML = "";
+
+  BANES.forEach((bane) => {
+    const row = document.createElement("div");
+    row.className = "bane-picker-row";
+
+    const left = document.createElement("div");
+    left.className = "bane-picker-left";
+
+    const icon = document.createElement("img");
+    icon.className = "bane-icon";
+    icon.src = bane.icon || "icons/banes/test.png";
+    icon.alt = bane.name || "Bane";
+
+    const name = document.createElement("span");
+    name.textContent = bane.name || "Unknown";
+
+    const addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.textContent = selectedNames.has(bane.name) ? "Added" : "Add";
+    addBtn.className = "bane-picker-add-btn";
+    addBtn.disabled = selectedNames.has(bane.name);
+    addBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await addPlayerBane(bane);
+      openBanePickerModal();
+    });
+
+    left.appendChild(icon);
+    left.appendChild(name);
+    row.appendChild(left);
+    row.appendChild(addBtn);
+    list.appendChild(row);
+  });
+
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function openBanesModal() {
+  const modal = document.getElementById("banes-modal");
+  const list = document.getElementById("banes-modal-list");
+  if (!modal || !list) return;
+
+  const banes = getCurrentBanes();
+  list.innerHTML = "";
+
+  if (!banes.length) {
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.textContent = "No banes added.";
+    list.appendChild(empty);
+  } else {
+    banes.forEach((bane) => {
+      const row = document.createElement("div");
+      row.className = "bane-picker-row";
+
+      const leftButton = document.createElement("button");
+      leftButton.type = "button";
+      leftButton.className = "bane-picker-open";
+
+      const left = document.createElement("div");
+      left.className = "bane-picker-left";
+
+      const icon = document.createElement("img");
+      icon.className = "bane-icon";
+      icon.src = bane.icon || "icons/banes/test.png";
+      icon.alt = bane.name || "Bane";
+
+      const name = document.createElement("span");
+      name.textContent = bane.name || "Unknown";
+
+      left.appendChild(icon);
+      left.appendChild(name);
+      leftButton.appendChild(left);
+      leftButton.addEventListener("click", () => {
+        if (bane.url) window.open(bane.url, "_blank", "noopener");
+      });
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.textContent = "Remove";
+      removeBtn.className = "player-bane-remove-btn";
+      removeBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        await removePlayerBane(bane.name);
+        openBanesModal();
+      });
+
+      row.appendChild(leftButton);
+      row.appendChild(removeBtn);
+      list.appendChild(row);
+    });
+  }
+
+  modal.setAttribute("aria-hidden", "false");
+}
+
+async function persistPlayerBanes(banes, statusMessage = "Banes updated.") {
+  const existing = (await getCurrentSheet()) || {};
+  const payload = buildSheetPayload(existing);
+  payload.banes = normalizeBanes(banes);
+  payload.updatedAt = Date.now();
+
+  await set(ref(db, playerSheetPath()), payload);
+  setCurrentSheetCache(payload);
+  renderPlayerBanes(payload.banes);
+  statusEl.textContent = statusMessage;
+}
+
+async function addPlayerBane(bane) {
+  const current = getCurrentBanes();
+  if (current.some((item) => item?.name === bane.name)) return;
+
+  await persistPlayerBanes([
+    ...current,
+    {
+      name: bane.name,
+      url: bane.url,
+      icon: bane.icon || "icons/banes/test.png",
+      key: sanitizeBaneKey(bane.name)
+    }
+  ], `${bane.name} added.`);
+}
+
+async function removePlayerBane(baneName) {
+  const current = getCurrentBanes();
+  const next = current.filter((bane) => bane?.name !== baneName);
+  await persistPlayerBanes(next, `${baneName} removed.`);
 }
 
 function getSharedValues() {
@@ -192,7 +405,8 @@ function getOpenLegendValues() {
     currentHp: getOlCurrentHp(),
     grd: parseNumber(document.getElementById("player-ol-grd-view")?.textContent, 0),
     res: parseNumber(document.getElementById("player-ol-res-view")?.textContent, 0),
-    tgh: parseNumber(document.getElementById("player-ol-tgh-view")?.textContent, 0)
+    tgh: parseNumber(document.getElementById("player-ol-tgh-view")?.textContent, 0),
+    banes: getCurrentBanes()
   };
 }
 
@@ -201,6 +415,7 @@ function setOpenLegendValues(data = {}) {
   document.getElementById("player-ol-grd-view").textContent = data.grd ?? "—";
   document.getElementById("player-ol-res-view").textContent = data.res ?? "—";
   document.getElementById("player-ol-tgh-view").textContent = data.tgh ?? "—";
+  setPlayerBanes(data.banes ?? []);
 }
 
 function getSelectedOlDefense() {
@@ -521,7 +736,8 @@ function buildSheetPayload(existing = {}) {
       currentHp: ol.currentHp,
       grd: ol.grd,
       res: ol.res,
-      tgh: ol.tgh
+      tgh: ol.tgh,
+      banes: ol.banes
     };
   }
 
@@ -546,6 +762,7 @@ async function autoSaveCharacter(message = "Saved.") {
     const existing = (await getCurrentSheet()) || {};
     const payload = buildSheetPayload(existing);
     await set(ref(db, playerSheetPath()), payload);
+    setCurrentSheetCache(payload);
     statusEl.textContent = message;
   } catch (error) {
     console.error(error);
@@ -560,6 +777,7 @@ async function loadExistingCharacter() {
 
   if (sheetSnap.exists()) {
     const data = sheetSnap.val();
+    setCurrentSheetCache(data);
     setSharedValues(data);
 
     if (mode === "dnd") {
@@ -569,7 +787,8 @@ async function loadExistingCharacter() {
         currentHp: data.currentHp ?? "",
         grd: data.grd ?? "—",
         res: data.res ?? "—",
-        tgh: data.tgh ?? "—"
+        tgh: data.tgh ?? "—",
+        banes: data.banes ?? []
       });
     }
 
@@ -581,6 +800,7 @@ async function loadExistingCharacter() {
   const entrySnap = await get(ref(db, playerEntryPath()));
   if (entrySnap.exists()) {
     const entry = entrySnap.val();
+    setCurrentSheetCache(entry);
 
     setSharedValues({
       name: entry.name ?? entry.playerName ?? user.displayName ?? "",
@@ -594,7 +814,8 @@ async function loadExistingCharacter() {
         currentHp: "",
         grd: "—",
         res: "—",
-        tgh: "—"
+        tgh: "—",
+        banes: entry.banes ?? []
       });
     }
 
@@ -603,7 +824,9 @@ async function loadExistingCharacter() {
     return;
   }
 
+  setCurrentSheetCache({ name: user.displayName ?? "", banes: [] });
   setSharedValues({ name: user.displayName ?? "" });
+  if (mode !== "dnd") setPlayerBanes([]);
   renderTrackerList([]);
 }
 
@@ -630,11 +853,13 @@ async function saveInitiativeToGame() {
     initiativeBonus: shared.initiative,
     name: shared.name,
     number: shared.initiative,
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
+    banes: mode === "dnd" ? [] : normalizeBanes(sheetPayload.banes)
   };
 
   try {
     await set(ref(db, playerSheetPath()), sheetPayload);
+    setCurrentSheetCache(sheetPayload);
     await set(ref(db, playerEntryPath()), entryPayload);
     statusEl.textContent = "Initiative saved to this game.";
   } catch (error) {
@@ -672,6 +897,7 @@ async function createTracker() {
   payload.updatedAt = Date.now();
 
   await set(ref(db, playerSheetPath()), payload);
+  setCurrentSheetCache(payload);
   renderTrackerList(payload.trackers);
   statusEl.textContent = "Tracker added.";
 
@@ -697,6 +923,7 @@ async function changeTrackerValue(trackerId, nextValue) {
   };
 
   await set(ref(db, playerSheetPath()), payload);
+  setCurrentSheetCache(payload);
   renderTrackerList(trackers);
 }
 
@@ -715,9 +942,30 @@ async function deleteTracker(trackerId) {
   };
 
   await set(ref(db, playerSheetPath()), payload);
+  setCurrentSheetCache(payload);
   renderTrackerList(trackers);
   statusEl.textContent = "Tracker deleted.";
 }
+
+document.getElementById("player-add-bane-btn")?.addEventListener("click", openBanePickerModal);
+document.getElementById("player-view-banes-btn")?.addEventListener("click", openBanesModal);
+document.getElementById("bane-picker-close")?.addEventListener("click", closeBanePickerModal);
+document.getElementById("banes-modal-close")?.addEventListener("click", closeBanesModal);
+document.getElementById("bane-picker-modal")?.addEventListener("click", (e) => {
+  if (e.target?.id === "bane-picker-modal") closeBanePickerModal();
+});
+document.getElementById("banes-modal")?.addEventListener("click", (e) => {
+  if (e.target?.id === "banes-modal") closeBanesModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (document.getElementById("bane-picker-modal")?.getAttribute("aria-hidden") === "false") {
+    closeBanePickerModal();
+  }
+  if (document.getElementById("banes-modal")?.getAttribute("aria-hidden") === "false") {
+    closeBanesModal();
+  }
+});
 
 saveInitiativeBtn?.addEventListener("click", saveInitiativeToGame);
 

@@ -123,6 +123,155 @@
       text-align: center;
     }
 
+    .player-banes-panel {
+      min-width: 0;
+    }
+
+    .bane-toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    #player-add-bane-btn,
+    #player-view-banes-btn,
+    .bane-picker-add-btn,
+    .player-bane-remove-btn {
+      background-color: #0b2621;
+      color: #bdb382;
+      border: 2px solid #2d3d73;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1em;
+      font-family: 'MedievalSharp', cursive;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #player-add-bane-btn:hover,
+    #player-view-banes-btn:hover,
+    .bane-picker-add-btn:hover,
+    .player-bane-remove-btn:hover {
+      background-color: #1a3b4a;
+      color: #237768;
+    }
+
+    .player-banes-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      min-height: 40px;
+      align-items: center;
+    }
+
+    .player-bane-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid #2d3d73;
+      border-radius: 999px;
+      background: rgba(11, 38, 33, 0.45);
+      color: #bdb382;
+      font-size: 0.95rem;
+    }
+
+    .player-bane-chip img,
+    .bane-icon {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    .player-banes-empty {
+      opacity: 0.8;
+    }
+
+    .ol-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 10000;
+    }
+
+    .ol-modal[aria-hidden="true"] {
+      display: none;
+    }
+
+    .ol-modal__dialog {
+      position: relative;
+      width: min(640px, 100%);
+      max-height: 85vh;
+      overflow-y: auto;
+      border: 2px solid #2d3d73;
+      border-radius: 12px;
+      background: #10201f;
+      color: #d9d2ad;
+      padding: 22px;
+      box-sizing: border-box;
+    }
+
+    .ol-modal__dialog--wide {
+      width: min(760px, 100%);
+    }
+
+    .ol-modal__close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: transparent;
+      border: 0;
+      color: #d9d2ad;
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .bane-picker-list,
+    .banes-modal-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .bane-picker-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid #2d3d73;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .bane-picker-left,
+    .bane-picker-open {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      color: inherit;
+    }
+
+    .bane-picker-open {
+      flex: 1;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+
     @media (max-width: 760px) {
       .dnd-action-grid {
         grid-template-columns: 1fr;
@@ -157,6 +306,18 @@
           <input type="number" id="player-initiative" placeholder="17" />
         </div>
         <button id="save-initiative-button" type="button">Initiative</button>
+      </div>
+
+      <div id="player-banes-panel" class="player-panel compact-panel player-banes-panel hidden">
+        <h2>Banes</h2>
+        <p class="muted">Open Legend only.</p>
+        <div class="bane-toolbar">
+          <button id="player-add-bane-btn" type="button">Add bane</button>
+          <button id="player-view-banes-btn" type="button">Manage banes</button>
+        </div>
+        <div id="player-banes-preview" class="player-banes-preview">
+          <span class="muted player-banes-empty">No banes added.</span>
+        </div>
       </div>
     </div>
 
@@ -342,6 +503,22 @@
 
       <ul id="tracker-list" class="tracker-list"></ul>
       <div id="tracker-empty" class="empty-state">No trackers yet for this character.</div>
+    </div>
+
+    <div id="bane-picker-modal" class="ol-modal" aria-hidden="true">
+      <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="bane-picker-title">
+        <button class="ol-modal__close" id="bane-picker-close" aria-label="Close">×</button>
+        <h3 id="bane-picker-title">Add bane</h3>
+        <div id="bane-picker-list" class="bane-picker-list"></div>
+      </div>
+    </div>
+
+    <div id="banes-modal" class="ol-modal" aria-hidden="true">
+      <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="banes-modal-title">
+        <button class="ol-modal__close" id="banes-modal-close" aria-label="Close">×</button>
+        <h3 id="banes-modal-title">Manage banes</h3>
+        <div id="banes-modal-list" class="banes-modal-list"></div>
+      </div>
     </div>
 
     <p id="player-status" class="muted"></p>
