@@ -3,6 +3,17 @@ import { getDatabase, ref, update, onValue, remove, set } from "https://www.gsta
 
 const db = getDatabase();
 
+function getGameCode() {
+  const params = new URLSearchParams(window.location.search);
+  return (params.get("code") || "").trim().toUpperCase();
+}
+
+function getEntriesPath() {
+  const code = getGameCode();
+  if (!code) throw new Error("Missing game code in URL.");
+  return `games/${code}/entries`;
+}
+
 function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded }) {
   const modal = document.getElementById('stat-modal');
   if (!modal) return;
@@ -105,14 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.getElementById('stat-add-bane')?.addEventListener('click', openBanePickerModal);
-
 });
 
+const __countdownById = new Map();
 
-const __countdownById = new Map(); 
 function __getCountdownState(id) {
   return __countdownById.get(id) || { remaining: null, active: false, ended: false };
 }
+
 function __setCountdownState(id, state) {
   __countdownById.set(id, {
     remaining: (typeof state.remaining === 'number') ? state.remaining : null,
@@ -124,7 +135,6 @@ function __setCountdownState(id, state) {
 function __rowFor(id) {
   return document.querySelector(`.list-item[data-entry-id="${id}"]`);
 }
-
 
 function __sanitizeBaneKey(value) {
   return String(value ?? '').replace(/[.#$\[\]/]/g, '_');
@@ -188,7 +198,7 @@ function openBanesModal(entryId, banes, titleText = 'Banes') {
       e.stopPropagation();
       const key = __sanitizeBaneKey(bane.name);
       try {
-        await remove(ref(db, `rankings/${entryId}/banes/${key}`));
+        await remove(ref(db, `${getEntriesPath()}/${entryId}/banes/${key}`));
       } catch (err) {
         console.error('Error removing bane:', err);
       }
@@ -231,7 +241,7 @@ function openBanePickerModal() {
     addBtn.style.marginTop = '0';
     addBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      const entryRef = ref(db, `rankings/${__currentEntryId}/banes`);
+      const entryRef = ref(db, `${getEntriesPath()}/${__currentEntryId}/banes`);
       const key = __sanitizeBaneKey(bane.name);
       try {
         await update(entryRef, {
@@ -298,7 +308,7 @@ function __applyRowCountdownClasses(entryId, state) {
 }
 
 function fetchRankings() {
-  const reference = ref(db, 'rankings/');
+  const reference = ref(db, getEntriesPath());
   onValue(reference, (snapshot) => {
     const data = snapshot.val();
     const rankingList = document.querySelector('.ranking-body');
@@ -309,7 +319,7 @@ function fetchRankings() {
     if (!data) return;
 
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-    rankings.sort((a, b) => b.number - a.number);
+    rankings.sort((a, b) => (b.number ?? 0) - (a.number ?? 0));
 
     rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded, banes }) => {
       __setCountdownState(id, {
@@ -421,7 +431,6 @@ function fetchRankings() {
 
       rankingList.appendChild(listItem);
 
-      // Apply countdown classes + badge AFTER nameCol exists
       __applyRowCountdownClasses(id, __getCountdownState(id));
     });
   });
@@ -438,9 +447,9 @@ function applyDamageToAll() {
     }
 
     const id = input.dataset.entryId;
-    const currentHealth = parseInt(input.dataset.health);
-    const rawDamage = parseInt(input.value);
-    const statValue = parseInt(input.dataset[selectedStat]);
+    const currentHealth = parseInt(input.dataset.health, 10);
+    const rawDamage = parseInt(input.value, 10);
+    const statValue = parseInt(input.dataset[selectedStat], 10);
 
     if (isNaN(rawDamage) || isNaN(currentHealth) || isNaN(statValue)) {
       input.value = '';
@@ -461,7 +470,7 @@ function applyDamageToAll() {
 }
 
 function updateHealth(id, newHealth, inputEl) {
-  const reference = ref(db, `rankings/${id}`);
+  const reference = ref(db, `${getEntriesPath()}/${id}`);
   update(reference, { health: newHealth })
     .then(() => {
       const listItem = inputEl.closest('.list-item');
@@ -488,7 +497,7 @@ function updateHealth(id, newHealth, inputEl) {
 }
 
 function removeEntry(id, listItem) {
-  const reference = ref(db, `rankings/${id}`);
+  const reference = ref(db, `${getEntriesPath()}/${id}`);
   remove(reference)
     .then(() => {
       listItem?.remove();
@@ -498,7 +507,7 @@ function removeEntry(id, listItem) {
 }
 
 function clearList() {
-  const reference = ref(db, 'rankings/');
+  const reference = ref(db, getEntriesPath());
   set(reference, null)
     .then(() => {
       window.resetRoundCounter?.();
@@ -548,7 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-
 document.addEventListener('DOMContentLoaded', () => {
   const setBtn = document.getElementById('hp-set-button');
   const hpInput = document.getElementById('hp-set-amount');
@@ -577,9 +585,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-
 function setCountdown(id, turns) {
-  const reference = ref(db, `rankings/${id}`);
+  const reference = ref(db, `${getEntriesPath()}/${id}`);
 
   __setCountdownState(id, { remaining: turns, active: true, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
@@ -592,7 +599,7 @@ function setCountdown(id, turns) {
 }
 
 function clearCountdown(id) {
-  const reference = ref(db, `rankings/${id}`);
+  const reference = ref(db, `${getEntriesPath()}/${id}`);
 
   __setCountdownState(id, { remaining: null, active: false, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
@@ -644,7 +651,7 @@ async function __decrementCountdownIfNeeded(entryId) {
   if (state.remaining <= 0) return;
 
   const nextRemaining = state.remaining - 1;
-  const reference = ref(db, `rankings/${entryId}`);
+  const reference = ref(db, `${getEntriesPath()}/${entryId}`);
 
   if (nextRemaining <= 0) {
     __setCountdownState(entryId, { remaining: 0, active: false, ended: true });
@@ -679,20 +686,17 @@ async function __cleanupEndedCountdownIfNeeded(entryId) {
   }
 }
 
-
 window.addEventListener('tracker:highlightChange', async (e) => {
   const previousId = e?.detail?.previousId ?? null;
   const currentId = e?.detail?.currentId ?? null;
   const reason = e?.detail?.reason ?? "sync";
 
-  // If we just moved away from ended entry, clean it up (only on navigation too)
   if ((reason === "next" || reason === "prev") && previousId && previousId !== currentId) {
     await __cleanupEndedCountdownIfNeeded(previousId);
     const prevRow = __rowFor(previousId);
     if (prevRow) prevRow.classList.remove('countdown-expired');
   }
 
-  // TICK ONLY on next/prev
   if (currentId && (reason === "next" || reason === "prev")) {
     try {
       await __decrementCountdownIfNeeded(currentId);
@@ -700,7 +704,6 @@ window.addEventListener('tracker:highlightChange', async (e) => {
       console.error('Error decrementing countdown:', err);
     }
   }
-
 
   if (currentId) {
     const currentState = __getCountdownState(currentId);
@@ -713,6 +716,13 @@ window.addEventListener('tracker:highlightChange', async (e) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  try {
+    getEntriesPath();
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+
   fetchRankings();
 
   document.getElementById('apply-damage-button')?.addEventListener('click', applyDamageToAll);
