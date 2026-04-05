@@ -181,7 +181,6 @@ body {
   justify-content: center;
 }
 
-/* Keep OL buttons on their green/blue style even if inline page CSS exists */
 .player-page #ol-apply-damage-btn,
 .player-page #ol-heal-btn,
 .player-page #ol-reset-hp-btn {
@@ -199,8 +198,15 @@ body {
 }
 
 @media (max-width: 600px) {
+  .player-page .ol-summary-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
   .player-page .ol-defense-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
   }
 
   .player-page .hp-display {

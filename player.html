@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="auth.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 
-  <script type="module" src="player.js?v=5" defer></script>
+  <script type="module" src="player.js?v=6" defer></script>
 
   <style>
     .dnd-action-grid {
@@ -80,7 +80,6 @@
       color: #2E1B18;
     }
 
-    /* Open Legend buttons use the green/blue style */
     #ol-apply-damage-btn,
     #ol-heal-btn,
     #ol-reset-hp-btn {
@@ -273,20 +272,25 @@
     }
 
     @media (max-width: 760px) {
-  .top-character-row {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  #player-banes-panel {
-    grid-column: 1 / -1;
-    width: 100%;
-  }
-}
-
-    @media (max-width: 760px) {
       .dnd-action-grid {
         grid-template-columns: 1fr;
+      }
+
+      .top-character-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .top-character-row .name-panel,
+      .top-character-row .initiative-panel {
+        grid-column: span 1;
+      }
+
+      #player-banes-panel {
+        grid-column: 1 / -1;
+        width: 100%;
       }
     }
   </style>
