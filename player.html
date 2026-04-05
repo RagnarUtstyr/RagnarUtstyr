@@ -271,6 +271,10 @@
       font: inherit;
     }
 
+    .top-character-row > .player-panel {
+      box-sizing: border-box;
+    }
+
     @media (max-width: 760px) {
       .dnd-action-grid {
         grid-template-columns: 1fr;
@@ -278,19 +282,31 @@
 
       .top-character-row {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 12px;
         align-items: stretch;
+        width: 100%;
       }
 
-      .top-character-row .name-panel,
+      .top-character-row > .player-panel {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .top-character-row .name-panel {
+        grid-column: 1;
+      }
+
       .top-character-row .initiative-panel {
-        grid-column: span 1;
+        grid-column: 2;
       }
 
       #player-banes-panel {
         grid-column: 1 / -1;
         width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
       }
     }
   </style>
