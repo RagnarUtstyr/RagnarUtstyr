@@ -1240,7 +1240,7 @@ function renderClasses(){
     <div class="class-row card">
       <label>Class <select data-class-name="${i}">${Object.keys(CLASSES).map(name=>`<option ${name===c.name?'selected':''}>${name}</option>`).join('')}</select></label>
       <label>Level <input data-class-level="${i}" type="number" min="1" value="${c.level}"></label>
-      <div class="small">HP Log: ${c.hpLog.join(', ')}</div>
+      
       <button type="button" data-remove-class="${i}" ${state.classes.length===1?'disabled':''}>Remove</button>
     </div>
   `).join('');
