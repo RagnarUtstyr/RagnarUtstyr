@@ -115,3 +115,99 @@ body {
 .player-page .calc-result {
   color: #e3cf95;
 }
+
+/* ===== Open Legend summary layout ===== */
+
+.player-page .ol-summary-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.player-page .ol-defense-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.player-page .summary-card {
+  background: rgba(20, 22, 30, 0.72);
+  border: 1px solid #2d3d73;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.18);
+}
+
+.player-page .summary-label {
+  color: #bdb382;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.player-page .summary-value {
+  color: #e3cf95;
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.player-page .hp-card-large {
+  padding: 18px 16px;
+}
+
+.player-page .hp-card-large .summary-label {
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+
+.player-page .hp-display {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #e3cf95;
+  line-height: 1;
+  min-height: 2.8rem;
+}
+
+.player-page .defense-card .summary-value {
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.player-page .defense-card {
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Keep OL buttons on their green/blue style even if inline page CSS exists */
+.player-page #ol-apply-damage-btn,
+.player-page #ol-heal-btn,
+.player-page #ol-reset-hp-btn {
+  background-color: #0b2621;
+  color: #bdb382;
+  border: 2px solid #2d3d73;
+  font-family: 'MedievalSharp', cursive;
+}
+
+.player-page #ol-apply-damage-btn:hover,
+.player-page #ol-heal-btn:hover,
+.player-page #ol-reset-hp-btn:hover {
+  background-color: #1a3b4a;
+  color: #237768;
+}
+
+@media (max-width: 600px) {
+  .player-page .ol-defense-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .player-page .hp-display {
+    font-size: 2.2rem;
+  }
+
+  .player-page .defense-card .summary-value {
+    font-size: 1.3rem;
+  }
+}

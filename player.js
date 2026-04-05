@@ -175,9 +175,21 @@ function setDndResult(message) {
   if (el) el.textContent = message || "";
 }
 
+function getOlCurrentHp() {
+  const el = document.getElementById("player-ol-current-hp");
+  if (!el) return null;
+  return numberOrNull(el.textContent);
+}
+
+function setOlCurrentHp(value) {
+  const el = document.getElementById("player-ol-current-hp");
+  if (!el) return;
+  el.textContent = value === null || value === undefined || value === "" ? "—" : String(value);
+}
+
 function getOpenLegendValues() {
   return {
-    currentHp: numberOrNull(document.getElementById("player-ol-current-hp").value),
+    currentHp: getOlCurrentHp(),
     grd: parseNumber(document.getElementById("player-ol-grd-view")?.textContent, 0),
     res: parseNumber(document.getElementById("player-ol-res-view")?.textContent, 0),
     tgh: parseNumber(document.getElementById("player-ol-tgh-view")?.textContent, 0)
@@ -185,7 +197,7 @@ function getOpenLegendValues() {
 }
 
 function setOpenLegendValues(data = {}) {
-  document.getElementById("player-ol-current-hp").value = data.currentHp ?? "";
+  setOlCurrentHp(data.currentHp ?? "");
   document.getElementById("player-ol-grd-view").textContent = data.grd ?? "—";
   document.getElementById("player-ol-res-view").textContent = data.res ?? "—";
   document.getElementById("player-ol-tgh-view").textContent = data.tgh ?? "—";
@@ -370,7 +382,7 @@ function applyOpenLegendDamage() {
   }
 
   const nextHp = Math.max(0, currentHp - hpLoss);
-  document.getElementById("player-ol-current-hp").value = nextHp;
+  setOlCurrentHp(nextHp);
 
   if (hpLoss > 0) {
     setOlResult(`DMG ${damage} vs ${defenseKey.toUpperCase()} ${defenseValue}. HP reduced by ${hpLoss}.`);
@@ -385,7 +397,7 @@ function applyOpenLegendDamage() {
 async function resetOpenLegendHp() {
   const existing = await getCurrentSheet();
   const baseHp = getOlBaseHpFromSheet(existing);
-  document.getElementById("player-ol-current-hp").value = baseHp;
+  setOlCurrentHp(baseHp);
   setOlResult("HP reset to base HP.");
   scheduleAutoSave("HP reset.");
 }
@@ -399,10 +411,10 @@ function healOpenLegendHp() {
 
   getCurrentSheet().then((existing) => {
     const baseHp = getOlBaseHpFromSheet(existing);
-    const currentHp = parseNumber(document.getElementById("player-ol-current-hp").value, baseHp);
+    const currentHp = parseNumber(getOlCurrentHp(), baseHp);
     const nextHp = Math.min(baseHp, currentHp + healAmount);
 
-    document.getElementById("player-ol-current-hp").value = nextHp;
+    setOlCurrentHp(nextHp);
     setOlResult(`Healed ${healAmount}. Current HP is now ${nextHp}.`);
     document.getElementById("ol-heal-amount").value = "";
     scheduleAutoSave("HP healed.");
@@ -739,8 +751,7 @@ document.querySelectorAll(".ol-defense-choice").forEach((checkbox) => {
   "player-con",
   "player-int",
   "player-wis",
-  "player-cha",
-  "player-ol-current-hp"
+  "player-cha"
 ].forEach((id) => {
   document.getElementById(id)?.addEventListener("input", () => {
     scheduleAutoSave("Character auto-saved.");

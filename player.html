@@ -58,59 +58,49 @@
       background-color: rgba(255, 255, 255, 0.25);
     }
 
-.dnd-action-btn,
-#save-initiative-button,
-#create-tracker-btn {
-  background-color: #2E1B18;
-  color: #E0D8B0;
-  border: 2px solid #D4AF37;
-  padding: 10px 15px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 1em;
-  font-family: 'MedievalSharp', serif;
-  transition: background-color 0.3s, color 0.3s;
-  width: 100%;
-}
-
-.dnd-action-btn:hover,
-#save-initiative-button:hover,
-#create-tracker-btn:hover {
-  background-color: #8C5A4A;
-  color: #2E1B18;
-}
-
-/* Open Legend buttons styled like style.css */
-#ol-apply-damage-btn,
-#ol-heal-btn,
-#ol-reset-hp-btn {
-  background-color: #0b2621;
-  color: #bdb382;
-  border: 2px solid #2d3d73;
-  padding: 10px 15px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 1em;
-  font-family: 'MedievalSharp', cursive;
-  transition: background-color 0.3s, color 0.3s;
-  width: 100%;
-}
-
-#ol-apply-damage-btn:hover,
-#ol-heal-btn:hover,
-#ol-reset-hp-btn:hover {
-  background-color: #1a3b4a;
-  color: #237768;
-}
+    .dnd-action-btn,
+    #save-initiative-button,
+    #create-tracker-btn {
+      background-color: #2E1B18;
+      color: #E0D8B0;
+      border: 2px solid #D4AF37;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1em;
+      font-family: 'MedievalSharp', serif;
+      transition: background-color 0.3s, color 0.3s;
+      width: 100%;
+    }
 
     .dnd-action-btn:hover,
     #save-initiative-button:hover,
-    #create-tracker-btn:hover,
+    #create-tracker-btn:hover {
+      background-color: #8C5A4A;
+      color: #2E1B18;
+    }
+
+    /* Open Legend buttons use the green/blue style */
+    #ol-apply-damage-btn,
+    #ol-heal-btn,
+    #ol-reset-hp-btn {
+      background-color: #0b2621;
+      color: #bdb382;
+      border: 2px solid #2d3d73;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1em;
+      font-family: 'MedievalSharp', cursive;
+      transition: background-color 0.3s, color 0.3s;
+      width: 100%;
+    }
+
     #ol-apply-damage-btn:hover,
     #ol-heal-btn:hover,
     #ol-reset-hp-btn:hover {
-      background-color: #8C5A4A;
-      color: #2E1B18;
+      background-color: #1a3b4a;
+      color: #237768;
     }
 
     .dnd-temp-toggle {
@@ -273,25 +263,27 @@
           <a id="openlegend-builder-link" class="button-link" href="openlegend_character_builder.html">Open Builder</a>
         </div>
 
-        <div class="ol-summary-grid">
-          <div class="summary-card hp-card">
+        <div class="ol-summary-wrap">
+          <div class="summary-card hp-card hp-card-large">
             <div class="summary-label">Current HP</div>
-            <input type="number" id="player-ol-current-hp" class="summary-input" placeholder="0" />
+            <div id="player-ol-current-hp" class="summary-value hp-display">—</div>
           </div>
 
-          <div class="summary-card">
-            <div class="summary-label">GRD</div>
-            <div id="player-ol-grd-view" class="summary-value">—</div>
-          </div>
+          <div class="ol-defense-grid">
+            <div class="summary-card defense-card">
+              <div class="summary-label">GRD</div>
+              <div id="player-ol-grd-view" class="summary-value">—</div>
+            </div>
 
-          <div class="summary-card">
-            <div class="summary-label">RES</div>
-            <div id="player-ol-res-view" class="summary-value">—</div>
-          </div>
+            <div class="summary-card defense-card">
+              <div class="summary-label">RES</div>
+              <div id="player-ol-res-view" class="summary-value">—</div>
+            </div>
 
-          <div class="summary-card">
-            <div class="summary-label">TGH</div>
-            <div id="player-ol-tgh-view" class="summary-value">—</div>
+            <div class="summary-card defense-card">
+              <div class="summary-label">TGH</div>
+              <div id="player-ol-tgh-view" class="summary-value">—</div>
+            </div>
           </div>
         </div>
 
