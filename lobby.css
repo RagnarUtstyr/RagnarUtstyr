@@ -70,12 +70,12 @@ body {
   padding: 30px;
   border-radius: var(--radius-xl);
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.12)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(0, 0, 0, 0.12)),
     var(--bg-2);
   border: 1px solid var(--border-soft);
   box-shadow:
     var(--shadow-lg),
-    inset 0 1px 0 rgba(255,255,255,0.025);
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
 h1,
@@ -129,11 +129,11 @@ p {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.12)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(0, 0, 0, 0.12)),
     var(--panel);
   box-shadow:
     var(--shadow-md),
-    inset 0 1px 0 rgba(255,255,255,0.02);
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 label {
@@ -164,7 +164,7 @@ select {
     border-color 0.18s ease,
     box-shadow 0.18s ease,
     background 0.18s ease;
-  box-shadow: inset 0 1px 1px rgba(255,255,255,0.015);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.015);
 }
 
 input::placeholder {
@@ -189,15 +189,14 @@ button {
   border-radius: var(--radius-sm);
   padding: 11px 16px;
   margin-top: 14px;
-  background:
-    linear-gradient(180deg, #a8834f 0%, #815f37 100%);
+  background: linear-gradient(180deg, #a8834f 0%, #815f37 100%);
   color: #17120d;
   font-weight: 700;
   letter-spacing: 0.03em;
   cursor: pointer;
   box-shadow:
     0 8px 18px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255,255,255,0.14);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
   transition:
     transform 0.14s ease,
     filter 0.14s ease,
@@ -275,13 +274,14 @@ button:focus-visible {
 
 .game-card {
   display: block;
+  width: 100%;
   text-decoration: none;
   color: inherit;
   padding: 14px 16px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-soft);
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.08)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(0, 0, 0, 0.08)),
     var(--panel-soft);
   box-shadow: var(--shadow-sm);
   transition:
@@ -294,14 +294,22 @@ button:focus-visible {
 .game-card:hover {
   border-color: var(--accent);
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.08)),
     rgba(36, 30, 25, 0.96);
   transform: translateY(-1px);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.34);
 }
 
+.game-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
 .game-card-main {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   color: inherit;
   text-decoration: none;
@@ -311,14 +319,10 @@ button:focus-visible {
   color: inherit;
 }
 
-.game-card-row {
-  gap: 16px;
-}
-
 .game-action-button {
   width: auto;
-  margin: 0;
-  flex-shrink: 0;
+  margin: 0 0 0 auto;
+  flex: 0 0 auto;
   white-space: nowrap;
   padding: 9px 14px;
   font-size: 0.95rem;
@@ -372,5 +376,6 @@ button:focus-visible {
   .game-action-button,
   #logout-button {
     width: 100%;
+    margin-left: 0;
   }
 }
