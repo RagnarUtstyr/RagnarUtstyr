@@ -447,7 +447,6 @@
           <option value="pointbuy">27-Point Buy</option>
         </select>
       </label>
-      
     </div>
   </section>
 
@@ -458,7 +457,6 @@
       <button id="addClassBtn" type="button">Add Class</button>
       <button id="levelUpBtn" type="button">Level Up</button>
     </div>
-    
   </section>
 
   <section class="section stack">
@@ -481,7 +479,10 @@
       </div>
     </div>
     <div class="skills-section">
-      <h3>Skills</h3>
+      <div class="top-row">
+        <h3>Skills</h3>
+        <button id="openSkillsModalBtn" type="button">Skills</button>
+      </div>
       <div class="skills-grid" id="skillsGrid"></div>
     </div>
   </section>
@@ -592,6 +593,25 @@
         </div>
       </div>
       <button id="applyLevelBtn" type="button">Apply Level Up</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="skillsModalOverlay" aria-hidden="true">
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="skillsModalTitle">
+    <div class="modal-head">
+      <h3 id="skillsModalTitle">Extra Skill Proficiencies</h3>
+      <button id="closeSkillsModal" type="button">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="small muted">
+        Check any skills the character gains proficiency in outside the builder’s core rules automation.
+      </div>
+      <div class="skills-grid" id="skillsModalGrid"></div>
+      <div class="button-row">
+        <button id="clearSkillsModalBtn" type="button">Clear Extra Skills</button>
+        <button id="applySkillsModalBtn" type="button">Apply</button>
+      </div>
     </div>
   </div>
 </div>
@@ -927,7 +947,8 @@ const state = {
   feats:['Savage Attacker'],
   spells:[],
   spellAbilityOverride:'',
-  resourceTracker:{}
+  resourceTracker:{},
+  extraSkillProficiencies:[]
 };
 
 function qs(id){ return document.getElementById(id); }
@@ -1071,6 +1092,10 @@ function getSkillSourceMap(){
     if (out[skill]) addSource(skill, `Species: ${state.species}`);
   });
 
+  (state.extraSkillProficiencies || []).forEach(skill => {
+    if (out[skill]) addSource(skill, 'Manual');
+  });
+
   state.classes.forEach(c => {
     Object.values(c.featureChoices || {}).forEach(text => {
       const lower = String(text || '').toLowerCase();
@@ -1086,19 +1111,82 @@ function renderSkillList(){
   const container = qs('skillsGrid');
   if (!container) return;
   const sourceMap = getSkillSourceMap();
+
   const html = SKILL_GROUP_ORDER.map(ability => {
     const skills = Object.keys(SKILL_DATA)
       .filter(skill => SKILL_DATA[skill] === ability)
       .sort((a, b) => a.localeCompare(b))
       .map(skill => {
-        const proficient = sourceMap[skill].length > 0;
+        const sources = sourceMap[skill];
+        const proficient = sources.length > 0;
         const total = mod(state.abilities[ability]) + (proficient ? profBonus() : 0);
-        const sourceText = proficient ? `` : '';
-        return `<div class="skill-line"><span>${skill}</span><strong>${total}</strong></div>${sourceText}`;
+        const sourceText = proficient
+          ? `<div class="skill-source">Proficient via: ${sources.join(', ')}</div>`
+          : '';
+        return `
+          <div class="skill-line">
+            <span>${skill}</span>
+            <strong>${total >= 0 ? '+' : ''}${total}</strong>
+          </div>
+          ${sourceText}
+        `;
       }).join('');
+
     return `<div class="skill-group"><h4>${ability} ${mod(state.abilities[ability]) >= 0 ? '+' : ''}${mod(state.abilities[ability])}</h4>${skills}</div>`;
   }).join('');
+
   container.innerHTML = html;
+}
+
+function renderSkillsModal(){
+  const container = qs('skillsModalGrid');
+  if (!container) return;
+
+  const html = SKILL_GROUP_ORDER.map(ability => {
+    const skills = Object.keys(SKILL_DATA)
+      .filter(skill => SKILL_DATA[skill] === ability)
+      .sort((a, b) => a.localeCompare(b))
+      .map(skill => {
+        const checked = (state.extraSkillProficiencies || []).includes(skill) ? 'checked' : '';
+        const id = `extra-skill-${skillNameToKey(skill)}`;
+        return `
+          <label for="${id}" style="flex-direction:row; align-items:center; gap:8px;">
+            <input type="checkbox" id="${id}" data-extra-skill="${skill}" ${checked}>
+            <span>${skill}</span>
+          </label>
+        `;
+      }).join('');
+
+    return `
+      <div class="skill-group">
+        <h4>${ability}</h4>
+        <div class="stack">${skills}</div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = html;
+}
+
+function openSkillsModal(){
+  renderSkillsModal();
+  qs('skillsModalOverlay').classList.add('open');
+  qs('skillsModalOverlay').setAttribute('aria-hidden', 'false');
+}
+
+function closeSkillsModal(){
+  qs('skillsModalOverlay').classList.remove('open');
+  qs('skillsModalOverlay').setAttribute('aria-hidden', 'true');
+}
+
+function applySkillsModal(){
+  const selected = [...document.querySelectorAll('[data-extra-skill]:checked')]
+    .map(el => el.dataset.extraSkill)
+    .sort((a, b) => a.localeCompare(b));
+
+  state.extraSkillProficiencies = selected;
+  closeSkillsModal();
+  rerender();
 }
 
 function availableSpellOptions(){
@@ -1344,10 +1432,11 @@ function renderNotesSummary(){
     `${state.background}: ${bg.notes}`,
     `Background feat: ${bg.feat}`,
     `Background skills: ${bg.skills.join(', ')}`,
+    state.extraSkillProficiencies.length ? `Extra skill proficiencies: ${state.extraSkillProficiencies.join(', ')}` : '',
     '',
     classLines,
     state.notes ? `\n\nPersonal Notes:\n${state.notes}` : ''
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 function syncStaticFields(){
   state.name = qs('name').value;
@@ -1525,6 +1614,14 @@ qs('addFeatBtn').addEventListener('click', () => addFeat(''));
 qs('addClassBtn').addEventListener('click', addClass);
 qs('addSpellBtn').addEventListener('click', addSpellFromPicker);
 
+qs('openSkillsModalBtn').addEventListener('click', openSkillsModal);
+qs('closeSkillsModal').addEventListener('click', closeSkillsModal);
+qs('applySkillsModalBtn').addEventListener('click', applySkillsModal);
+qs('clearSkillsModalBtn').addEventListener('click', () => {
+  state.extraSkillProficiencies = [];
+  renderSkillsModal();
+});
+
 qs('name').addEventListener('input', syncStaticFields);
 qs('notes').addEventListener('input', syncStaticFields);
 qs('species').addEventListener('change', () => { syncStaticFields(); rerender(); });
@@ -1593,6 +1690,7 @@ document.addEventListener('click', (e) => {
   if (t.dataset.removeFeat !== undefined) { state.feats.splice(Number(t.dataset.removeFeat),1); rerender(); }
   if (t.dataset.removeClass !== undefined) { state.classes.splice(Number(t.dataset.removeClass),1); rerender(); }
   if (t.id === 'levelModalOverlay') closeLevelModal();
+  if (t.id === 'skillsModalOverlay') closeSkillsModal();
 });
 
 qs('name').value = state.name;
@@ -1620,6 +1718,7 @@ function applyLoadedBuilderState(data){
   state.spells = Array.isArray(data.spells) ? data.spells : state.spells;
   state.spellAbilityOverride = data.spellAbilityOverride || '';
   state.resourceTracker = data.resourceTracker || {};
+  state.extraSkillProficiencies = Array.isArray(data.extraSkillProficiencies) ? data.extraSkillProficiencies : [];
   qs('name').value = state.name;
   qs('notes').value = state.notes;
 }
