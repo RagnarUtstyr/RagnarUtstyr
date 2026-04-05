@@ -299,14 +299,15 @@
     }
 
     #skillsGrid {
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      align-items:start;
+      display:block;
+      column-count: 2;
+      column-gap: 12px;
     }
-    #skillsGrid .skill-group:nth-child(1) { grid-column: 1; grid-row: 1; }
-    #skillsGrid .skill-group:nth-child(2) { grid-column: 1; grid-row: 2; }
-    #skillsGrid .skill-group:nth-child(3) { grid-column: 1; grid-row: 3; }
-    #skillsGrid .skill-group:nth-child(4) { grid-column: 2; grid-row: 1; }
-    #skillsGrid .skill-group:nth-child(5) { grid-column: 2; grid-row: 2; }
+    #skillsGrid .skill-group {
+      display:block;
+      break-inside: avoid;
+      margin: 0 0 12px;
+    }
 
     .resource-row {
       grid-template-columns: minmax(0,1fr) minmax(82px,0.45fr) minmax(82px,0.45fr);
@@ -1189,11 +1190,11 @@ function renderSummary(){
   const spell = spellcastingProfile();
   const cardsHtml = [
     ['HP', hitPointMax()],
-    ['AC', armorClass()],
+    ['Armor Class', armorClass()],
     ['Initiative', `${initiative()>=0?'+':''}${initiative()}`],
     ['Hit Dice', hitDiceSummary()],
     ['Speed', speciesSpeed()],
-    ['PP', passivePerception()],
+    ['Passive Perception', passivePerception()],
     ['Prof. Bonus', `+${profBonus()}`],
     ['Spell Save DC', spell.casterLevel || spell.pactLevel ? spellSaveDC() : '—'],
     ['Spell Attack', spell.casterLevel || spell.pactLevel ? `${spellAttackBonus()>=0?'+':''}${spellAttackBonus()}` : '—']
