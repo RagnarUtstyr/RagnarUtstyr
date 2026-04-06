@@ -12,7 +12,6 @@ function getEntriesPath() {
   return `games/${code}/entries`;
 }
 
-// Function to submit data to Firebase
 async function submitData() {
   const name = document.getElementById("name")?.value?.trim();
   const numberInput = document.getElementById("initiative") || document.getElementById("number");
@@ -52,7 +51,6 @@ async function submitData() {
 
     console.log("Data submitted to room entries:", entry);
 
-    // Clear inputs
     document.getElementById("name").value = "";
     if (numberInput) numberInput.value = "";
     if (healthInput) healthInput.value = "";
@@ -60,7 +58,6 @@ async function submitData() {
     if (resInput) resInput.value = "";
     if (tghInput) tghInput.value = "";
 
-    // Play sword sound if available
     const swordSound = document.getElementById("sword-sound");
     if (swordSound) swordSound.play();
   } catch (error) {
@@ -68,7 +65,6 @@ async function submitData() {
   }
 }
 
-// Function to remove an entry from Firebase
 function removeEntry(id) {
   const reference = ref(db, `${getEntriesPath()}/${id}`);
   remove(reference)
@@ -80,7 +76,6 @@ function removeEntry(id) {
     });
 }
 
-// Page setup
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("submit-button")) {
     document.getElementById("submit-button").addEventListener("click", submitData);

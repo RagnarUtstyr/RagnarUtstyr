@@ -1,11 +1,5 @@
 import { requireAuth, logout } from "./auth.js";
-import {
-  createGame,
-  joinGame,
-  watchOwnedAndJoinedGames,
-  deleteGame,
-  leaveSpecificGame
-} from "./game-service.js";
+import { createGame, joinGame, watchOwnedAndJoinedGames, deleteGame, leaveSpecificGame } from "./game-service.js";
 
 const createBtn = document.getElementById("create-game-button");
 const joinBtn = document.getElementById("join-game-button");
@@ -26,24 +20,27 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll("'", "&#39;");
 }
 
 const user = await requireAuth();
 
 userCard.innerHTML = `
-  <div class="user-row">
-    ${user.photoURL ? `<img src="${user.photoURL}" alt="${escapeHtml(user.displayName || "User")}" class="avatar" />` : ""}
-    <div>
-      <div><strong>${escapeHtml(user.displayName || "User")}</strong></div>
-      <div class="muted">${escapeHtml(user.email || "")}</div>
-    </div>
+  ${user.photoURL ? `<img src="${user.photoURL}" alt="${escapeHtml(user.displayName || "User")}" class="avatar" />` : ""}
+  <div>
+    <div><strong>${escapeHtml(user.displayName || "User")}</strong></div>
+    <div class="muted">${escapeHtml(user.email || "")}</div>
   </div>
 `;
 
 watchOwnedAndJoinedGames(user.uid, (games) => {
   if (!games.length) {
-    gamesList.innerHTML = `<p class="muted">No games yet.</p>`;
+    gamesList.innerHTML = `
+      <li class="panel">
+        <strong>No games yet.</strong>
+        <div class="muted">Create one above or join with a code.</div>
+      </li>
+    `;
     return;
   }
 
@@ -53,21 +50,20 @@ watchOwnedAndJoinedGames(user.uid, (games) => {
     const actionLabel = isOwner ? "Delete game" : "Leave game";
 
     return `
-      <div class="game-card game-card-row">
-        <a href="${gameLink(game, user.uid)}" class="game-card-main">
-          <div><strong>${escapeHtml(game.title)}</strong></div>
+      <li class="panel game-list-item">
+        <a class="game-link" href="${gameLink(game, user.uid)}">
+          <strong>${escapeHtml(game.title)}</strong>
           <div class="muted">${escapeHtml(game.mode)} · Code: ${escapeHtml(game.code)} · ${role}</div>
         </a>
-
         <button
-          type="button"
-          class="game-action-button"
+          class="secondary game-action-button"
           data-game-code="${escapeHtml(game.code)}"
-          data-is-owner="${isOwner ? "true" : "false"}"
+          data-is-owner="${String(isOwner)}"
+          type="button"
         >
           ${actionLabel}
         </button>
-      </div>
+      </li>
     `;
   }).join("");
 
@@ -83,14 +79,12 @@ watchOwnedAndJoinedGames(user.uid, (games) => {
         if (isOwner) {
           const confirmed = confirm(`Delete game ${gameCode}? This removes the room, entries, and saved lists for everyone.`);
           if (!confirmed) return;
-
           statusEl.textContent = "Deleting game...";
           await deleteGame(user.uid, gameCode);
           statusEl.textContent = `Game ${gameCode} deleted.`;
         } else {
           const confirmed = confirm(`Leave game ${gameCode}? This removes your character/entry from that room.`);
           if (!confirmed) return;
-
           statusEl.textContent = "Leaving game...";
           await leaveSpecificGame(user.uid, gameCode);
           statusEl.textContent = `You left game ${gameCode}.`;
@@ -106,8 +100,8 @@ watchOwnedAndJoinedGames(user.uid, (games) => {
 createBtn?.addEventListener("click", async () => {
   const title = document.getElementById("game-title").value;
   const mode = document.getElementById("game-mode").value;
-  statusEl.textContent = "Creating game...";
 
+  statusEl.textContent = "Creating game...";
   try {
     const game = await createGame({ owner: user, mode, title });
     window.location.href = `admin.html?code=${encodeURIComponent(game.code)}`;
@@ -119,8 +113,8 @@ createBtn?.addEventListener("click", async () => {
 
 joinBtn?.addEventListener("click", async () => {
   const code = document.getElementById("join-code").value.trim().toUpperCase();
-  statusEl.textContent = "Joining game...";
 
+  statusEl.textContent = "Joining game...";
   try {
     const game = await joinGame({ user, code });
     window.location.href = `player.html?code=${encodeURIComponent(game.code)}`;

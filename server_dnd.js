@@ -23,7 +23,6 @@ function normalizeEntry(id, entry) {
   };
 }
 
-// Function to submit data to Firebase
 async function submitData() {
   const name = document.getElementById("name")?.value?.trim();
   const initiativeEl = document.getElementById("initiative") || document.getElementById("number");
@@ -63,7 +62,6 @@ async function submitData() {
   }
 }
 
-// Function to fetch and display rankings
 function fetchRankings() {
   const reference = ref(db, getEntriesPath());
 
@@ -113,7 +111,6 @@ function fetchRankings() {
   );
 }
 
-// Function to remove an entry from Firebase
 function removeEntry(id) {
   const reference = ref(db, `${getEntriesPath()}/${id}`);
   remove(reference)
@@ -125,7 +122,6 @@ function removeEntry(id) {
     });
 }
 
-// Function to clear all entries from this room only
 function clearAllEntries() {
   const reference = ref(db, getEntriesPath());
   set(reference, null)
@@ -139,7 +135,6 @@ function clearAllEntries() {
     });
 }
 
-// Event listeners for page-specific actions
 document.addEventListener("DOMContentLoaded", () => {
   try {
     getEntriesPath();
