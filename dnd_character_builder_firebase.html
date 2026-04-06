@@ -1428,7 +1428,7 @@ function renderNotesSummary(){
     const data = CLASSES[c.name];
     const unlocked = [];
     for (let lvl = 1; lvl <= c.level; lvl++) {
-      const feats = (data.features && data.features[lvl]) ? data.features[lvl].join(', ') : 'No major simplified feature listed for this level.';
+      const feats = (data.features && data.features[lvl]) ? data.features[lvl].join(', ') : '';
       const asiInfo = c.asiChoices?.[lvl];
       let asi = '';
       if (data.asi.includes(lvl)) {
