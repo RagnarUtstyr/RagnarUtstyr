@@ -1,3 +1,4 @@
+// Firebase test-project ready: shared config + authenticated access.
 import { ref, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { db } from "./firebase-config.js";
 import { requireAuth } from "./auth.js";
@@ -91,7 +92,7 @@ requireAuth(async (user) => {
       return;
     }
 
-    const gameName = game.gameName || "Unnamed Game";
+    const gameName = game.title || game.gameName || "Unnamed Game";
     setGameMeta(`${gameName} (${code})`);
   } catch (error) {
     console.error("admin-guard error:", error);

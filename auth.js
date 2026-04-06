@@ -49,17 +49,23 @@ export async function logout() {
   await signOut(auth);
 }
 
-export async function requireAuth() {
-  return new Promise((resolve) => {
+export function requireAuth(callback) {
+  const promise = new Promise((resolve) => {
     const unsub = onAuthStateChanged(auth, (user) => {
-      unsub();
       if (!user) {
         window.location.href = "login.html";
         return;
       }
+      unsub();
       resolve(user);
     });
   });
+
+  if (typeof callback === "function") {
+    promise.then(callback);
+  }
+
+  return promise;
 }
 
 export async function getUserMembership(uid) {

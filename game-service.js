@@ -42,9 +42,11 @@ export async function createUniqueGameCode(length = 4, maxAttempts = 20) {
 export async function createGame({ owner, mode, title }) {
   const code = await createUniqueGameCode();
   const normalizedMode = String(mode || "openlegend").toLowerCase();
+  const gameTitle = title?.trim() || `${normalizedMode === "dnd" ? "D&D" : "Open Legend"} Game`;
   const game = {
     code,
-    title: title?.trim() || `${normalizedMode === "dnd" ? "D&D" : "Open Legend"} Game`,
+    title: gameTitle,
+    gameName: gameTitle,
     mode: normalizedMode,
     ownerUid: owner.uid,
     ownerName: owner.displayName || owner.email || "Admin",

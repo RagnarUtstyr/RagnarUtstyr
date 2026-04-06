@@ -1,3 +1,4 @@
+// Firebase test-project ready: shared config + authenticated access.
 import { requireAuth } from "./auth.js";
 import { db } from "./firebase-config.js";
 import { watchOrLoadGame } from "./game-service.js";

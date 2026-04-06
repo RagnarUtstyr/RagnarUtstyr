@@ -1,3 +1,4 @@
+// Firebase test-project ready: shared config + authenticated access.
 import { db } from "./firebase-config.js";
 import { requireAuth } from "./auth.js";
 import { ref, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";

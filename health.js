@@ -1,3 +1,4 @@
+// Firebase test-project ready: shared config + authenticated access.
 import { BANES } from "./banes.js";
 import { db } from "./firebase-config.js";
 import { requireAuth } from "./auth.js";
