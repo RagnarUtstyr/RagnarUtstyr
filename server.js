@@ -2,8 +2,6 @@ import { db } from "./firebase-config.js";
 import { requireAuth } from "./auth.js";
 import { ref, push, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-await requireAuth();
-
 function getGameCode() {
   const params = new URLSearchParams(window.location.search);
   return (params.get("code") || "").trim().toUpperCase();
@@ -15,7 +13,11 @@ function getEntriesPath() {
   return `games/${code}/entries`;
 }
 
-async function submitData() {
+async function submitData(event) {
+  event?.preventDefault();
+
+  await requireAuth();
+
   const name = document.getElementById("name")?.value?.trim();
   const numberInput = document.getElementById("initiative") || document.getElementById("number");
   const number = numberInput ? parseInt(numberInput.value, 10) : null;
@@ -80,8 +82,15 @@ function removeEntry(id) {
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("submit-button")) {
-    document.getElementById("submit-button").addEventListener("click", submitData);
+function init() {
+  const submitButton = document.getElementById("submit-button");
+  if (submitButton) {
+    submitButton.addEventListener("click", submitData);
   }
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
