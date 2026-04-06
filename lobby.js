@@ -32,21 +32,18 @@ function escapeHtml(value) {
 const user = await requireAuth();
 
 userCard.innerHTML = `
-  ${user.photoURL ? `<img src="${user.photoURL}" alt="${escapeHtml(user.displayName || "User")}" class="avatar" />` : ""}
-  <div>
-    <div><strong>${escapeHtml(user.displayName || "User")}</strong></div>
-    <div class="muted">${escapeHtml(user.email || "")}</div>
+  <div class="user-row">
+    ${user.photoURL ? `<img src="${escapeHtml(user.photoURL)}" alt="${escapeHtml(user.displayName || "User")}" class="avatar" />` : ""}
+    <div>
+      <div><strong>${escapeHtml(user.displayName || "User")}</strong></div>
+      <div class="muted">${escapeHtml(user.email || "")}</div>
+    </div>
   </div>
 `;
 
 watchOwnedAndJoinedGames(user.uid, (games) => {
   if (!games.length) {
-    gamesList.innerHTML = `
-      <li class="panel">
-        <strong>No games yet.</strong>
-        <div class="muted">Create one above or join with a code.</div>
-      </li>
-    `;
+    gamesList.innerHTML = "";
     return;
   }
 
@@ -56,20 +53,22 @@ watchOwnedAndJoinedGames(user.uid, (games) => {
     const actionLabel = isOwner ? "Delete game" : "Leave game";
 
     return `
-      <li class="panel game-list-item">
-        <a class="game-link" href="${gameLink(game, user.uid)}">
-          <strong>${escapeHtml(game.title)}</strong>
-          <div class="muted">${escapeHtml(game.mode)} · Code: ${escapeHtml(game.code)} · ${role}</div>
-        </a>
-        <button
-          class="secondary game-action-button"
-          data-game-code="${escapeHtml(game.code)}"
-          data-is-owner="${String(isOwner)}"
-          type="button"
-        >
-          ${actionLabel}
-        </button>
-      </li>
+      <div class="game-card">
+        <div class="game-card-row">
+          <a class="game-card-main" href="${gameLink(game, user.uid)}">
+            <strong>${escapeHtml(game.title)}</strong>
+            <div class="muted">${escapeHtml(game.mode)} · Code: ${escapeHtml(game.code)} · ${role}</div>
+          </a>
+          <button
+            class="game-action-button"
+            data-game-code="${escapeHtml(game.code)}"
+            data-is-owner="${String(isOwner)}"
+            type="button"
+          >
+            ${actionLabel}
+          </button>
+        </div>
+      </div>
     `;
   }).join("");
 
