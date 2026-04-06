@@ -1,5 +1,8 @@
 import { db } from "./firebase-config.js";
+import { requireAuth } from "./auth.js";
 import { ref, push, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+await requireAuth();
 
 function getGameCode() {
   const params = new URLSearchParams(window.location.search);
@@ -62,6 +65,7 @@ async function submitData() {
     if (swordSound) swordSound.play();
   } catch (error) {
     console.error("Error submitting data:", error);
+    alert("Could not add entry to this game.");
   }
 }
 
