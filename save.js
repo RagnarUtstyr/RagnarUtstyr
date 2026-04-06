@@ -1,7 +1,6 @@
-// Firebase test-project ready: shared config + authenticated access.
+import { ref, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { db } from "./firebase-config.js";
 import { requireAuth } from "./auth.js";
-import { ref, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 await requireAuth();
 
@@ -41,6 +40,7 @@ async function getGroupPageForCurrentGame() {
   return mode === "openlegend" ? "group.html" : "group_dnd.html";
 }
 
+// -------------- Helpers --------------
 function normalizeEntries(listLike) {
   if (!listLike) return [];
   if (Array.isArray(listLike)) return listLike.filter(Boolean);
@@ -87,6 +87,7 @@ function renderSavedLists(saved) {
   });
 }
 
+// -------------- Save current rankings as a named list --------------
 async function saveList() {
   const listNameEl = document.getElementById("list-name");
   const listName = (listNameEl?.value || "").trim();
@@ -112,6 +113,7 @@ async function saveList() {
   loadSavedLists();
 }
 
+// -------------- Load a named list and append it to this room --------------
 async function loadList() {
   const listNameEl = document.getElementById("list-name");
   const listName = (listNameEl?.value || "").trim();
@@ -204,6 +206,7 @@ async function loadList() {
   window.location.href = `${groupPage}?code=${encodeURIComponent(code)}`;
 }
 
+// -------------- Delete a named list --------------
 async function deleteList() {
   const listNameEl = document.getElementById("list-name");
   const listName = (listNameEl?.value || "").trim();
@@ -222,6 +225,7 @@ async function deleteList() {
   loadSavedLists();
 }
 
+// -------------- Populate the Saved Lists list on page load --------------
 async function loadSavedLists() {
   try {
     const saved = await fetchSavedLists();

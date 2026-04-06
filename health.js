@@ -1,8 +1,7 @@
-// Firebase test-project ready: shared config + authenticated access.
 import { BANES } from "./banes.js";
+import { ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { db } from "./firebase-config.js";
 import { requireAuth } from "./auth.js";
-import { ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 await requireAuth();
 

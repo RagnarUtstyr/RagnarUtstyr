@@ -4,6 +4,7 @@ import {
   set,
   get,
   update,
+  push,
   onValue,
   remove
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
@@ -26,14 +27,10 @@ function membershipPath(uid, code) {
   return `memberships/${uid}/${code}`;
 }
 
-function joinCodePath(code) {
-  return `joinCodes/${code}`;
-}
-
 export async function createUniqueGameCode(length = 4, maxAttempts = 20) {
   for (let i = 0; i < maxAttempts; i += 1) {
     const code = randomCode(length);
-    const snapshot = await get(ref(db, joinCodePath(code)));
+    const snapshot = await get(ref(db, `joinCodes/${code}`));
     if (!snapshot.exists()) return code;
   }
   throw new Error("Could not generate a unique game code.");
@@ -41,12 +38,10 @@ export async function createUniqueGameCode(length = 4, maxAttempts = 20) {
 
 export async function createGame({ owner, mode, title }) {
   const code = await createUniqueGameCode();
-  const normalizedMode = String(mode || "openlegend").toLowerCase();
-  const gameTitle = title?.trim() || `${normalizedMode === "dnd" ? "D&D" : "Open Legend"} Game`;
+  const normalizedMode = String(mode || "dnd").toLowerCase();
   const game = {
     code,
-    title: gameTitle,
-    gameName: gameTitle,
+    title: title?.trim() || `${normalizedMode === "dnd" ? "D&D" : "Open Legend"} Game`,
     mode: normalizedMode,
     ownerUid: owner.uid,
     ownerName: owner.displayName || owner.email || "Admin",
@@ -61,17 +56,19 @@ export async function createGame({ owner, mode, title }) {
     email: owner.email || ""
   });
   await set(ref(db, membershipPath(owner.uid, code)), {
-    gameCode: code,
+    code,
     role: "admin",
     mode: normalizedMode,
-    joinedAt: Date.now()
+    title: game.title,
+    ownerUid: owner.uid,
+    ownerName: game.ownerName,
+    createdAt: game.createdAt
   });
-  await set(ref(db, joinCodePath(code)), {
+  await set(ref(db, `joinCodes/${code}`), {
     code,
     mode: normalizedMode,
     title: game.title,
     ownerUid: owner.uid,
-    active: true,
     createdAt: game.createdAt
   });
 
@@ -80,12 +77,21 @@ export async function createGame({ owner, mode, title }) {
 
 export async function joinGame({ user, code }) {
   const normalized = normalizeCode(code);
-  const joinSnap = await get(ref(db, joinCodePath(normalized)));
+  if (!normalized) {
+    throw new Error("Enter a game code.");
+  }
+
+  const joinSnap = await get(ref(db, `joinCodes/${normalized}`));
   if (!joinSnap.exists()) {
     throw new Error("Game not found.");
   }
 
-  const joinInfo = joinSnap.val() || {};
+  const gameSnap = await get(ref(db, `games/${normalized}`));
+  if (!gameSnap.exists()) {
+    throw new Error("Game not found.");
+  }
+
+  const game = gameSnap.val();
 
   await set(ref(db, `games/${normalized}/members/${user.uid}`), {
     uid: user.uid,
@@ -95,21 +101,16 @@ export async function joinGame({ user, code }) {
   });
 
   await set(ref(db, membershipPath(user.uid, normalized)), {
-    gameCode: normalized,
+    code: normalized,
     role: "player",
-    mode: joinInfo.mode || "openlegend",
-    joinedAt: Date.now()
+    mode: game.mode,
+    title: game.title,
+    ownerUid: game.ownerUid || "",
+    ownerName: game.ownerName || "",
+    createdAt: game.createdAt || Date.now()
   });
 
-  const gameSnap = await get(ref(db, `games/${normalized}`));
-  if (gameSnap.exists()) return gameSnap.val();
-
-  return {
-    code: normalized,
-    title: joinInfo.title || "Game",
-    mode: joinInfo.mode || "openlegend",
-    ownerUid: joinInfo.ownerUid || null
-  };
+  return game;
 }
 
 export async function leaveCurrentGame(uid) {
@@ -117,23 +118,18 @@ export async function leaveCurrentGame(uid) {
   if (!membershipSnap.exists()) return;
 
   const memberships = membershipSnap.val() || {};
-  const firstCode = Object.keys(memberships)[0];
-  if (!firstCode) return;
+  const codes = Object.keys(memberships);
+  if (!codes.length) return;
 
-  await leaveSpecificGame(uid, firstCode);
+  await leaveSpecificGame(uid, codes[0]);
 }
 
 export async function leaveSpecificGame(uid, gameCode) {
   const normalized = normalizeCode(gameCode);
-  const membershipSnap = await get(ref(db, membershipPath(uid, normalized)));
-  if (!membershipSnap.exists()) {
-    throw new Error("You are not a member of that game.");
-  }
-
   const gameSnap = await get(ref(db, `games/${normalized}`));
+
   if (!gameSnap.exists()) {
-    await remove(ref(db, membershipPath(uid, normalized)));
-    return;
+    throw new Error("Game not found.");
   }
 
   const game = gameSnap.val();
@@ -166,24 +162,26 @@ export async function deleteGame(ownerUid, gameCode) {
   }
 
   const members = game.members || {};
-  const memberIds = Object.keys(members);
-
-  for (const uid of memberIds) {
+  for (const uid of Object.keys(members)) {
     await remove(ref(db, membershipPath(uid, normalized)));
   }
 
-  await remove(ref(db, joinCodePath(normalized)));
+  await remove(ref(db, `joinCodes/${normalized}`));
   await remove(gameRef);
 }
 
 export async function loadMembership(uid) {
   const membershipSnap = await get(ref(db, `memberships/${uid}`));
-  return membershipSnap.exists() ? membershipSnap.val() : {};
+  if (!membershipSnap.exists()) return null;
+
+  const memberships = membershipSnap.val() || {};
+  const codes = Object.keys(memberships);
+  return codes.length ? memberships[codes[0]] : null;
 }
 
 export function watchOwnedAndJoinedGames(uid, callback) {
   return onValue(ref(db, `memberships/${uid}`), async (snapshot) => {
-    const memberships = snapshot.val() || {};
+    const memberships = snapshot.exists() ? snapshot.val() : {};
     const codes = Object.keys(memberships);
 
     if (!codes.length) {
@@ -191,22 +189,22 @@ export function watchOwnedAndJoinedGames(uid, callback) {
       return;
     }
 
-    const games = await Promise.all(codes.map(async (code) => {
+    const games = [];
+    for (const code of codes) {
       const gameSnap = await get(ref(db, `games/${code}`));
-      if (!gameSnap.exists()) return null;
-      return gameSnap.val();
-    }));
+      if (gameSnap.exists()) {
+        games.push(gameSnap.val());
+      }
+    }
 
-    callback(
-      games
-        .filter(Boolean)
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-    );
+    games.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    callback(games);
   });
 }
 
 export async function submitInitiative({ gameCode, user, initiative, name }) {
-  const entriesRef = ref(db, `games/${normalizeCode(gameCode)}/entries/${user.uid}`);
+  const normalized = normalizeCode(gameCode);
+  const entriesRef = ref(db, `games/${normalized}/entries/${user.uid}`);
   const entry = {
     uid: user.uid,
     playerName: name?.trim() || user.displayName || "Player",
@@ -217,11 +215,13 @@ export async function submitInitiative({ gameCode, user, initiative, name }) {
 }
 
 export async function removePlayerEntry(gameCode, uid) {
-  await remove(ref(db, `games/${normalizeCode(gameCode)}/entries/${uid}`));
+  const normalized = normalizeCode(gameCode);
+  await remove(ref(db, `games/${normalized}/entries/${uid}`));
 }
 
 export function watchEntries(gameCode, callback) {
-  return onValue(ref(db, `games/${normalizeCode(gameCode)}/entries`), (snapshot) => {
+  const normalized = normalizeCode(gameCode);
+  return onValue(ref(db, `games/${normalized}/entries`), (snapshot) => {
     const data = snapshot.val() || {};
     const entries = Object.values(data).sort((a, b) => (b.initiative || 0) - (a.initiative || 0));
     callback(entries);
@@ -229,22 +229,19 @@ export function watchEntries(gameCode, callback) {
 }
 
 export function watchGame(gameCode, callback) {
-  return onValue(ref(db, `games/${normalizeCode(gameCode)}`), (snapshot) => {
+  const normalized = normalizeCode(gameCode);
+  return onValue(ref(db, `games/${normalized}`), (snapshot) => {
     callback(snapshot.exists() ? snapshot.val() : null);
   });
 }
 
 export async function watchOrLoadGame(gameCode) {
-  const snapshot = await get(ref(db, `games/${normalizeCode(gameCode)}`));
+  const normalized = normalizeCode(gameCode);
+  const snapshot = await get(ref(db, `games/${normalized}`));
   return snapshot.exists() ? snapshot.val() : null;
 }
 
 export async function updateGameMeta(gameCode, patch) {
   const normalized = normalizeCode(gameCode);
   await update(ref(db, `games/${normalized}`), patch);
-
-  const title = typeof patch?.title === "string" ? patch.title.trim() : null;
-  if (title) {
-    await update(ref(db, joinCodePath(normalized)), { title });
-  }
 }
