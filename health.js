@@ -3,8 +3,6 @@ import { ref, update, onValue, remove, set } from "https://www.gstatic.com/fireb
 import { db } from "./firebase-config.js";
 import { requireAuth } from "./auth.js";
 
-await requireAuth();
-
 function getGameCode() {
   const params = new URLSearchParams(window.location.search);
   return (params.get("code") || "").trim().toUpperCase();
@@ -14,6 +12,14 @@ function getEntriesPath() {
   const code = getGameCode();
   if (!code) throw new Error("Missing game code in URL.");
   return `games/${code}/entries`;
+}
+
+function onReady(fn) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fn);
+  } else {
+    fn();
+  }
 }
 
 function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded }) {
@@ -76,7 +82,7 @@ function closeHpModal() {
   modal.setAttribute('aria-hidden', 'true');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+onReady(() => {
   const modal = document.getElementById('stat-modal');
   if (modal) {
     document.getElementById('stat-modal-close')?.addEventListener('click', closeStatModal);
@@ -121,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-
 const __countdownById = new Map(); 
 function __getCountdownState(id) {
   return __countdownById.get(id) || { remaining: null, active: false, ended: false };
@@ -137,7 +142,6 @@ function __setCountdownState(id, state) {
 function __rowFor(id) {
   return document.querySelector(`.list-item[data-entry-id="${id}"]`);
 }
-
 
 function __sanitizeBaneKey(value) {
   return String(value ?? '').replace(/[.#$\[\]/]/g, '_');
@@ -525,7 +529,7 @@ function clearList() {
 
 let __currentEntryId = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+onReady(() => {
   const delBtn = document.getElementById('stat-delete');
   if (delBtn) {
     delBtn.addEventListener('click', () => {
@@ -564,8 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-
-document.addEventListener('DOMContentLoaded', () => {
+onReady(() => {
   const setBtn = document.getElementById('hp-set-button');
   const hpInput = document.getElementById('hp-set-amount');
 
@@ -593,7 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-
 function setCountdown(id, turns) {
   const reference = ref(db, `${getEntriesPath()}/${id}`);
 
@@ -620,7 +622,7 @@ function clearCountdown(id) {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+onReady(() => {
   const setBtn = document.getElementById('stat-countdown-set');
   const clearBtn = document.getElementById('stat-countdown-clear');
   const amtInput = document.getElementById('stat-countdown-amount');
@@ -695,7 +697,6 @@ async function __cleanupEndedCountdownIfNeeded(entryId) {
   }
 }
 
-
 window.addEventListener('tracker:highlightChange', async (e) => {
   const previousId = e?.detail?.previousId ?? null;
   const currentId = e?.detail?.currentId ?? null;
@@ -715,7 +716,6 @@ window.addEventListener('tracker:highlightChange', async (e) => {
     }
   }
 
-
   if (currentId) {
     const currentState = __getCountdownState(currentId);
     const row = __rowFor(currentId);
@@ -726,7 +726,9 @@ window.addEventListener('tracker:highlightChange', async (e) => {
   }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+onReady(async () => {
+  await requireAuth();
+
   fetchRankings();
 
   document.getElementById('apply-damage-button')?.addEventListener('click', applyDamageToAll);
