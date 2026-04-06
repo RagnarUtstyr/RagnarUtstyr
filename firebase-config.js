@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
@@ -12,7 +12,7 @@ const firebaseConfig = {
   appId: "1:854772037721:web:ef1ea8eab08a2b23bd5948"
 };
 
-export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getDatabase(app);
 export const googleProvider = new GoogleAuthProvider();
