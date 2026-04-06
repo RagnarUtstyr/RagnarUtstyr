@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="auth.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 
-  <script type="module" src="player.js?v=6" defer></script>
+  <script type="module" src="player.js?v=7" defer></script>
 
   <style>
     .dnd-action-grid {
@@ -29,54 +29,42 @@
       padding: 12px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      min-width: 0;
     }
 
-    .dnd-action-card .field-stack {
+    .dnd-action-card h3 {
       margin: 0;
+      font-size: 1rem;
+      color: #F5DEB3;
+      text-align: center;
     }
 
-    .dnd-action-card input[type="number"],
-    .dnd-action-card input[type="text"] {
-      width: 100%;
-      margin-bottom: 0;
-      padding: 10px;
-      border: 2px solid #D4AF37;
-      border-radius: 5px;
-      box-sizing: border-box;
-      background-color: rgba(255, 255, 255, 0.15);
-      color: #E0D8B0;
-      font-family: 'MedievalSharp', serif;
-      font-size: 1em;
-      outline: none;
+    .dnd-action-card .form-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
-    .dnd-action-card input[type="number"]:focus,
-    .dnd-action-card input[type="text"]:focus {
-      border: 2px solid #8C5A4A;
-      background-color: rgba(255, 255, 255, 0.25);
+    .dnd-action-card .form-row label {
+      min-width: 42px;
+      text-align: right;
     }
 
-    .dnd-action-btn,
-    #save-initiative-button,
-    #create-tracker-btn {
-      background-color: #2E1B18;
-      color: #E0D8B0;
-      border: 2px solid #D4AF37;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 5px;
-      font-size: 1em;
-      font-family: 'MedievalSharp', serif;
-      transition: background-color 0.3s, color 0.3s;
-      width: 100%;
+    .dnd-action-card input[type="number"] {
+      width: 84px;
+      max-width: 100%;
     }
 
-    .dnd-action-btn:hover,
-    #save-initiative-button:hover,
-    #create-tracker-btn:hover {
-      background-color: #8C5A4A;
+    /* D&D buttons use warm brown/orange */
+    #apply-damage-button,
+    #apply-heal-button,
+    #reset-hp-button {
+      background-color: #A57B5B;
       color: #2E1B18;
     }
 
@@ -84,218 +72,381 @@
     #ol-apply-damage-btn,
     #ol-heal-btn,
     #ol-reset-hp-btn {
-      background-color: #0b2621;
-      color: #bdb382;
-      border: 2px solid #2d3d73;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 5px;
-      font-size: 1em;
-      font-family: 'MedievalSharp', cursive;
-      transition: background-color 0.3s, color 0.3s;
-      width: 100%;
+      background-color: #4b9ca8;
+      color: #102527;
     }
 
-    #ol-apply-damage-btn:hover,
-    #ol-heal-btn:hover,
-    #ol-reset-hp-btn:hover {
-      background-color: #1a3b4a;
-      color: #237768;
-    }
-
-    .dnd-temp-toggle {
+    .player-top-links {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .back-link,
+    .builder-link {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid rgba(245, 222, 179, 0.35);
+      background: rgba(255,255,255,0.04);
+      color: #F5DEB3;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .back-link:hover,
+    .builder-link:hover {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+    }
+
+    .top-character-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(220px, 0.9fr) minmax(320px, 1.15fr);
+      gap: 14px;
+      align-items: stretch;
+      margin-bottom: 16px;
+    }
+
+    .top-character-row .player-panel {
+      height: 100%;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: stretch;
+    }
+
+    .name-panel .name-display {
+      font-size: clamp(1.15rem, 2vw, 1.5rem);
+      font-weight: 700;
+      line-height: 1.2;
+      color: #F5DEB3;
+      word-break: break-word;
+      min-height: 2.4em;
+      display: flex;
+      align-items: center;
+    }
+
+    .initiative-panel .initiative-row {
+      display: flex;
       gap: 8px;
-      margin: 0;
-      color: #E0D8B0;
-      font-size: 0.95rem;
+      align-items: stretch;
+      flex-wrap: nowrap;
     }
 
-    .dnd-temp-toggle input {
-      margin: 0;
-      width: auto;
+    .initiative-panel input[type="number"] {
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
-    .calc-result {
-      margin-top: 14px;
-      text-align: center;
+    .initiative-panel button {
+      white-space: nowrap;
     }
 
     .player-banes-panel {
       min-width: 0;
     }
 
-    .bane-toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    #player-add-bane-btn,
-    #player-view-banes-btn,
-    .bane-picker-add-btn,
-    .player-bane-remove-btn {
-      background-color: #0b2621;
-      color: #bdb382;
-      border: 2px solid #2d3d73;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 5px;
-      font-size: 1em;
-      font-family: 'MedievalSharp', cursive;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    #player-add-bane-btn:hover,
-    #player-view-banes-btn:hover,
-    .bane-picker-add-btn:hover,
-    .player-bane-remove-btn:hover {
-      background-color: #1a3b4a;
-      color: #237768;
-    }
-
-    .player-banes-preview {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-      min-height: 40px;
-      align-items: center;
-    }
-
-    .player-bane-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border: 1px solid #2d3d73;
-      border-radius: 999px;
-      background: rgba(11, 38, 33, 0.45);
-      color: #bdb382;
-      font-size: 0.95rem;
-    }
-
-    .player-bane-chip img,
-    .bane-icon {
-      width: 22px;
-      height: 22px;
-      object-fit: contain;
-      border-radius: 50%;
-      flex: 0 0 auto;
-    }
-
-    .player-banes-empty {
-      opacity: 0.8;
-    }
-
-    .ol-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 10000;
-    }
-
-    .ol-modal[aria-hidden="true"] {
-      display: none;
-    }
-
-    .ol-modal__dialog {
-      position: relative;
-      width: min(640px, 100%);
-      max-height: 85vh;
-      overflow-y: auto;
-      border: 2px solid #2d3d73;
-      border-radius: 12px;
-      background: #10201f;
-      color: #d9d2ad;
-      padding: 22px;
-      box-sizing: border-box;
-    }
-
-    .ol-modal__dialog--wide {
-      width: min(760px, 100%);
-    }
-
-    .ol-modal__close {
-      position: absolute;
-      top: 10px;
-      right: 12px;
-      background: transparent;
-      border: 0;
-      color: #d9d2ad;
-      font-size: 28px;
-      cursor: pointer;
-      line-height: 1;
-    }
-
-    .bane-picker-list,
-    .banes-modal-list {
-      display: grid;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .bane-picker-row {
+    .player-banes-panel .banes-inline-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      border: 1px solid #2d3d73;
-      border-radius: 10px;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.04);
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
     }
 
-    .bane-picker-left,
-    .bane-picker-open {
+    .player-banes-panel .banes-inline-actions {
       display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .player-banes-panel .banes-inline-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 40px;
+    }
+
+    .player-banes-panel .bane-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(245, 222, 179, 0.25);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .player-banes-panel .bane-chip img {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .player-banes-panel .empty-state {
+      color: #d7c2a0;
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 86px;
+      text-align: center;
+    }
+
+    .stat-card .label {
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      opacity: 0.85;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .value {
+      font-size: clamp(1rem, 1.8vw, 1.35rem);
+      font-weight: 800;
+      color: #F5DEB3;
+      line-height: 1.1;
+    }
+
+    .trackers-panel .trackers-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .trackers-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .tracker-card {
+      border: 1px solid rgba(245, 222, 179, 0.2);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tracker-card-head {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
       gap: 10px;
-      min-width: 0;
-      color: inherit;
     }
 
-    .bane-picker-open {
-      flex: 1;
-      background: transparent;
+    .tracker-title {
+      font-weight: 700;
+      color: #F5DEB3;
+      word-break: break-word;
+    }
+
+    .tracker-delete {
       border: 0;
-      padding: 0;
-      text-align: left;
+      background: transparent;
+      color: #f6d3d3;
+      font-size: 1.1rem;
+      line-height: 1;
       cursor: pointer;
-      font: inherit;
     }
 
-    @media (max-width: 760px) {
-  .top-character-row {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
+    .tracker-track {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
-  #player-banes-panel {
-    grid-column: 1 / -1;
-    width: 100%;
-  }
-}
+    .tracker-box {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: 1px solid rgba(245, 222, 179, 0.35);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+    }
+
+    .tracker-box.is-on {
+      background: #b74e3b;
+      border-color: #e3a496;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      z-index: 2000;
+    }
+
+    .modal-backdrop[aria-hidden="true"] {
+      display: none;
+    }
+
+    .modal-card {
+      width: min(560px, 100%);
+      max-height: min(85vh, 900px);
+      overflow: auto;
+      background: #2b1b16;
+      border: 1px solid rgba(245, 222, 179, 0.25);
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      padding: 16px;
+    }
+
+    .modal-card h3 {
+      margin-top: 0;
+      color: #F5DEB3;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .modal-close {
+      border: 0;
+      background: transparent;
+      color: #F5DEB3;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .bane-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bane-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(245, 222, 179, 0.16);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .bane-row img {
+      width: 34px;
+      height: 34px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .bane-row-main {
+      min-width: 0;
+    }
+
+    .bane-row-title {
+      font-weight: 700;
+      color: #F5DEB3;
+    }
+
+    .bane-row-sub {
+      font-size: 0.9rem;
+      opacity: 0.88;
+      word-break: break-word;
+    }
+
+    .bane-row button,
+    .modal-actions button {
+      min-height: 40px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .stats-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .top-character-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
 
     @media (max-width: 760px) {
       .dnd-action-grid {
         grid-template-columns: 1fr;
       }
+
+      .top-character-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+        align-items: stretch !important;
+      }
+
+      .top-character-row > .player-panel,
+      .top-character-row > .compact-panel,
+      .top-character-row > .name-panel,
+      .top-character-row > .initiative-panel,
+      .top-character-row > #player-banes-panel {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+      }
+
+      .top-character-row > .name-panel {
+        grid-column: 1 / 2 !important;
+      }
+
+      .top-character-row > .initiative-panel {
+        grid-column: 2 / 3 !important;
+      }
+
+      .top-character-row > #player-banes-panel {
+        grid-column: 1 / -1 !important;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container auth-shell player-shell player-page">
-    <div class="top-row">
-      <h1>Player Sheet</h1>
-      <a class="button-link" href="lobby.html">Back to lobby</a>
+  <div class="container player-shell">
+    <div class="player-top-links">
+      <a class="back-link" href="lobby.html">Back to lobby</a>
+      <a id="open-builder-link" class="builder-link" href="#">Open Builder</a>
     </div>
 
     <div id="player-game-meta" class="player-panel"></div>
@@ -303,233 +454,178 @@
     <div class="top-character-row">
       <div class="player-panel compact-panel name-panel">
         <h2>Name</h2>
-        <div class="name-grid">
-          <div class="field-stack">
-            <label for="player-name">Character Name</label>
-            <input type="text" id="player-name" placeholder="Character name" />
-          </div>
-        </div>
+        <div id="player-character-name" class="name-display">Character Name</div>
       </div>
 
       <div class="player-panel compact-panel initiative-panel">
         <h2>Initiative</h2>
-        <div class="field-stack">
-          <label for="player-initiative">Initiative</label>
-          <input type="number" id="player-initiative" placeholder="17" />
+        <div class="initiative-row">
+          <input id="player-initiative" type="number" placeholder="Initiative" />
+          <button id="save-initiative-button" type="button">Save</button>
         </div>
-        <button id="save-initiative-button" type="button">Initiative</button>
       </div>
 
       <div id="player-banes-panel" class="player-panel compact-panel player-banes-panel hidden">
-        <h2>Banes</h2>
-        <p class="muted">Open Legend only.</p>
-        <div class="bane-toolbar">
-          <button id="player-add-bane-btn" type="button">Add bane</button>
-          <button id="player-view-banes-btn" type="button">Manage banes</button>
+        <div class="banes-inline-head">
+          <div>
+            <h2 style="margin:0;">Banes</h2>
+            <div class="muted">Open Legend only.</div>
+          </div>
+          <div class="banes-inline-actions">
+            <button id="player-add-bane-button" type="button">Add bane</button>
+            <button id="player-manage-banes-button" type="button">Manage banes</button>
+          </div>
         </div>
-        <div id="player-banes-preview" class="player-banes-preview">
-          <span class="muted player-banes-empty">No banes added.</span>
+        <div id="player-banes-inline-list" class="banes-inline-list">
+          <div class="empty-state">No banes added.</div>
         </div>
       </div>
     </div>
 
-    <section id="player-dnd-section" class="hidden">
-      <div class="player-panel">
-        <div class="builder-link-row">
-          <h2>Stats</h2>
-          <a id="dnd-builder-link" class="button-link" href="dnd_character_builder_firebase.html">Open Builder</a>
+    <section id="player-dnd-section" class="player-panel hidden">
+      <h2>Stats</h2>
+      <a id="dnd-builder-link" class="builder-link" href="#">Open Builder</a>
+
+      <div class="stats-grid">
+        <div class="player-panel compact-panel stat-card"><div class="label">HP</div><div id="player-hp" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">AC</div><div id="player-ac" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">Prof</div><div id="player-prof" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">STR</div><div id="player-str" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">DEX</div><div id="player-dex" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">CON</div><div id="player-con" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">INT</div><div id="player-int" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">WIS</div><div id="player-wis" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">CHA</div><div id="player-cha" class="value">—</div></div>
+      </div>
+
+      <div class="dnd-action-grid">
+        <div class="dnd-action-card">
+          <h3>Damage</h3>
+          <div class="form-row">
+            <label for="player-damage">Apply</label>
+            <input id="player-damage" type="number" min="0" />
+          </div>
+          <button id="apply-damage-button" type="button">Apply</button>
         </div>
 
-        <div class="dnd-hp-top">
-          <div class="field-stack">
-            <label for="player-hp">HP</label>
-            <input type="number" id="player-hp" placeholder="24" />
+        <div class="dnd-action-card">
+          <h3>Heal</h3>
+          <div class="form-row">
+            <label for="player-heal">Heal</label>
+            <input id="player-heal" type="number" min="0" />
           </div>
+          <div class="form-row">
+            <label for="player-temp-heal">Temp  Heal</label>
+            <input id="player-temp-heal" type="number" min="0" />
+          </div>
+          <button id="apply-heal-button" type="button">Heal</button>
         </div>
 
-        <div class="dnd-ac-prof">
-          <div class="field-stack">
-            <label for="player-ac">AC</label>
-            <input type="number" id="player-ac" placeholder="16" />
-          </div>
-
-          <div class="field-stack">
-            <label for="player-prof">Prof</label>
-            <input type="number" id="player-prof" placeholder="2" />
-          </div>
+        <div class="dnd-action-card">
+          <h3>Reset</h3>
+          <div class="muted">Reset your HP to max.</div>
+          <button id="reset-hp-button" type="button">Reset HP</button>
         </div>
-
-        <div class="dnd-stats-columns">
-          <div class="dnd-stat-column">
-            <div class="field-stack">
-              <label for="player-str">STR</label>
-              <input type="number" id="player-str" placeholder="10" />
-            </div>
-
-            <div class="field-stack">
-              <label for="player-dex">DEX</label>
-              <input type="number" id="player-dex" placeholder="14" />
-            </div>
-
-            <div class="field-stack">
-              <label for="player-con">CON</label>
-              <input type="number" id="player-con" placeholder="12" />
-            </div>
-          </div>
-
-          <div class="dnd-stat-column">
-            <div class="field-stack">
-              <label for="player-int">INT</label>
-              <input type="number" id="player-int" placeholder="8" />
-            </div>
-
-            <div class="field-stack">
-              <label for="player-wis">WIS</label>
-              <input type="number" id="player-wis" placeholder="13" />
-            </div>
-
-            <div class="field-stack">
-              <label for="player-cha">CHA</label>
-              <input type="number" id="player-cha" placeholder="15" />
-            </div>
-          </div>
-        </div>
-
-        <div class="dnd-action-grid">
-          <div class="dnd-action-card">
-            <div class="field-stack">
-              <label for="dnd-damage-input">Damage</label>
-              <input type="number" id="dnd-damage-input" min="0" placeholder="Damage" />
-            </div>
-            <button id="dnd-apply-damage-btn" class="dnd-action-btn" type="button">Apply</button>
-          </div>
-
-          <div class="dnd-action-card">
-            <div class="field-stack">
-              <label for="dnd-heal-amount">Heal</label>
-              <input type="number" id="dnd-heal-amount" min="0" placeholder="Heal amount" />
-            </div>
-            <label class="dnd-temp-toggle">
-              <input type="checkbox" id="dnd-temp-heal" />
-              Temp
-            </label>
-            <button id="dnd-heal-btn" class="dnd-action-btn" type="button">Heal</button>
-          </div>
-
-          <div class="dnd-action-card">
-            <div class="field-stack">
-              <label for="dnd-reset-note">Reset</label>
-              <input type="text" id="dnd-reset-note" value="Reload all D&D fields from builder" readonly />
-            </div>
-            <button id="dnd-reset-hp-btn" class="dnd-action-btn" type="button">Reset HP</button>
-          </div>
-        </div>
-
-        <div id="dnd-calc-result" class="calc-result muted"></div>
       </div>
     </section>
 
-    <section id="player-openlegend-section" class="hidden">
-      <div class="player-panel">
-        <div class="builder-link-row">
-          <h2>Open Legend Sheet</h2>
-          <a id="openlegend-builder-link" class="button-link" href="openlegend_character_builder.html">Open Builder</a>
-        </div>
+    <section id="player-openlegend-section" class="player-panel hidden">
+      <h2>Open Legend Sheet</h2>
+      <a id="openlegend-builder-link" class="builder-link" href="#">Open Builder</a>
 
-        <div class="ol-summary-wrap">
-          <div class="summary-card hp-card hp-card-large">
-            <div class="summary-label">Current HP</div>
-            <div id="player-ol-current-hp" class="summary-value hp-display">—</div>
-          </div>
+      <div class="stats-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+        <div class="player-panel compact-panel stat-card"><div class="label">Current HP</div><div id="ol-current-hp" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">GRD</div><div id="ol-grd" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">RES</div><div id="ol-res" class="value">—</div></div>
+        <div class="player-panel compact-panel stat-card"><div class="label">TGH</div><div id="ol-tgh" class="value">—</div></div>
+      </div>
 
-          <div class="ol-defense-grid">
-            <div class="summary-card defense-card">
-              <div class="summary-label">GRD</div>
-              <div id="player-ol-grd-view" class="summary-value">—</div>
-            </div>
-
-            <div class="summary-card defense-card">
-              <div class="summary-label">RES</div>
-              <div id="player-ol-res-view" class="summary-value">—</div>
-            </div>
-
-            <div class="summary-card defense-card">
-              <div class="summary-label">TGH</div>
-              <div id="player-ol-tgh-view" class="summary-value">—</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="damage-panel">
-          <div class="field-stack">
-            <label for="ol-damage-input">DMG</label>
-            <input type="number" id="ol-damage-input" min="0" placeholder="Damage" />
-          </div>
-
-          <div class="field-stack">
+      <div class="dnd-action-grid">
+        <div class="dnd-action-card">
+          <h3>DMG</h3>
+          <div class="form-row">
             <label>Reduce with</label>
-            <div class="damage-options">
-              <label><span>GRD</span><input type="checkbox" class="ol-defense-choice" value="grd" /></label>
-              <label><span>RES</span><input type="checkbox" class="ol-defense-choice" value="res" /></label>
-              <label><span>TGH</span><input type="checkbox" class="ol-defense-choice" value="tgh" /></label>
-            </div>
+            <label><input type="radio" name="ol-defense" value="grd" checked /> GRD</label>
+            <label><input type="radio" name="ol-defense" value="res" /> RES</label>
+            <label><input type="radio" name="ol-defense" value="tgh" /> TGH</label>
           </div>
-
-          <div class="button-row damage-button-row" style="margin-top:0;">
-            <button id="ol-apply-damage-btn" type="button">Apply Damage</button>
+          <div class="form-row">
+            <label for="ol-damage">Apply Damage</label>
+            <input id="ol-damage" type="number" min="0" />
           </div>
+          <button id="ol-apply-damage-btn" type="button">Apply Damage</button>
         </div>
 
-        <div class="ol-recovery-area">
-          <div class="button-row ol-recovery-row">
-            <div class="field-stack compact-heal-field">
-              <label for="ol-heal-amount">Heal Amount</label>
-              <input type="number" id="ol-heal-amount" min="0" placeholder="Heal" />
-            </div>
-            <button id="ol-heal-btn" type="button">Heal</button>
+        <div class="dnd-action-card">
+          <h3>Heal</h3>
+          <div class="form-row">
+            <label for="ol-heal">Heal Amount</label>
+            <input id="ol-heal" type="number" min="0" />
           </div>
-
-          <div class="button-row ol-reset-row">
-            <button id="ol-reset-hp-btn" type="button">Reset HP</button>
-          </div>
+          <button id="ol-heal-btn" type="button">Heal</button>
         </div>
 
-        <div id="ol-calc-result" class="calc-result muted"></div>
+        <div class="dnd-action-card">
+          <h3>Reset</h3>
+          <div class="muted">Reset your HP to max.</div>
+          <button id="ol-reset-hp-btn" type="button">Reset HP</button>
+        </div>
       </div>
     </section>
 
-    <div class="player-panel">
-      <h2>Trackers</h2>
-      <p class="muted tracker-subtitle">Saved with your character in this game.</p>
-
-      <div class="tracker-form">
-        <input type="text" id="tracker-name" placeholder="Tracker name" />
-        <input type="number" id="tracker-amount" min="1" placeholder="Amount" />
-        <button id="create-tracker-btn" type="button">Add tracker</button>
+    <section class="player-panel trackers-panel">
+      <div class="trackers-head">
+        <div>
+          <h2 style="margin:0;">Trackers</h2>
+          <div class="muted">Saved with your character in this game.</div>
+        </div>
+        <button id="add-tracker-button" type="button">Add tracker</button>
       </div>
-
-      <label class="tracker-form-inline muted">
-        <input type="checkbox" id="tracker-start-full" />
-        Start fully checked
-      </label>
-
-      <ul id="tracker-list" class="tracker-list"></ul>
+      <div id="tracker-list" class="trackers-list"></div>
       <div id="tracker-empty" class="empty-state">No trackers yet for this character.</div>
-    </div>
+    </section>
 
-    <div id="bane-picker-modal" class="ol-modal" aria-hidden="true">
-      <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="bane-picker-title">
-        <button class="ol-modal__close" id="bane-picker-close" aria-label="Close">×</button>
-        <h3 id="bane-picker-title">Add bane</h3>
-        <div id="bane-picker-list" class="bane-picker-list"></div>
+    <div id="tracker-modal" class="modal-backdrop" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="tracker-modal-title">
+        <div class="modal-head">
+          <h3 id="tracker-modal-title">Add tracker</h3>
+          <button id="tracker-modal-close" class="modal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <label>
+          Title
+          <input id="tracker-title-input" type="text" maxlength="40" placeholder="e.g. Death Saves" />
+        </label>
+        <label>
+          Boxes
+          <input id="tracker-boxes-input" type="number" min="1" max="12" value="3" />
+        </label>
+        <label style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+          <input id="tracker-start-checked" type="checkbox" />
+          Start fully checked
+        </label>
+        <div class="modal-actions">
+          <button id="tracker-save-button" type="button">Save tracker</button>
+        </div>
       </div>
     </div>
 
-    <div id="banes-modal" class="ol-modal" aria-hidden="true">
-      <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="banes-modal-title">
-        <button class="ol-modal__close" id="banes-modal-close" aria-label="Close">×</button>
-        <h3 id="banes-modal-title">Manage banes</h3>
-        <div id="banes-modal-list" class="banes-modal-list"></div>
+    <div id="bane-picker-modal" class="modal-backdrop" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="bane-picker-title">
+        <div class="modal-head">
+          <h3 id="bane-picker-title">Add bane</h3>
+          <button id="bane-picker-close" class="modal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <div id="bane-picker-list" class="bane-list"></div>
+      </div>
+    </div>
+
+    <div id="bane-manage-modal" class="modal-backdrop" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="bane-manage-title">
+        <div class="modal-head">
+          <h3 id="bane-manage-title">Manage banes</h3>
+          <button id="bane-manage-close" class="modal-close" type="button" aria-label="Close">×</button>
+        </div>
+        <div id="bane-manage-list" class="bane-list"></div>
       </div>
     </div>
 
