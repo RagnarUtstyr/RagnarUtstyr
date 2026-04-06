@@ -3,14 +3,13 @@ import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-  authDomain: "roll202-c0b0d.firebaseapp.com",
-  databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "roll202-c0b0d",
-  storageBucket: "roll202-c0b0d.appspot.com",
-  messagingSenderId: "607661730400",
-  appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-  measurementId: "G-6X5L39W56C"
+  apiKey: "AIzaSyDjpo2rp_J91Vn8YjL0iJPTEait_Nu3TYY",
+  authDomain: "rolltest-37fe9.firebaseapp.com",
+  databaseURL: "https://rolltest-37fe9-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "rolltest-37fe9",
+  storageBucket: "rolltest-37fe9.firebasestorage.app",
+  messagingSenderId: "854772037721",
+  appId: "1:854772037721:web:ef1ea8eab08a2b23bd5948"
 };
 
 export const app = initializeApp(firebaseConfig);

@@ -1,7 +1,9 @@
 import { BANES } from "./banes.js";
-import { getDatabase, ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { db } from "./firebase-config.js";
+import { requireAuth } from "./auth.js";
+import { ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-const db = getDatabase();
+await requireAuth();
 
 function getGameCode() {
   const params = new URLSearchParams(window.location.search);

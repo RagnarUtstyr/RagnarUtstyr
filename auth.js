@@ -7,19 +7,33 @@ import {
 import {
   ref,
   set,
-  get
+  get,
+  update
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 export async function loginWithGoogle() {
   const result = await signInWithPopup(auth, googleProvider);
   const user = result.user;
-  await set(ref(db, `users/${user.uid}`), {
+  const userRef = ref(db, `users/${user.uid}`);
+  const existing = await get(userRef);
+
+  const payload = {
     uid: user.uid,
     name: user.displayName || "Unknown",
     email: user.email || "",
     photoURL: user.photoURL || "",
     lastLoginAt: Date.now()
-  });
+  };
+
+  if (existing.exists()) {
+    await update(userRef, payload);
+  } else {
+    await set(userRef, {
+      ...payload,
+      createdAt: Date.now()
+    });
+  }
+
   return user;
 }
 
@@ -50,5 +64,5 @@ export async function requireAuth() {
 
 export async function getUserMembership(uid) {
   const snapshot = await get(ref(db, `memberships/${uid}`));
-  return snapshot.exists() ? snapshot.val() : null;
+  return snapshot.exists() ? snapshot.val() : {};
 }

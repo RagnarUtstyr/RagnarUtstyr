@@ -1,21 +1,8 @@
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { db } from "./firebase-config.js";
+import { requireAuth } from "./auth.js";
+import { ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-    authDomain: "roll202-c0b0d.firebaseapp.com",
-    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "roll202-c0b0d",
-    storageBucket: "roll202-c0b0d.appspot.com",
-    messagingSenderId: "607661730400",
-    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-    measurementId: "G-6X5L39W56C"
-};
-
-// Initialize Firebase only once
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db = getDatabase(app);
+await requireAuth();
 
 function getGameCode() {
     const params = new URLSearchParams(window.location.search);
@@ -39,7 +26,6 @@ function normalizeEntry(id, entry) {
     };
 }
 
-// Function to submit data to Firebase
 async function submitData() {
     const name = document.getElementById('name')?.value?.trim();
     const initiativeEl = document.getElementById('initiative') || document.getElementById('number');
@@ -79,7 +65,6 @@ async function submitData() {
     }
 }
 
-// Function to fetch and display rankings
 function fetchRankings() {
     const reference = ref(db, getEntriesPath());
 
@@ -127,7 +112,6 @@ function fetchRankings() {
     });
 }
 
-// Function to remove an entry from Firebase
 function removeEntry(id) {
     const reference = ref(db, `${getEntriesPath()}/${id}`);
     remove(reference)
@@ -139,7 +123,6 @@ function removeEntry(id) {
         });
 }
 
-// Function to clear all entries from this room only
 function clearAllEntries() {
     const reference = ref(db, getEntriesPath());
     set(reference, null)
@@ -153,7 +136,6 @@ function clearAllEntries() {
         });
 }
 
-// Event listeners for page-specific actions
 document.addEventListener('DOMContentLoaded', () => {
     try {
         getEntriesPath();

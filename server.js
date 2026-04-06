@@ -1,22 +1,8 @@
-// Import necessary Firebase modules from the SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { db } from "./firebase-config.js";
+import { requireAuth } from "./auth.js";
+import { ref, push, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-    authDomain: "roll202-c0b0d.firebaseapp.com",
-    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "roll202-c0b0d",
-    storageBucket: "roll202-c0b0d.appspot.com",
-    messagingSenderId: "607661730400",
-    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-    measurementId: "G-6X5L39W56C"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+await requireAuth();
 
 function getGameCode() {
     const params = new URLSearchParams(window.location.search);
@@ -29,24 +15,22 @@ function getEntriesPath() {
     return `games/${code}/entries`;
 }
 
-// Function to submit data to Firebase
 async function submitData() {
     const name = document.getElementById('name')?.value?.trim();
-    const numberInput = document.getElementById('initiative') || document.getElementById('number');
-    const number = numberInput ? parseInt(numberInput.value, 10) : null;
+    const numberInput = document.getElementById('number');
+    const number = numberInput ? parseInt(numberInput.value, 10) : NaN;
 
     const healthInput = document.getElementById('health');
-    const health = healthInput && healthInput.value !== '' ? parseInt(healthInput.value, 10) : null;
-
     const grdInput = document.getElementById('grd');
     const resInput = document.getElementById('res');
     const tghInput = document.getElementById('tgh');
 
-    const grd = grdInput ? (grdInput.value !== '' ? parseInt(grdInput.value, 10) : null) : undefined;
-    const res = resInput ? (resInput.value !== '' ? parseInt(resInput.value, 10) : null) : undefined;
-    const tgh = tghInput ? (tghInput.value !== '' ? parseInt(tghInput.value, 10) : null) : undefined;
+    const health = healthInput && healthInput.value !== '' ? parseInt(healthInput.value, 10) : null;
+    const grd = grdInput && grdInput.value !== '' ? parseInt(grdInput.value, 10) : undefined;
+    const res = resInput && resInput.value !== '' ? parseInt(resInput.value, 10) : undefined;
+    const tgh = tghInput && tghInput.value !== '' ? parseInt(tghInput.value, 10) : undefined;
 
-    if (!name || isNaN(number)) {
+    if (!name || Number.isNaN(number)) {
         console.log('Please enter a valid name and initiative number.');
         return;
     }
@@ -69,7 +53,6 @@ async function submitData() {
 
         console.log('Data submitted to room entries:', entry);
 
-        // Clear inputs
         document.getElementById('name').value = '';
         if (numberInput) numberInput.value = '';
         if (healthInput) healthInput.value = '';
@@ -77,7 +60,6 @@ async function submitData() {
         if (resInput) resInput.value = '';
         if (tghInput) tghInput.value = '';
 
-        // Play sword sound if available
         const swordSound = document.getElementById('sword-sound');
         if (swordSound) swordSound.play();
 
@@ -86,7 +68,6 @@ async function submitData() {
     }
 }
 
-// Function to remove an entry from Firebase
 function removeEntry(id) {
     const reference = ref(db, `${getEntriesPath()}/${id}`);
     remove(reference)
@@ -98,7 +79,6 @@ function removeEntry(id) {
         });
 }
 
-// Page setup
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('submit-button')) {
         document.getElementById('submit-button').addEventListener('click', submitData);
