@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="auth.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 
-  <script type="module" src="player.js?v=6" defer></script>
+  <script type="module" src="player.js?v=7" defer></script>
 
   <style>
     .dnd-action-grid {
@@ -80,7 +80,6 @@
       color: #2E1B18;
     }
 
-    /* Open Legend buttons use the green/blue style */
     #ol-apply-damage-btn,
     #ol-heal-btn,
     #ol-reset-hp-btn {
@@ -273,20 +272,40 @@
     }
 
     @media (max-width: 760px) {
-  .top-character-row {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  #player-banes-panel {
-    grid-column: 1 / -1;
-    width: 100%;
-  }
-}
-
-    @media (max-width: 760px) {
       .dnd-action-grid {
         grid-template-columns: 1fr;
+      }
+
+      .top-character-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+        align-items: stretch !important;
+      }
+
+      .top-character-row > .player-panel,
+      .top-character-row > .compact-panel,
+      .top-character-row > .name-panel,
+      .top-character-row > .initiative-panel,
+      .top-character-row > #player-banes-panel {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+      }
+
+      .top-character-row > .name-panel {
+        grid-column: 1 / 2 !important;
+      }
+
+      .top-character-row > .initiative-panel {
+        grid-column: 2 / 3 !important;
+      }
+
+      .top-character-row > #player-banes-panel {
+        grid-column: 1 / -1 !important;
       }
     }
   </style>
