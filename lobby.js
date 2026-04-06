@@ -1,5 +1,11 @@
 import { requireAuth, logout } from "./auth.js";
-import { createGame, joinGame, watchOwnedAndJoinedGames, deleteGame, leaveSpecificGame } from "./game-service.js";
+import {
+  createGame,
+  joinGame,
+  watchOwnedAndJoinedGames,
+  deleteGame,
+  leaveSpecificGame
+} from "./game-service.js";
 
 const createBtn = document.getElementById("create-game-button");
 const joinBtn = document.getElementById("join-game-button");
