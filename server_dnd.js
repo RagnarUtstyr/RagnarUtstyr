@@ -1,5 +1,12 @@
 import { db } from "./firebase-config.js";
-import { ref, push, onValue, remove, set, update } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import {
+  ref,
+  push,
+  onValue,
+  remove,
+  set,
+  update,
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 function getGameCode() {
   const params = new URLSearchParams(window.location.search);
@@ -12,21 +19,51 @@ function getEntriesPath() {
   return `games/${code}/entries`;
 }
 
+function normalizeEffects(effects) {
+  if (!effects) return [];
+  if (Array.isArray(effects)) return effects.filter(Boolean);
+  return Object.values(effects).filter(Boolean);
+}
+
 function normalizeEntry(id, entry) {
   return {
     id,
     name: entry.name ?? entry.playerName ?? "Unknown",
     number: entry.number ?? entry.initiative ?? 0,
+    initiative: entry.initiative ?? entry.number ?? 0,
     health: entry.health ?? null,
     ac: entry.ac ?? null,
-    url: entry.url ?? null
+    url: entry.url ?? null,
+    effects: normalizeEffects(entry.effects),
   };
 }
 
-// Function to submit data to Firebase
+function qs(id) {
+  return document.getElementById(id);
+}
+
+function openModal(modal) {
+  if (modal) modal.setAttribute("aria-hidden", "false");
+}
+
+function openEffectDescription(effect) {
+  const modal = qs("effect-description-modal");
+  const title = qs("effect-description-title");
+  const body = qs("effect-description-body");
+
+  if (!modal || !title || !body) return;
+
+  title.textContent = effect.name || "Effect";
+  body.textContent = effect.description || "No description available.";
+
+  openModal(modal);
+}
+
 async function submitData() {
   const name = document.getElementById("name")?.value?.trim();
-  const initiativeEl = document.getElementById("initiative") || document.getElementById("number");
+  const initiativeEl =
+    document.getElementById("initiative") ||
+    document.getElementById("number");
   const number = initiativeEl ? parseInt(initiativeEl.value, 10) : NaN;
 
   const healthRaw = document.getElementById("health")?.value ?? "";
@@ -45,16 +82,22 @@ async function submitData() {
     await push(reference, {
       name,
       number,
+      initiative: number,
       health,
       ac,
+      effects: {},
       createdByAdmin: true,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     });
 
     document.getElementById("name").value = "";
     if (initiativeEl) initiativeEl.value = "";
-    if (document.getElementById("health")) document.getElementById("health").value = "";
-    if (document.getElementById("ac")) document.getElementById("ac").value = "";
+    if (document.getElementById("health")) {
+      document.getElementById("health").value = "";
+    }
+    if (document.getElementById("ac")) {
+      document.getElementById("ac").value = "";
+    }
 
     const swordSound = document.getElementById("sword-sound");
     if (swordSound) swordSound.play();
@@ -63,7 +106,24 @@ async function submitData() {
   }
 }
 
-// Function to fetch and display rankings with health update functionality
+function createEffectIcon(effect) {
+  const icon = document.createElement("img");
+  icon.className = "effect-row-icon";
+  icon.src = effect.icon || "icons/effects/test.png";
+  icon.alt = effect.name || "Effect";
+  icon.title = effect.name || "Effect";
+  icon.width = 22;
+  icon.height = 22;
+
+  icon.style.cursor = "pointer";
+  icon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openEffectDescription(effect);
+  });
+
+  return icon;
+}
+
 function fetchRankings() {
   const reference = ref(db, getEntriesPath());
 
@@ -72,6 +132,8 @@ function fetchRankings() {
     (snapshot) => {
       const data = snapshot.val();
       const rankingList = document.getElementById("rankingList");
+      if (!rankingList) return;
+
       rankingList.innerHTML = "";
 
       if (!data) {
@@ -83,48 +145,67 @@ function fetchRankings() {
         .map(([id, entry]) => normalizeEntry(id, entry))
         .sort((a, b) => (b.number || 0) - (a.number || 0));
 
-      rankings.forEach(({ id, name, ac, health, url }) => {
+      rankings.forEach(({ id, name, ac, health, url, initiative, effects }) => {
         const listItem = document.createElement("li");
         listItem.className = "list-item";
-
-        const nameAcContainer = document.createElement("div");
-        nameAcContainer.className = "name-ac-container";
+        listItem.dataset.entryId = id;
+        listItem.dataset.name = name;
+        listItem.dataset.initiative = String(initiative ?? "");
+        listItem.dataset.ac =
+          ac !== null && ac !== undefined ? String(ac) : "N/A";
+        listItem.dataset.health =
+          health !== null && health !== undefined ? String(health) : "N/A";
+        listItem.dataset.url = url ?? "";
+        listItem.dataset.effects = JSON.stringify(effects || []);
 
         const nameDiv = document.createElement("div");
         nameDiv.className = "name";
         nameDiv.textContent = name;
-
-        if (url) {
-          nameDiv.style.cursor = "pointer";
-          nameDiv.addEventListener("click", () => {
-            window.open(url, "_blank");
-          });
-        }
-
-        nameAcContainer.appendChild(nameDiv);
+        nameDiv.style.cursor = "pointer";
+        listItem.appendChild(nameDiv);
 
         const acDiv = document.createElement("div");
         acDiv.className = "ac";
         acDiv.textContent = `AC: ${ac !== null && ac !== undefined ? ac : "N/A"}`;
-        nameAcContainer.appendChild(acDiv);
-
-        listItem.appendChild(nameAcContainer);
+        listItem.appendChild(acDiv);
 
         const healthDiv = document.createElement("div");
         healthDiv.className = "health";
         healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : "N/A"}`;
+        healthDiv.style.cursor = "pointer";
         listItem.appendChild(healthDiv);
 
         const healthInput = document.createElement("input");
         healthInput.type = "number";
         healthInput.placeholder = "Damage";
         healthInput.className = "damage-input";
-        healthInput.style.width = "50px";
         healthInput.dataset.entryId = id;
         healthInput.dataset.currentHealth = health ?? 0;
         listItem.appendChild(healthInput);
 
-        if (health === 0) {
+        const effectsRow = document.createElement("div");
+        effectsRow.className = "row-effects";
+
+        if (effects.length) {
+          const iconsWrap = document.createElement("div");
+          iconsWrap.className = "effects-summary-icons";
+
+          effects.forEach((effect) => {
+            iconsWrap.appendChild(createEffectIcon(effect));
+          });
+
+          const effectsButton = document.createElement("button");
+          effectsButton.type = "button";
+          effectsButton.className = "effects-button";
+          effectsButton.textContent = "Effects";
+
+          effectsRow.appendChild(iconsWrap);
+          effectsRow.appendChild(effectsButton);
+        }
+
+        listItem.appendChild(effectsRow);
+
+        if (Number(health) <= 0) {
           const removeButton = document.createElement("button");
           removeButton.textContent = "Remove";
           removeButton.className = "remove-button";
@@ -132,9 +213,6 @@ function fetchRankings() {
             removeEntry(id, listItem);
           });
           listItem.appendChild(removeButton);
-        }
-
-        if (health === 0) {
           listItem.classList.add("defeated");
         }
 
@@ -147,7 +225,6 @@ function fetchRankings() {
   );
 }
 
-// Function to apply damage to all entries
 function applyDamageToAll() {
   const damageInputs = document.querySelectorAll(".damage-input");
 
@@ -156,7 +233,7 @@ function applyDamageToAll() {
     const currentHealth = parseInt(input.dataset.currentHealth, 10);
     const damage = parseInt(input.value, 10);
 
-    if (!isNaN(damage) && !isNaN(currentHealth)) {
+    if (!Number.isNaN(damage) && !Number.isNaN(currentHealth)) {
       const updatedHealth = currentHealth - damage;
       updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0, input);
     }
@@ -165,22 +242,23 @@ function applyDamageToAll() {
   });
 }
 
-// Function to update health in Firebase and UI
 function updateHealth(id, newHealth, healthInput) {
   const reference = ref(db, `${getEntriesPath()}/${id}`);
 
   update(reference, { health: newHealth })
     .then(() => {
-      const healthDiv = healthInput.parentElement.querySelector(".health");
-      healthDiv.textContent = `HP: ${newHealth}`;
-
       const listItem = healthInput.parentElement;
+      const healthDiv = listItem.querySelector(".health");
+
+      if (healthDiv) {
+        healthDiv.textContent = `HP: ${newHealth}`;
+      }
+
+      listItem.dataset.health = String(newHealth);
+      healthInput.dataset.currentHealth = String(newHealth);
 
       if (newHealth <= 0) {
         listItem.classList.add("defeated");
-        healthInput.disabled = false;
-        healthInput.style.display = "inline-block";
-        healthInput.dataset.currentHealth = newHealth;
 
         let removeButton = listItem.querySelector(".remove-button");
         if (!removeButton) {
@@ -193,9 +271,7 @@ function updateHealth(id, newHealth, healthInput) {
           listItem.appendChild(removeButton);
         }
       } else {
-        healthInput.dataset.currentHealth = newHealth;
         listItem.classList.remove("defeated");
-
         const removeButton = listItem.querySelector(".remove-button");
         if (removeButton) {
           removeButton.remove();
@@ -207,7 +283,6 @@ function updateHealth(id, newHealth, healthInput) {
     });
 }
 
-// Function to remove an entry
 function removeEntry(id, listItem = null) {
   const reference = ref(db, `${getEntriesPath()}/${id}`);
 
@@ -221,7 +296,6 @@ function removeEntry(id, listItem = null) {
     });
 }
 
-// Function to clear all entries from this room only
 function clearAllEntries() {
   const reference = ref(db, getEntriesPath());
 
@@ -236,7 +310,6 @@ function clearAllEntries() {
     });
 }
 
-// Event listeners for page-specific actions
 document.addEventListener("DOMContentLoaded", () => {
   try {
     getEntriesPath();
@@ -245,20 +318,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  if (document.getElementById("submit-button")) {
-    document.getElementById("submit-button").addEventListener("click", submitData);
-  }
+  document.getElementById("submit-button")?.addEventListener("click", submitData);
 
   if (document.getElementById("rankingList")) {
     fetchRankings();
   }
 
-  const applyDamageButton = document.getElementById("apply-damage-button");
-  if (applyDamageButton) {
-    applyDamageButton.addEventListener("click", applyDamageToAll);
-  }
+  document
+    .getElementById("apply-damage-button")
+    ?.addEventListener("click", applyDamageToAll);
 
-  if (document.getElementById("clear-list-button")) {
-    document.getElementById("clear-list-button").addEventListener("click", clearAllEntries);
-  }
+  document
+    .getElementById("clear-list-button")
+    ?.addEventListener("click", clearAllEntries);
 });
