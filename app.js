@@ -549,6 +549,12 @@ function setupBookingPage() {
     if (resultsEl) resultsEl.innerHTML = `<div class="error">${escapeHtml(error.message || 'Failed to load equipment catalog.')}</div>`;
   });
 
+  const getSelectedEquipmentIds = () => new Set(
+    selectedItems
+      .map((item) => item.equipmentId)
+      .filter(Boolean)
+  );
+
   const renderSelected = () => {
     selectedEl.innerHTML = selectedItems.length ? selectedItems.map((item, index) => `
       <div class="selected-row">
@@ -560,13 +566,22 @@ function setupBookingPage() {
       btn.onclick = () => {
         selectedItems.splice(Number(btn.dataset.removeIndex), 1);
         renderSelected();
+        renderResults();
       };
     });
   };
 
   const renderResults = () => {
     const q = searchInput.value.trim().toLowerCase();
-    const filtered = q ? catalog.filter((item) => [item.displayName, item.name, item.type].filter(Boolean).some((v) => v.toLowerCase().includes(q))) : catalog;
+    const selectedIds = getSelectedEquipmentIds();
+    let filtered = catalog.filter((item) => !selectedIds.has(item.id));
+    if (q) {
+      filtered = filtered.filter((item) =>
+        [item.displayName, item.name, item.type]
+          .filter(Boolean)
+          .some((v) => v.toLowerCase().includes(q))
+      );
+    }
     resultsEl.innerHTML = filtered.length ? filtered.map((item) => `
       <div class="result-row">
         <div><strong>${escapeHtml(item.displayName)}</strong><div class="muted small">${escapeHtml([item.type, item.manufacturer, item.model].filter(Boolean).join(' • ') || 'No details')}</div></div>
@@ -588,6 +603,7 @@ function setupBookingPage() {
           returned: false,
         });
         renderSelected();
+        renderResults();
       };
     });
   };
