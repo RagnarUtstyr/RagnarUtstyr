@@ -238,3 +238,13 @@ button.slim, .btn-link.slim {
   .content { padding: 12px; }
   .grid.four, .grid.two { grid-template-columns: 1fr; }
 }
+
+
+/* Focused booking + checkout list behavior */
+.vertical-list { display: grid; gap: 10px; }
+.list-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; }
+.list-row-main { min-width: 0; flex: 1; }
+.picked-row { border-color: rgba(22,163,74,.55); background: rgba(22,163,74,.08); }
+.checkout-columns { align-items: start; }
+#checkoutChecklist,
+#checkoutPickedList { min-height: 72px; }

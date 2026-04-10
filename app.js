@@ -546,8 +546,15 @@ function setupBookingPage() {
     catalog = items.filter((item) => item.status !== 'checked_out');
     renderResults();
   }).catch((error) => {
-    if (resultsEl) resultsEl.innerHTML = `<div class="error">${escapeHtml(error.message || 'Failed to load equipment catalog.')}</div>`;
+    setFlash({ error: error.message || 'Failed to load equipment catalog.' });
+    resultsEl.innerHTML = `<div class="error">${escapeHtml(error.message || 'Failed to load equipment catalog.')}</div>`;
   });
+
+  const getSelectedIds = () => new Set(
+    selectedItems
+      .filter((item) => item.equipmentId)
+      .map((item) => item.equipmentId)
+  );
 
   const renderSelected = () => {
     selectedEl.innerHTML = selectedItems.length ? selectedItems.map((item, index) => `
@@ -560,13 +567,22 @@ function setupBookingPage() {
       btn.onclick = () => {
         selectedItems.splice(Number(btn.dataset.removeIndex), 1);
         renderSelected();
+        renderResults();
       };
     });
   };
 
   const renderResults = () => {
     const q = searchInput.value.trim().toLowerCase();
-    const filtered = q ? catalog.filter((item) => [item.displayName, item.name, item.type].filter(Boolean).some((v) => v.toLowerCase().includes(q))) : catalog;
+    const selectedIds = getSelectedIds();
+    let filtered = catalog.filter((item) => !selectedIds.has(item.id));
+    if (q) {
+      filtered = filtered.filter((item) =>
+        [item.displayName, item.name, item.type]
+          .filter(Boolean)
+          .some((v) => v.toLowerCase().includes(q))
+      );
+    }
     resultsEl.innerHTML = filtered.length ? filtered.map((item) => `
       <div class="result-row">
         <div><strong>${escapeHtml(item.displayName)}</strong><div class="muted small">${escapeHtml([item.type, item.manufacturer, item.model].filter(Boolean).join(' • ') || 'No details')}</div></div>
@@ -588,6 +604,7 @@ function setupBookingPage() {
           returned: false,
         });
         renderSelected();
+        renderResults();
       };
     });
   };
@@ -600,6 +617,7 @@ function setupBookingPage() {
     selectedItems.push({ equipmentId: null, name: input.value.trim(), equipmentName: input.value.trim(), type: 'Custom', pickedUp: false, returned: false });
     input.value = '';
     renderSelected();
+    renderResults();
   };
   renderSelected();
 
@@ -677,39 +695,130 @@ function setupCheckoutPage() {
     const items = structuredClone(rental.items || []);
     details.innerHTML = `
       <section class="card stack">
-        <div class="row spread"><div><h3>${escapeHtml(rental.renterName)}</h3><div class="muted">Pickup ${escapeHtml(formatDate(rental.pickupDate))} • Return ${escapeHtml(formatDate(rental.returnDate))}</div></div><div class="badge" id="checkoutPickedCount">${(items || []).filter((i) => i.pickedUp).length}/${(items || []).length} picked</div></div>
-        <div class="checklist" id="checkoutChecklist"></div>
+        <div class="row spread align-start wrap-sm">
+          <div>
+            <h3>${escapeHtml(rental.renterName)}</h3>
+            <div class="muted">Pickup ${escapeHtml(formatDate(rental.pickupDate))} • Return ${escapeHtml(formatDate(rental.returnDate))}</div>
+          </div>
+          <div class="badge" id="checkoutPickedCount">${(items || []).filter((i) => i.pickedUp).length}/${(items || []).length} picked</div>
+        </div>
+        <div class="grid two checkout-columns">
+          <div class="stack">
+            <div class="row spread"><h4>Booking list</h4><span class="muted small" id="checkoutRemainingCount">…</span></div>
+            <div class="vertical-list" id="checkoutChecklist"></div>
+          </div>
+          <div class="stack">
+            <div class="row spread"><h4>Picked</h4><span class="muted small" id="checkoutPickedListCount">…</span></div>
+            <div class="vertical-list" id="checkoutPickedList"></div>
+          </div>
+        </div>
       </section>
       <section class="card stack">
-        <div class="row spread"><div><h3>Add more equipment</h3><div class="muted small">Only available units can be added.</div></div><input id="checkoutEquipmentSearch" placeholder="Search equipment" style="max-width:220px" /></div>
+        <div class="row spread">
+          <div><h3>Add more equipment</h3><div class="muted small">Only available units can be added.</div></div>
+          <input id="checkoutEquipmentSearch" placeholder="Search equipment" style="max-width:220px" />
+        </div>
         <div class="search-results" id="checkoutEquipmentResults"></div>
         <div class="row"><button class="primary" id="saveCheckoutBtn">Save checkout</button></div>
       </section>
     `;
-    const list = getEl('checkoutChecklist');
+    const bookingList = getEl('checkoutChecklist');
+    const pickedList = getEl('checkoutPickedList');
     const results = getEl('checkoutEquipmentResults');
     const search = getEl('checkoutEquipmentSearch');
     const pickedCountEl = getEl('checkoutPickedCount');
+    const remainingCountEl = getEl('checkoutRemainingCount');
+    const pickedListCountEl = getEl('checkoutPickedListCount');
     const saveCheckoutBtn = getEl('saveCheckoutBtn');
-    if (!list || !results || !search || !pickedCountEl || !saveCheckoutBtn) return;
+    if (!bookingList || !pickedList || !results || !search || !pickedCountEl || !remainingCountEl || !pickedListCountEl || !saveCheckoutBtn) return;
     const availableCatalog = catalog.filter((item) => item.status !== 'checked_out');
 
-    const renderChecklist = () => {
-      pickedCountEl.textContent = `${items.filter((i) => i.pickedUp).length}/${items.length} picked`;
-      list.innerHTML = items.length ? items.map((item, index) => `
-        <div class="check-row ${item.pickedUp ? 'checked' : ''}">
-          <input type="checkbox" data-pick-index="${index}" ${item.pickedUp ? 'checked' : ''} />
-          <div style="flex:1"><strong>${escapeHtml(item.name)}</strong><div class="muted small">${escapeHtml(item.serialNumber || item.type || 'No serial')}</div></div>
-          <button class="ghost" type="button" data-remove-index="${index}">Remove</button>
-        </div>
-      `).join('') : '<div class="muted">No items on this booking.</div>';
-      list.querySelectorAll('[data-pick-index]').forEach((el) => el.onchange = () => { items[Number(el.dataset.pickIndex)].pickedUp = el.checked; renderChecklist(); });
-      list.querySelectorAll('[data-remove-index]').forEach((el) => el.onclick = () => { items.splice(Number(el.dataset.removeIndex), 1); renderChecklist(); });
+    const getSelectedEquipmentIds = () => new Set(
+      items
+        .filter((item) => item.equipmentId)
+        .map((item) => item.equipmentId)
+    );
+
+    const renderLists = () => {
+      const remainingItems = items.filter((item) => !item.pickedUp);
+      const pickedItems = items.filter((item) => item.pickedUp);
+      pickedCountEl.textContent = `${pickedItems.length}/${items.length} picked`;
+      remainingCountEl.textContent = `${remainingItems.length} left to find`;
+      pickedListCountEl.textContent = `${pickedItems.length} picked`;
+
+      bookingList.innerHTML = remainingItems.length ? remainingItems.map((item) => {
+        const index = items.indexOf(item);
+        return `
+          <div class="list-row">
+            <div class="list-row-main">
+              <strong>${escapeHtml(item.name)}</strong>
+              <div class="muted small">${escapeHtml(item.serialNumber || item.type || 'No serial')}</div>
+            </div>
+            <div class="inline-actions">
+              <button class="primary slim" type="button" data-pick-index="${index}">Pick</button>
+              <button class="ghost slim" type="button" data-remove-index="${index}">Remove</button>
+            </div>
+          </div>
+        `;
+      }).join('') : '<div class="muted">All booking items are picked.</div>';
+
+      pickedList.innerHTML = pickedItems.length ? pickedItems.map((item) => {
+        const index = items.indexOf(item);
+        return `
+          <div class="list-row picked-row">
+            <div class="list-row-main">
+              <strong>${escapeHtml(item.name)}</strong>
+              <div class="muted small">${escapeHtml(item.serialNumber || item.type || 'No serial')}</div>
+            </div>
+            <div class="inline-actions">
+              <button class="secondary slim" type="button" data-unpick-index="${index}">Move back</button>
+              <button class="ghost slim" type="button" data-remove-index="${index}">Remove</button>
+            </div>
+          </div>
+        `;
+      }).join('') : '<div class="muted">Nothing picked yet.</div>';
+
+      bookingList.querySelectorAll('[data-pick-index]').forEach((el) => {
+        el.onclick = () => {
+          items[Number(el.dataset.pickIndex)].pickedUp = true;
+          renderLists();
+          renderResults();
+        };
+      });
+      bookingList.querySelectorAll('[data-remove-index]').forEach((el) => {
+        el.onclick = () => {
+          items.splice(Number(el.dataset.removeIndex), 1);
+          renderLists();
+          renderResults();
+        };
+      });
+      pickedList.querySelectorAll('[data-unpick-index]').forEach((el) => {
+        el.onclick = () => {
+          items[Number(el.dataset.unpickIndex)].pickedUp = false;
+          renderLists();
+          renderResults();
+        };
+      });
+      pickedList.querySelectorAll('[data-remove-index]').forEach((el) => {
+        el.onclick = () => {
+          items.splice(Number(el.dataset.removeIndex), 1);
+          renderLists();
+          renderResults();
+        };
+      });
     };
 
     const renderResults = () => {
       const q = search.value.trim().toLowerCase();
-      const filtered = q ? availableCatalog.filter((item) => [item.displayName, item.name, item.type].filter(Boolean).some((v) => v.toLowerCase().includes(q))) : availableCatalog;
+      const selectedIds = getSelectedEquipmentIds();
+      let filtered = availableCatalog.filter((item) => !selectedIds.has(item.id));
+      if (q) {
+        filtered = filtered.filter((item) =>
+          [item.displayName, item.name, item.type]
+            .filter(Boolean)
+            .some((v) => v.toLowerCase().includes(q))
+        );
+      }
       results.innerHTML = filtered.map((item) => `
         <div class="result-row">
           <div><strong>${escapeHtml(item.displayName)}</strong><div class="muted small">${escapeHtml(item.type)}</div></div>
@@ -720,12 +829,13 @@ function setupCheckoutPage() {
         const item = availableCatalog.find((row) => row.id === btn.dataset.addId);
         if (!item) return;
         items.push({ equipmentId: item.id, name: item.displayName, equipmentName: item.name, type: item.type, serialNumber: item.serialNumber || '', unitNumber: item.unitNumber || null, pickedUp: false, returned: false });
-        renderChecklist();
+        renderLists();
+        renderResults();
       });
     };
 
     search.oninput = renderResults;
-    renderChecklist();
+    renderLists();
     renderResults();
 
     saveCheckoutBtn.onclick = async () => {
@@ -742,7 +852,6 @@ function setupCheckoutPage() {
     details.innerHTML = `<section class="card error">${escapeHtml(error.message || 'Failed to load checkout data.')}</section>`;
   });
 }
-
 
 function renderCheckin() {
   return shell(`
