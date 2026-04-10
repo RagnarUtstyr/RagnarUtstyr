@@ -487,8 +487,9 @@ function setupDashboardPage() {
     setHtmlIfPresent('dashboardBooked', booked.length ? booked.map((r) => rentalCard(r, '/checkout', 'Start checkout')).join('') : '<div class="card">No upcoming bookings.</div>');
     setHtmlIfPresent('dashboardCheckedOut', checkedOut.length ? checkedOut.map((r) => rentalCard(r, '/checkin', 'Start check-in')).join('') : '<div class="card">Nothing is currently checked out.</div>');
   }).catch((error) => {
-    setFlash({ error: error.message || 'Failed to load overview data.' });
-    render();
+    setHtmlIfPresent('dashboardStats', `<div class="error">${escapeHtml(error.message || 'Failed to load overview data.')}</div>`);
+    setHtmlIfPresent('dashboardBooked', `<div class="error">${escapeHtml(error.message || 'Failed to load bookings.')}</div>`);
+    setHtmlIfPresent('dashboardCheckedOut', `<div class="error">${escapeHtml(error.message || 'Failed to load checkouts.')}</div>`);
   });
 }
 
@@ -534,8 +535,7 @@ function setupBookingPage() {
     catalog = items.filter((item) => item.status !== 'checked_out');
     renderResults();
   }).catch((error) => {
-    setFlash({ error: error.message || 'Failed to load equipment catalog.' });
-    render();
+    if (resultsEl) resultsEl.innerHTML = `<div class="error">${escapeHtml(error.message || 'Failed to load equipment catalog.')}</div>`;
   });
 
   const renderSelected = () => {
@@ -648,8 +648,7 @@ function setupCheckoutPage() {
     select.innerHTML = `<option value="">Choose a booking…</option>${options}`;
   }).catch((error) => {
     select.innerHTML = '<option value="">Failed to load bookings</option>';
-    setFlash({ error: error.message || 'Failed to load bookings.' });
-    render();
+    details.innerHTML = `<section class="card error">${escapeHtml(error.message || 'Failed to load bookings.')}</section>`;
   });
 
   if (!bookingId) {
@@ -729,9 +728,7 @@ function setupCheckoutPage() {
       }
     };
   }).catch((error) => {
-    details.innerHTML = '<section class="card">Failed to load checkout data.</section>';
-    setFlash({ error: error.message || 'Failed to load checkout data.' });
-    render();
+    details.innerHTML = `<section class="card error">${escapeHtml(error.message || 'Failed to load checkout data.')}</section>`;
   });
 }
 
@@ -758,8 +755,7 @@ function setupCheckinPage() {
     select.innerHTML = `<option value="">Choose a checkout…</option>${options}`;
   }).catch((error) => {
     select.innerHTML = '<option value="">Failed to load checkouts</option>';
-    setFlash({ error: error.message || 'Failed to load active checkouts.' });
-    render();
+    details.innerHTML = `<section class="card error">${escapeHtml(error.message || 'Failed to load active checkouts.')}</section>`;
   });
 
   if (!bookingId) {
@@ -808,9 +804,7 @@ function setupCheckinPage() {
       }
     };
   }).catch((error) => {
-    details.innerHTML = '<section class="card">Failed to load rental details.</section>';
-    setFlash({ error: error.message || 'Failed to load rental details.' });
-    render();
+    details.innerHTML = `<section class="card error">${escapeHtml(error.message || 'Failed to load rental details.')}</section>`;
   });
 }
 
