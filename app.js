@@ -1036,13 +1036,13 @@ function renderCheckoutEditor(rental, allEquipment) {
   `;
 }
 
-function bindCheckoutEditorUI(editorHost, currentRental, allEquipment) {
+function bindCheckoutEditor(rental, allEquipment, editorEl, redirectPath = '/checked-out') {
   const items = JSON.parse(document.getElementById('checkoutItemsData')?.textContent || '[]');
 
   function rerenderWithItems(updatedItems) {
-    currentRental.items = updatedItems;
-    editorHost.innerHTML = renderCheckoutEditor(currentRental, allEquipment);
-    bindCheckoutEditorUI(editorHost, currentRental, allEquipment);
+    const updatedRental = { ...rental, items: updatedItems };
+    editorEl.innerHTML = renderCheckoutEditor(updatedRental, allEquipment);
+    bindCheckoutEditor(updatedRental, allEquipment, editorEl, redirectPath);
   }
 
   document.querySelectorAll('[data-pick-index]').forEach((btn) => {
@@ -1094,20 +1094,20 @@ function bindCheckoutEditorUI(editorHost, currentRental, allEquipment) {
       items,
     };
     try {
-      if (currentRental.id) {
-        const before = normalizeItems((await getRentalById(currentRental.id))?.items);
+      if (rental.id) {
+        const before = normalizeItems((await getRentalById(rental.id))?.items);
         const addedCheckedOut = items.filter((i) => i.pickedUp && i.equipmentId && !before.some((b) => b.equipmentId === i.equipmentId && b.pickedUp));
         const released = before.filter((b) => b.equipmentId && b.pickedUp && !items.some((i) => i.equipmentId === b.equipmentId && i.pickedUp));
         if (addedCheckedOut.length) await updateEquipmentStatuses(addedCheckedOut.map((i) => i.equipmentId), 'checked_out');
         if (released.length) await updateEquipmentStatuses(released.map((i) => i.equipmentId), 'available');
-        await updateRental(currentRental.id, payload);
+        await updateRental(rental.id, payload);
       } else {
         await createRental(payload);
         const checkedOutIds = items.filter((item) => item.pickedUp && item.equipmentId).map((item) => item.equipmentId);
         if (checkedOutIds.length) await updateEquipmentStatuses(checkedOutIds, 'checked_out');
       }
       setFlash({ notice: 'Checkout saved.' });
-      setRoute('/checked-out');
+      setRoute(redirectPath);
     } catch (e) {
       setFlash({ error: e.message || 'Failed to save checkout.' });
       render();
@@ -1115,9 +1115,9 @@ function bindCheckoutEditorUI(editorHost, currentRental, allEquipment) {
   });
 
   document.getElementById('deleteCheckoutBtn')?.addEventListener('click', async () => {
-    if (!currentRental?.id || currentRental.status !== 'booked' || !confirm('Delete this booking?')) return;
+    if (!rental?.id || rental.status !== 'booked' || !confirm('Delete this booking?')) return;
     try {
-      await deleteRental(currentRental.id);
+      await deleteRental(rental.id);
       setFlash({ notice: 'Booking deleted.' });
       setRoute('/');
     } catch (e) {
@@ -1134,7 +1134,6 @@ async function setupCheckoutPage() {
 
   let bookings = [];
   let allEquipment = [];
-  let currentRental = null;
 
   try {
     bookings = (await getUserRentals()).filter((r) => r.status === 'booked');
@@ -1163,7 +1162,7 @@ async function setupCheckoutPage() {
   };
 
   async function openRental(rental) {
-    currentRental = rental ? { ...rental, items: normalizeItems(rental.items) } : {
+    const currentRental = rental ? { ...rental, items: normalizeItems(rental.items) } : {
       renterName: '',
       company: '',
       pickupDate: todayLocal(),
@@ -1172,7 +1171,7 @@ async function setupCheckoutPage() {
       items: [],
     };
     editorEl.innerHTML = renderCheckoutEditor(currentRental, allEquipment);
-    bindCheckoutEditorUI(editorEl, currentRental, allEquipment);
+    bindCheckoutEditor(currentRental, allEquipment, editorEl, '/checked-out');
   }
 
   document.getElementById('newDirectCheckoutBtn')?.addEventListener('click', async () => {
@@ -1189,59 +1188,63 @@ async function setupCheckoutPage() {
 
 async function setupCheckedOutPage() {
   const listEl = document.getElementById('checkedOutList');
+  const editorEl = document.getElementById('checkedOutEditor');
   const filterEl = document.getElementById('checkedOutFilter');
   const sortEl = document.getElementById('checkedOutSort');
-  const editorEl = document.getElementById('checkedOutEditor');
   if (!listEl || !editorEl) return;
+
+  let rentals = [];
+  let allEquipment = [];
+
   try {
-    const rentals = (await getUserRentals()).filter((r) => ['checked_out', 'partial_return'].includes(r.status));
-    const allEquipment = await getUserEquipment();
-    const params = getRouteParams();
-    const requestedId = params.get('id') || '';
-
-    const renderList = () => {
-      const filtered = sortRentals(
-        rentals.filter((r) => rentalMatchesFilter(r, filterEl?.value || 'all')),
-        sortEl?.value || 'overdue_first',
-      );
-
-      listEl.innerHTML = filtered.length ? filtered.map((r) => `
-        <a class="card stack-item clickable-card" href="#/checked-out?id=${encodeURIComponent(r.id)}">
-          <div class="item-topline">
-            <div>
-              <strong>${esc(r.renterName || r.company || 'Untitled')}</strong>
-              <div class="muted small">Out ${esc(fmtDate(r.pickupDate))} • In ${esc(fmtDate(r.returnDate))}</div>
-            </div>
-            <div class="pill-status">${esc(r.status === 'partial_return' ? 'Partial return' : 'Checked out')}</div>
-          </div>
-        </a>
-      `).join('') : '<div class="muted">No active checkouts match this view.</div>';
-    };
-
-    async function openRental(rental) {
-      if (!rental) {
-        editorEl.innerHTML = '';
-        return;
-      }
-      const editable = { ...rental, items: normalizeItems(rental.items) };
-      editorEl.innerHTML = renderCheckoutEditor(editable, allEquipment);
-      bindCheckoutEditorUI(editorEl, editable, allEquipment);
-    }
-
-    filterEl?.addEventListener('change', renderList);
-    sortEl?.addEventListener('change', renderList);
-
-    renderList();
-
-    if (requestedId) {
-      const rental = rentals.find((r) => r.id === requestedId);
-      if (rental) await openRental(rental);
-    } else {
-      editorEl.innerHTML = '';
-    }
+    rentals = (await getUserRentals()).filter((r) => ['checked_out', 'partial_return'].includes(r.status));
+    allEquipment = await getUserEquipment();
   } catch (e) {
     setFlash({ error: e.message || 'Failed to load checked-out page.' });
     render();
+    return;
+  }
+
+  const params = getRouteParams();
+  const requestedId = params.get('id') || '';
+
+  const renderList = () => {
+    const filtered = sortRentals(
+      rentals.filter((r) => rentalMatchesFilter(r, filterEl?.value || 'all')),
+      sortEl?.value || 'overdue_first',
+    );
+
+    listEl.innerHTML = filtered.length ? filtered.map((r) => `
+      <a class="card stack-item clickable-card" href="#/checked-out?id=${encodeURIComponent(r.id)}">
+        <div class="item-topline">
+          <div>
+            <strong>${esc(r.renterName || r.company || 'Untitled')}</strong>
+            <div class="muted small">Out ${esc(fmtDate(r.pickupDate))} • In ${esc(fmtDate(r.returnDate))}</div>
+          </div>
+          <div class="pill-status">${esc(r.status === 'partial_return' ? 'Partial return' : 'Checked out')}</div>
+        </div>
+      </a>
+    `).join('') : '<div class="muted">No active checkouts match this view.</div>';
+  };
+
+  async function openRental(rental) {
+    if (!rental) {
+      editorEl.innerHTML = '';
+      return;
+    }
+    const currentRental = { ...rental, items: normalizeItems(rental.items) };
+    editorEl.innerHTML = renderCheckoutEditor(currentRental, allEquipment);
+    bindCheckoutEditor(currentRental, allEquipment, editorEl, '/checked-out');
+  }
+
+  filterEl?.addEventListener('change', renderList);
+  sortEl?.addEventListener('change', renderList);
+
+  renderList();
+
+  if (requestedId) {
+    const rental = rentals.find((r) => r.id === requestedId);
+    if (rental) await openRental(rental);
   }
 }
 
