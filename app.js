@@ -493,7 +493,7 @@ function bookingCard(rental, actionLabel, actionPath, extraButtons = '') {
         <div>
           <div class="badge ${escapeHtml(rental.status)}">${escapeHtml(rental.status)}</div>
           <h3 style="margin:8px 0 6px">${escapeHtml(rental.renterName || 'Unnamed renter')}</h3>
-          <div class="item-meta"><span>${escapeHtml(rental.company || rental.email || rental.phone || 'No contact info')}</span><span>Pickup ${escapeHtml(fmtDate(rental.pickupDate))}</span><span>Return ${escapeHtml(fmtDate(rental.returnDate))}</span></div>
+          <div class="item-meta"><span>Out ${escapeHtml(fmtDate(rental.pickupDate))}</span><span>In ${escapeHtml(fmtDate(rental.returnDate))}</span></div>
         </div>
         <div class="toolbar">
           <button class="small ghost" data-nav="${escapeHtml(actionPath)}">${escapeHtml(actionLabel)}</button>
@@ -629,7 +629,7 @@ function checkoutEditorMarkup(rental, catalog, pickedList) {
       <div class="spread">
         <div>
           <h2 style="margin:0">${escapeHtml(rental.renterName || 'Direct checkout')}</h2>
-          <div class="item-meta"><span>Pickup ${escapeHtml(fmtDate(rental.pickupDate))}</span><span>Return ${escapeHtml(fmtDate(rental.returnDate))}</span></div>
+          <div class="item-meta"><span>Out ${escapeHtml(fmtDate(rental.pickupDate))}</span><span>In ${escapeHtml(fmtDate(rental.returnDate))}</span></div>
         </div>
         <div class="toolbar">
           <button class="small danger" id="deleteCheckoutBtn">Delete</button>
