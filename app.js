@@ -84,9 +84,26 @@ function fmtDate(value) {
 function dateOnly(value) {
   if (!value) return '';
   if (typeof value === 'string') return value.slice(0, 10);
-  if (value?.seconds) return new Date(value.seconds * 1000).toISOString().slice(0, 10);
+  if (value?.seconds) {
+    const d = new Date(value.seconds * 1000);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
   const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+  if (Number.isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function todayLocal() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 function overlaps(aStart, aEnd, bStart, bEnd) {
   if (!aStart || !aEnd || !bStart || !bEnd) return false;
@@ -197,8 +214,9 @@ function renderOverviewPage() {
   return `
     <div class="stats">
       <div class="card stat"><h3>Active rentals</h3><div class="value" id="statActive">—</div></div>
-      <div class="card stat"><h3>Pickups today</h3><div class="value" id="statToday">—</div></div>
-      <div class="card stat"><h3>Available items</h3><div class="value" id="statAvail">—</div></div>
+      <div class="card stat"><h3>Pickups today</h3><div class="value" id="statPickupsToday">—</div></div>
+      <div class="card stat"><h3>Returns today</h3><div class="value" id="statReturnsToday">—</div></div>
+      <div class="card stat"><h3>Overdue</h3><div class="value" id="statOverdue">—</div></div>
     </div>
     <div class="section-head">
       <div><h2>Upcoming bookings</h2><div class="muted small">Booked but not yet checked out.</div></div>
@@ -490,12 +508,16 @@ function bookingCard(rental, actionLabel, actionPath, extraButtons = '') {
 
 async function setupOverviewPage() {
   try {
-    const [rentals, equipment] = await Promise.all([getRentals(), getAllEquipment()]);
+    const rentals = await getRentals();
     const active = rentals.filter((r) => ['booked','checked_out','partial_return'].includes(r.status));
-    const today = new Date().toISOString().slice(0,10);
+    const today = todayLocal();
+    const pickupsToday = rentals.filter((r) => ['booked','checked_out','partial_return'].includes(r.status) && dateOnly(r.pickupDate) === today).length;
+    const returnsToday = rentals.filter((r) => ['checked_out','partial_return'].includes(r.status) && dateOnly(r.returnDate) === today).length;
+    const overdue = rentals.filter((r) => ['checked_out','partial_return'].includes(r.status) && dateOnly(r.returnDate) && dateOnly(r.returnDate) < today).length;
     document.getElementById('statActive').textContent = String(active.length);
-    document.getElementById('statToday').textContent = String(rentals.filter((r) => dateOnly(r.pickupDate) === today).length);
-    document.getElementById('statAvail').textContent = String(equipment.filter((i) => i.status !== 'checked_out').length);
+    document.getElementById('statPickupsToday').textContent = String(pickupsToday);
+    document.getElementById('statReturnsToday').textContent = String(returnsToday);
+    document.getElementById('statOverdue').textContent = String(overdue);
     document.getElementById('overviewBooked').innerHTML = rentals.filter((r) => r.status === 'booked').map((r) => bookingCard(r, 'Checkout', `/checkout?id=${r.id}`, `<button class="small danger" data-delete-rental="${r.id}">Delete</button>`)).join('') || '<div class="card muted">No upcoming bookings.</div>';
     document.getElementById('overviewOut').innerHTML = rentals.filter((r) => ['checked_out','partial_return'].includes(r.status)).map((r) => bookingCard(r, 'Open', `/checked-out?id=${r.id}`, `<button class="small danger" data-delete-rental="${r.id}">Delete</button>`)).join('') || '<div class="card muted">Nothing checked out.</div>';
     attachSharedCardHandlers();
