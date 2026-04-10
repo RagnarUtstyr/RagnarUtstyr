@@ -1,4 +1,3 @@
-
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js';
 import {
   getAuth,
@@ -179,6 +178,9 @@ function cardHrefForRental(rental) {
   if (rental.status === 'booked') return `#/checkout?id=${encodeURIComponent(rental.id)}`;
   if (['checked_out', 'partial_return'].includes(rental.status)) return `#/checked-out?id=${encodeURIComponent(rental.id)}`;
   return `#/checkin?id=${encodeURIComponent(rental.id)}`;
+}
+function backButton(path, label = 'Back to list') {
+  return `<div class="action-row"><a class="ghost small-btn" href="#${path}">${esc(label)}</a></div>`;
 }
 
 function flashMarkup() {
@@ -406,15 +408,17 @@ function renderCheckoutPage() {
         <p class="muted">Open a booking to turn it into a checkout, or create a direct checkout.</p>
       </div>
 
-      <div class="card compact-form">
-        <div class="action-row wrap">
-          <button id="newDirectCheckoutBtn" class="secondary" type="button">Create direct checkout</button>
+      <div id="checkoutListWrap" class="page-block">
+        <div class="card compact-form">
+          <div class="action-row wrap">
+            <button id="newDirectCheckoutBtn" class="secondary" type="button">Create direct checkout</button>
+          </div>
         </div>
-      </div>
 
-      <div class="card">
-        <div class="section-head"><h3>Booked entries</h3><p class="muted">Only bookings are shown here.</p></div>
-        <div id="checkoutBookingList" class="stack-list"><div class="muted">Loading…</div></div>
+        <div class="card">
+          <div class="section-head"><h3>Booked entries</h3><p class="muted">Only bookings are shown here.</p></div>
+          <div id="checkoutBookingList" class="stack-list"><div class="muted">Loading…</div></div>
+        </div>
       </div>
 
       <div id="checkoutEditor" class="page-block"></div>
@@ -425,11 +429,13 @@ function renderCheckoutPage() {
 function renderCheckedOutPage() {
   return `
     <section class="page-block">
-      <div class="section-head"><h2>Checked-out</h2><p class="muted">Open an active checkout to edit it.</p></div>
-      <div class="card compact-form">
-        ${filterToolbar('checkedOut', [['all','All checked out'], ['out_today','Checkout today'], ['in_today','Returns today'], ['overdue','Overdue']], [['overdue_first','Overdue first'], ['in_asc','In date'], ['out_asc','Out date'], ['newest','Newest created'], ['oldest','Oldest created']])}
+      <div id="checkedOutListWrap" class="page-block">
+        <div class="section-head"><h2>Checked-out</h2><p class="muted">Open an active checkout to edit it.</p></div>
+        <div class="card compact-form">
+          ${filterToolbar('checkedOut', [['all','All checked out'], ['out_today','Checkout today'], ['in_today','Returns today'], ['overdue','Overdue']], [['overdue_first','Overdue first'], ['in_asc','In date'], ['out_asc','Out date'], ['newest','Newest created'], ['oldest','Oldest created']])}
+        </div>
+        <div id="checkedOutList" class="stack-list"><div class="muted">Loading…</div></div>
       </div>
-      <div id="checkedOutList" class="stack-list"><div class="muted">Loading…</div></div>
       <div id="checkedOutEditor" class="page-block"></div>
     </section>
   `;
@@ -438,22 +444,24 @@ function renderCheckedOutPage() {
 function renderCheckinPage() {
   return `
     <section class="page-block">
-      <div class="section-head">
-        <h2>Check-in</h2>
-        <p class="muted">Pick returned items into the Returned list.</p>
-      </div>
+      <div id="checkinListsWrap" class="page-block">
+        <div class="section-head">
+          <h2>Check-in</h2>
+          <p class="muted">Pick returned items into the Returned list.</p>
+        </div>
 
-      <div class="card">
-        <div class="section-head"><h3>Active check-outs</h3><p class="muted">Open one to process a return.</p></div>
-        <div id="checkinActiveList" class="stack-list"><div class="muted">Loading…</div></div>
+        <div class="card">
+          <div class="section-head"><h3>Active check-outs</h3><p class="muted">Open one to process a return.</p></div>
+          <div id="checkinActiveList" class="stack-list"><div class="muted">Loading…</div></div>
+        </div>
+
+        <div class="page-block">
+          <div class="section-head"><h3>History</h3><p class="muted">Completed and partial returns.</p></div>
+          <div id="checkinHistoryList" class="stack-list"><div class="muted">Loading…</div></div>
+        </div>
       </div>
 
       <div id="checkinEditor" class="page-block"></div>
-
-      <div class="page-block">
-        <div class="section-head"><h3>History</h3><p class="muted">Completed and partial returns.</p></div>
-        <div id="checkinHistoryList" class="stack-list"><div class="muted">Loading…</div></div>
-      </div>
     </section>
   `;
 }
@@ -821,9 +829,6 @@ function parseEquipmentXml(xmlText) {
   })).filter((row) => row.name);
 }
 
-function rentalOptionLabel(rental) {
-  return `${rental.renterName || rental.company || 'Untitled'} — Out ${fmtDate(rental.pickupDate)} • In ${fmtDate(rental.returnDate)} (${rental.status})`;
-}
 function normalizeItems(items) {
   return readArray(items).map((item) => ({
     equipmentId: item.equipmentId || null,
@@ -983,6 +988,7 @@ function renderCheckoutEditor(rental, allEquipment) {
   const picked = items.filter((item) => item.pickedUp);
   const searchOptions = allEquipment.filter((item) => (item.status || 'available') === 'available' && !items.some((row) => row.equipmentId === item.id));
   return `
+    ${rental?.id ? backButton(currentPath()) : backButton('/checkout')}
     <div class="card compact-form">
       <div class="form-grid">
         <label><span>Name</span><input id="checkoutName" value="${esc(rental?.renterName || '')}" /></label>
@@ -1036,104 +1042,15 @@ function renderCheckoutEditor(rental, allEquipment) {
   `;
 }
 
-function bindCheckoutEditor(rental, allEquipment, editorEl, redirectPath = '/checked-out') {
-  const items = JSON.parse(document.getElementById('checkoutItemsData')?.textContent || '[]');
-
-  function rerenderWithItems(updatedItems) {
-    const updatedRental = { ...rental, items: updatedItems };
-    editorEl.innerHTML = renderCheckoutEditor(updatedRental, allEquipment);
-    bindCheckoutEditor(updatedRental, allEquipment, editorEl, redirectPath);
-  }
-
-  document.querySelectorAll('[data-pick-index]').forEach((btn) => {
-    btn.onclick = () => {
-      const updated = [...items];
-      updated[Number(btn.dataset.pickIndex)].pickedUp = true;
-      rerenderWithItems(updated);
-    };
-  });
-
-  document.querySelectorAll('[data-unpick-index]').forEach((btn) => {
-    btn.onclick = () => {
-      const updated = [...items];
-      updated[Number(btn.dataset.unpickIndex)].pickedUp = false;
-      rerenderWithItems(updated);
-    };
-  });
-
-  const addSearch = document.getElementById('checkoutAddSearch');
-  const addList = document.getElementById('checkoutAddList');
-  const renderAddList = () => {
-    if (!addList) return;
-    const q = (addSearch?.value || '').trim().toLowerCase();
-    const currentIds = new Set(items.map((item) => item.equipmentId).filter(Boolean));
-    const options = allEquipment.filter((item) => (item.status || 'available') === 'available' && !currentIds.has(item.id) && (!q || [item.displayName, item.name, item.type].filter(Boolean).some((v) => String(v).toLowerCase().includes(q))));
-    addList.innerHTML = options.length ? options.slice(0, 80).map((item) => `
-      <div class="item-row">
-        <div><strong>${esc(item.displayName)}</strong><div class="muted small">${esc(item.type || '')}</div></div>
-        <button class="secondary small-btn" type="button" data-add-equipment="${item.id}">Add</button>
-      </div>`).join('') : '<div class="muted">No more available equipment to add.</div>';
-    addList.querySelectorAll('[data-add-equipment]').forEach((btn) => {
-      btn.onclick = () => {
-        const eq = allEquipment.find((row) => row.id === btn.dataset.addEquipment);
-        if (!eq) return;
-        rerenderWithItems([...items, { equipmentId: eq.id, name: eq.displayName, type: eq.type || 'General', pickedUp: true, returned: false }]);
-      };
-    });
-  };
-  addSearch?.addEventListener('input', renderAddList);
-  renderAddList();
-
-  document.getElementById('saveCheckoutBtn')?.addEventListener('click', async () => {
-    const payload = {
-      renterName: document.getElementById('checkoutName')?.value || '',
-      company: document.getElementById('checkoutCompany')?.value || '',
-      pickupDate: document.getElementById('checkoutOut')?.value || todayLocal(),
-      returnDate: document.getElementById('checkoutIn')?.value || todayLocal(),
-      status: items.some((item) => !item.pickedUp) ? 'booked' : 'checked_out',
-      items,
-    };
-    try {
-      if (rental.id) {
-        const before = normalizeItems((await getRentalById(rental.id))?.items);
-        const addedCheckedOut = items.filter((i) => i.pickedUp && i.equipmentId && !before.some((b) => b.equipmentId === i.equipmentId && b.pickedUp));
-        const released = before.filter((b) => b.equipmentId && b.pickedUp && !items.some((i) => i.equipmentId === b.equipmentId && i.pickedUp));
-        if (addedCheckedOut.length) await updateEquipmentStatuses(addedCheckedOut.map((i) => i.equipmentId), 'checked_out');
-        if (released.length) await updateEquipmentStatuses(released.map((i) => i.equipmentId), 'available');
-        await updateRental(rental.id, payload);
-      } else {
-        await createRental(payload);
-        const checkedOutIds = items.filter((item) => item.pickedUp && item.equipmentId).map((item) => item.equipmentId);
-        if (checkedOutIds.length) await updateEquipmentStatuses(checkedOutIds, 'checked_out');
-      }
-      setFlash({ notice: 'Checkout saved.' });
-      setRoute(redirectPath);
-    } catch (e) {
-      setFlash({ error: e.message || 'Failed to save checkout.' });
-      render();
-    }
-  });
-
-  document.getElementById('deleteCheckoutBtn')?.addEventListener('click', async () => {
-    if (!rental?.id || rental.status !== 'booked' || !confirm('Delete this booking?')) return;
-    try {
-      await deleteRental(rental.id);
-      setFlash({ notice: 'Booking deleted.' });
-      setRoute('/');
-    } catch (e) {
-      setFlash({ error: e.message || 'Failed to delete booking.' });
-      render();
-    }
-  });
-}
-
 async function setupCheckoutPage() {
+  const listWrap = document.getElementById('checkoutListWrap');
   const listEl = document.getElementById('checkoutBookingList');
   const editorEl = document.getElementById('checkoutEditor');
   if (!listEl || !editorEl) return;
 
   let bookings = [];
   let allEquipment = [];
+  let currentRental = null;
 
   try {
     bookings = (await getUserRentals()).filter((r) => r.status === 'booked');
@@ -1162,7 +1079,7 @@ async function setupCheckoutPage() {
   };
 
   async function openRental(rental) {
-    const currentRental = rental ? { ...rental, items: normalizeItems(rental.items) } : {
+    currentRental = rental ? { ...rental, items: normalizeItems(rental.items) } : {
       renterName: '',
       company: '',
       pickupDate: todayLocal(),
@@ -1170,8 +1087,100 @@ async function setupCheckoutPage() {
       status: 'checked_out',
       items: [],
     };
+    if (listWrap) listWrap.style.display = 'none';
     editorEl.innerHTML = renderCheckoutEditor(currentRental, allEquipment);
-    bindCheckoutEditor(currentRental, allEquipment, editorEl, '/checked-out');
+    bindCheckoutEditor();
+  }
+
+  function bindCheckoutEditor() {
+    const items = JSON.parse(document.getElementById('checkoutItemsData')?.textContent || '[]');
+
+    function rerenderWithItems(updatedItems) {
+      currentRental.items = updatedItems;
+      editorEl.innerHTML = renderCheckoutEditor(currentRental, allEquipment);
+      bindCheckoutEditor();
+    }
+
+    document.querySelectorAll('[data-pick-index]').forEach((btn) => {
+      btn.onclick = () => {
+        const updated = [...items];
+        updated[Number(btn.dataset.pickIndex)].pickedUp = true;
+        rerenderWithItems(updated);
+      };
+    });
+
+    document.querySelectorAll('[data-unpick-index]').forEach((btn) => {
+      btn.onclick = () => {
+        const updated = [...items];
+        updated[Number(btn.dataset.unpickIndex)].pickedUp = false;
+        rerenderWithItems(updated);
+      };
+    });
+
+    const addSearch = document.getElementById('checkoutAddSearch');
+    const addList = document.getElementById('checkoutAddList');
+    const renderAddList = () => {
+      if (!addList) return;
+      const q = (addSearch?.value || '').trim().toLowerCase();
+      const currentIds = new Set(items.map((item) => item.equipmentId).filter(Boolean));
+      const options = allEquipment.filter((item) => (item.status || 'available') === 'available' && !currentIds.has(item.id) && (!q || [item.displayName, item.name, item.type].filter(Boolean).some((v) => String(v).toLowerCase().includes(q))));
+      addList.innerHTML = options.length ? options.slice(0, 80).map((item) => `
+        <div class="item-row">
+          <div><strong>${esc(item.displayName)}</strong><div class="muted small">${esc(item.type || '')}</div></div>
+          <button class="secondary small-btn" type="button" data-add-equipment="${item.id}">Add</button>
+        </div>`).join('') : '<div class="muted">No more available equipment to add.</div>';
+      addList.querySelectorAll('[data-add-equipment]').forEach((btn) => {
+        btn.onclick = () => {
+          const eq = allEquipment.find((row) => row.id === btn.dataset.addEquipment);
+          if (!eq) return;
+          rerenderWithItems([...items, { equipmentId: eq.id, name: eq.displayName, type: eq.type || 'General', pickedUp: true, returned: false }]);
+        };
+      });
+    };
+    addSearch?.addEventListener('input', renderAddList);
+    renderAddList();
+
+    document.getElementById('saveCheckoutBtn')?.addEventListener('click', async () => {
+      const payload = {
+        renterName: document.getElementById('checkoutName')?.value || '',
+        company: document.getElementById('checkoutCompany')?.value || '',
+        pickupDate: document.getElementById('checkoutOut')?.value || todayLocal(),
+        returnDate: document.getElementById('checkoutIn')?.value || todayLocal(),
+        status: items.some((item) => !item.pickedUp) ? 'booked' : 'checked_out',
+        items,
+      };
+      try {
+        if (currentRental.id) {
+          const before = normalizeItems((await getRentalById(currentRental.id))?.items);
+          const addedCheckedOut = items.filter((i) => i.pickedUp && i.equipmentId && !before.some((b) => b.equipmentId === i.equipmentId && b.pickedUp));
+          const released = before.filter((b) => b.equipmentId && b.pickedUp && !items.some((i) => i.equipmentId === b.equipmentId && i.pickedUp));
+          if (addedCheckedOut.length) await updateEquipmentStatuses(addedCheckedOut.map((i) => i.equipmentId), 'checked_out');
+          if (released.length) await updateEquipmentStatuses(released.map((i) => i.equipmentId), 'available');
+          await updateRental(currentRental.id, payload);
+        } else {
+          await createRental(payload);
+          const checkedOutIds = items.filter((item) => item.pickedUp && item.equipmentId).map((item) => item.equipmentId);
+          if (checkedOutIds.length) await updateEquipmentStatuses(checkedOutIds, 'checked_out');
+        }
+        setFlash({ notice: 'Checkout saved.' });
+        setRoute('/checked-out');
+      } catch (e) {
+        setFlash({ error: e.message || 'Failed to save checkout.' });
+        render();
+      }
+    });
+
+    document.getElementById('deleteCheckoutBtn')?.addEventListener('click', async () => {
+      if (!currentRental?.id || currentRental.status !== 'booked' || !confirm('Delete this booking?')) return;
+      try {
+        await deleteRental(currentRental.id);
+        setFlash({ notice: 'Booking deleted.' });
+        setRoute('/');
+      } catch (e) {
+        setFlash({ error: e.message || 'Failed to delete booking.' });
+        render();
+      }
+    });
   }
 
   document.getElementById('newDirectCheckoutBtn')?.addEventListener('click', async () => {
@@ -1182,20 +1191,25 @@ async function setupCheckoutPage() {
 
   if (requestedId) {
     const rental = bookings.find((r) => r.id === requestedId);
-    if (rental) await openRental(rental);
+    if (rental) {
+      await openRental(rental);
+    }
+  } else {
+    if (listWrap) listWrap.style.display = '';
+    editorEl.innerHTML = '';
   }
 }
 
 async function setupCheckedOutPage() {
+  const listWrap = document.getElementById('checkedOutListWrap');
   const listEl = document.getElementById('checkedOutList');
-  const editorEl = document.getElementById('checkedOutEditor');
   const filterEl = document.getElementById('checkedOutFilter');
   const sortEl = document.getElementById('checkedOutSort');
+  const editorEl = document.getElementById('checkedOutEditor');
   if (!listEl || !editorEl) return;
 
   let rentals = [];
   let allEquipment = [];
-
   try {
     rentals = (await getUserRentals()).filter((r) => ['checked_out', 'partial_return'].includes(r.status));
     allEquipment = await getUserEquipment();
@@ -1204,9 +1218,6 @@ async function setupCheckedOutPage() {
     render();
     return;
   }
-
-  const params = getRouteParams();
-  const requestedId = params.get('id') || '';
 
   const renderList = () => {
     const filtered = sortRentals(
@@ -1227,25 +1238,97 @@ async function setupCheckedOutPage() {
     `).join('') : '<div class="muted">No active checkouts match this view.</div>';
   };
 
-  async function openRental(rental) {
-    if (!rental) {
-      editorEl.innerHTML = '';
-      return;
-    }
-    const currentRental = { ...rental, items: normalizeItems(rental.items) };
-    editorEl.innerHTML = renderCheckoutEditor(currentRental, allEquipment);
-    bindCheckoutEditor(currentRental, allEquipment, editorEl, '/checked-out');
-  }
-
   filterEl?.addEventListener('change', renderList);
   sortEl?.addEventListener('change', renderList);
-
   renderList();
 
+  const requestedId = getRouteParams().get('id') || '';
   if (requestedId) {
     const rental = rentals.find((r) => r.id === requestedId);
-    if (rental) await openRental(rental);
+    if (rental) {
+      if (listWrap) listWrap.style.display = 'none';
+      editorEl.innerHTML = renderCheckoutEditor({ ...rental, items: normalizeItems(rental.items) }, allEquipment);
+
+      let currentRental = { ...rental, items: normalizeItems(rental.items) };
+      const bindCheckedOutEditor = () => {
+        const items = JSON.parse(document.getElementById('checkoutItemsData')?.textContent || '[]');
+
+        function rerenderWithItems(updatedItems) {
+          currentRental.items = updatedItems;
+          editorEl.innerHTML = renderCheckoutEditor(currentRental, allEquipment);
+          bindCheckedOutEditor();
+        }
+
+        document.querySelectorAll('[data-pick-index]').forEach((btn) => {
+          btn.onclick = () => {
+            const updated = [...items];
+            updated[Number(btn.dataset.pickIndex)].pickedUp = true;
+            rerenderWithItems(updated);
+          };
+        });
+        document.querySelectorAll('[data-unpick-index]').forEach((btn) => {
+          btn.onclick = () => {
+            const updated = [...items];
+            updated[Number(btn.dataset.unpickIndex)].pickedUp = false;
+            rerenderWithItems(updated);
+          };
+        });
+
+        const addSearch = document.getElementById('checkoutAddSearch');
+        const addList = document.getElementById('checkoutAddList');
+        const renderAddList = () => {
+          if (!addList) return;
+          const q = (addSearch?.value || '').trim().toLowerCase();
+          const currentIds = new Set(items.map((item) => item.equipmentId).filter(Boolean));
+          const options = allEquipment.filter((item) => (item.status || 'available') === 'available' && !currentIds.has(item.id) && (!q || [item.displayName, item.name, item.type].filter(Boolean).some((v) => String(v).toLowerCase().includes(q))));
+          addList.innerHTML = options.length ? options.slice(0, 80).map((item) => `
+            <div class="item-row">
+              <div><strong>${esc(item.displayName)}</strong><div class="muted small">${esc(item.type || '')}</div></div>
+              <button class="secondary small-btn" type="button" data-add-equipment="${item.id}">Add</button>
+            </div>`).join('') : '<div class="muted">No more available equipment to add.</div>';
+          addList.querySelectorAll('[data-add-equipment]').forEach((btn) => {
+            btn.onclick = () => {
+              const eq = allEquipment.find((row) => row.id === btn.dataset.addEquipment);
+              if (!eq) return;
+              rerenderWithItems([...items, { equipmentId: eq.id, name: eq.displayName, type: eq.type || 'General', pickedUp: true, returned: false }]);
+            };
+          });
+        };
+        addSearch?.addEventListener('input', renderAddList);
+        renderAddList();
+
+        document.getElementById('saveCheckoutBtn')?.addEventListener('click', async () => {
+          const payload = {
+            renterName: document.getElementById('checkoutName')?.value || '',
+            company: document.getElementById('checkoutCompany')?.value || '',
+            pickupDate: document.getElementById('checkoutOut')?.value || todayLocal(),
+            returnDate: document.getElementById('checkoutIn')?.value || todayLocal(),
+            status: items.some((item) => !item.pickedUp) ? 'booked' : 'checked_out',
+            items,
+          };
+          try {
+            const before = normalizeItems((await getRentalById(currentRental.id))?.items);
+            const addedCheckedOut = items.filter((i) => i.pickedUp && i.equipmentId && !before.some((b) => b.equipmentId === i.equipmentId && b.pickedUp));
+            const released = before.filter((b) => b.equipmentId && b.pickedUp && !items.some((i) => i.equipmentId === b.equipmentId && i.pickedUp));
+            if (addedCheckedOut.length) await updateEquipmentStatuses(addedCheckedOut.map((i) => i.equipmentId), 'checked_out');
+            if (released.length) await updateEquipmentStatuses(released.map((i) => i.equipmentId), 'available');
+            await updateRental(currentRental.id, payload);
+            setFlash({ notice: 'Checkout updated.' });
+            setRoute('/checked-out');
+          } catch (e) {
+            setFlash({ error: e.message || 'Failed to save checkout.' });
+            render();
+          }
+        });
+      };
+
+      bindCheckedOutEditor();
+      return;
+    }
   }
+
+  if (listWrap) listWrap.style.display = '';
+  editorEl.innerHTML = '';
 }
 
 function renderCheckinEditor(rental) {
@@ -1254,6 +1337,7 @@ function renderCheckinEditor(rental) {
   const returned = items.filter((item) => item.returned);
   const isHistory = ['completed', 'partial_return'].includes(rental.status) && !['checked_out'].includes(rental.status);
   return `
+    ${backButton('/checkin')}
     <div class="card compact-form">
       <div class="item-topline">
         <div>
@@ -1299,6 +1383,7 @@ function renderCheckinEditor(rental) {
 }
 
 async function setupCheckinPage() {
+  const listsWrap = document.getElementById('checkinListsWrap');
   const activeEl = document.getElementById('checkinActiveList');
   const editorEl = document.getElementById('checkinEditor');
   const historyEl = document.getElementById('checkinHistoryList');
@@ -1342,14 +1427,15 @@ async function setupCheckinPage() {
     </a>
   `).join('') : '<div class="muted">No check-in history yet.</div>';
 
-  const params = getRouteParams();
-  const requestedId = params.get('id') || '';
+  const requestedId = getRouteParams().get('id') || '';
 
   async function openRental(rental) {
     if (!rental) {
+      if (listsWrap) listsWrap.style.display = '';
       editorEl.innerHTML = '';
       return;
     }
+    if (listsWrap) listsWrap.style.display = 'none';
     editorEl.innerHTML = renderCheckinEditor(rental);
     bindCheckinEditor(rental);
   }
@@ -1417,8 +1503,14 @@ async function setupCheckinPage() {
 
   if (requestedId) {
     const requested = rentals.find((r) => r.id === requestedId);
-    if (requested) await openRental(requested);
+    if (requested) {
+      await openRental(requested);
+      return;
+    }
   }
+
+  if (listsWrap) listsWrap.style.display = '';
+  editorEl.innerHTML = '';
 }
 
 window.addEventListener('hashchange', () => {
