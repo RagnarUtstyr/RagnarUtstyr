@@ -407,6 +407,11 @@ async function createRental(payload) {
   });
 }
 
+
+async function deleteRental(rentalId) {
+  await deleteDoc(doc(db, 'rentals', rentalId));
+}
+
 async function updateRental(rentalId, payload) {
   await updateDoc(doc(db, 'rentals', rentalId), {
     ...payload,
@@ -424,7 +429,7 @@ async function updateRental(rentalId, payload) {
   await batch.commit();
 }
 
-function rentalCard(rental, actionRoute, actionLabel) {
+function rentalCard(rental, actionRoute, actionLabel, options = {}) {
   const items = rental.items || [];
   const itemsMarkup = items.length
     ? `
@@ -443,7 +448,10 @@ function rentalCard(rental, actionRoute, actionLabel) {
           <h3>${escapeHtml(rental.renterName || 'Unnamed renter')}</h3>
           <div class="muted">${escapeHtml(rental.company || rental.email || rental.phone || 'No contact info')}</div>
         </div>
-        <a class="btn-link secondary slim" href="#${actionRoute}?booking=${rental.id}">${actionLabel}</a>
+        <div class="row gap-sm wrap-sm">
+          <a class="btn-link secondary slim" href="#${actionRoute}?booking=${rental.id}">${actionLabel}</a>
+          ${options.showDelete ? `<button class="danger slim" type="button" data-delete-rental="${rental.id}">Delete</button>` : ''}
+        </div>
       </div>
       <div class="grid two compact-grid">
         <div><div class="muted small">Pickup</div><div>${escapeHtml(formatDate(rental.pickupDate))}</div></div>
@@ -495,8 +503,21 @@ function setupDashboardPage() {
     `)) return;
     setTextIfPresent('bookedCount', booked.length);
     setTextIfPresent('checkedOutCount', checkedOut.length);
-    setHtmlIfPresent('dashboardBooked', booked.length ? booked.map((r) => rentalCard(r, '/checkout', 'Start checkout')).join('') : '<div class="card">No upcoming bookings.</div>');
-    setHtmlIfPresent('dashboardCheckedOut', checkedOut.length ? checkedOut.map((r) => rentalCard(r, '/checkin', 'Start check-in')).join('') : '<div class="card">Nothing is currently checked out.</div>');
+    setHtmlIfPresent('dashboardBooked', booked.length ? booked.map((r) => rentalCard(r, '/checkout', 'Start checkout', { showDelete: true })).join('') : '<div class="card">No upcoming bookings.</div>');
+    setHtmlIfPresent('dashboardCheckedOut', checkedOut.length ? checkedOut.map((r) => rentalCard(r, '/checkin', 'Start check-in', { showDelete: true })).join('') : '<div class="card">Nothing is currently checked out.</div>');
+    document.querySelectorAll('[data-delete-rental]').forEach((btn) => {
+      btn.onclick = async () => {
+        if (!confirm('Delete this entire booking/check-out?')) return;
+        try {
+          await deleteRental(btn.dataset.deleteRental);
+          setFlash({ notice: 'Booking deleted.' });
+          render();
+        } catch (error) {
+          setFlash({ error: error.message || 'Failed to delete booking.' });
+          render();
+        }
+      };
+    });
   }).catch((error) => {
     setHtmlIfPresent('dashboardStats', `<div class="error">${escapeHtml(error.message || 'Failed to load overview data.')}</div>`);
     setHtmlIfPresent('dashboardBooked', `<div class="error">${escapeHtml(error.message || 'Failed to load bookings.')}</div>`);
@@ -653,7 +674,7 @@ function setupBookingPage() {
 
 function renderCheckout() {
   return shell(`
-    <div class="page-header"><div><div class="eyebrow">Checkout</div><h2>Prepare equipment pickup</h2><p>Find the booking, tick off found items, add extra items, or remove unwanted ones.</p></div></div>
+    <div class="page-header"><div><div class="eyebrow">Checkout</div><h2>Prepare equipment pickup</h2><p>Open a booking or an existing checkout, move items into Picked, add extras, or remove unwanted ones.</p></div></div>
     <section class="card stack">
       <div><label>Select booking</label><select id="checkoutBookingSelect"><option value="">Loading bookings…</option></select></div>
     </section>
@@ -671,9 +692,9 @@ function setupCheckoutPage() {
     select.onchange = () => setRoute(select.value ? `/checkout?booking=${select.value}` : '/checkout');
   }
 
-  getRentalsByStatuses(['booked']).then((bookings) => {
+  getRentalsByStatuses(['booked', 'checked_out']).then((bookings) => {
     if (!isCurrentRoute(routeBase)) return;
-    const options = bookings.map((booking) => `<option value="${booking.id}" ${booking.id === bookingId ? 'selected' : ''}>${escapeHtml(booking.renterName)} — ${escapeHtml(formatDate(booking.pickupDate))} to ${escapeHtml(formatDate(booking.returnDate))}</option>`).join('');
+    const options = bookings.map((booking) => `<option value="${booking.id}" ${booking.id === bookingId ? 'selected' : ''}>${escapeHtml(booking.renterName)} — ${escapeHtml(formatDate(booking.pickupDate))} to ${escapeHtml(formatDate(booking.returnDate))} (${escapeHtml(booking.status || 'booked')})</option>`).join('');
     select.innerHTML = `<option value="">Choose a booking…</option>${options}`;
   }).catch((error) => {
     select.innerHTML = '<option value="">Failed to load bookings</option>';
@@ -699,8 +720,12 @@ function setupCheckoutPage() {
           <div>
             <h3>${escapeHtml(rental.renterName)}</h3>
             <div class="muted">Pickup ${escapeHtml(formatDate(rental.pickupDate))} • Return ${escapeHtml(formatDate(rental.returnDate))}</div>
+            <div class="muted small">Status: ${escapeHtml(rental.status || 'booked')}</div>
           </div>
-          <div class="badge" id="checkoutPickedCount">${(items || []).filter((i) => i.pickedUp).length}/${(items || []).length} picked</div>
+          <div class="row gap-sm wrap-sm">
+            <div class="badge" id="checkoutPickedCount">${(items || []).filter((i) => i.pickedUp).length}/${(items || []).length} picked</div>
+            <button class="danger slim" type="button" id="deleteCheckoutBtn">Delete booking</button>
+          </div>
         </div>
         <div class="grid two checkout-columns">
           <div class="stack">
@@ -730,7 +755,8 @@ function setupCheckoutPage() {
     const remainingCountEl = getEl('checkoutRemainingCount');
     const pickedListCountEl = getEl('checkoutPickedListCount');
     const saveCheckoutBtn = getEl('saveCheckoutBtn');
-    if (!bookingList || !pickedList || !results || !search || !pickedCountEl || !remainingCountEl || !pickedListCountEl || !saveCheckoutBtn) return;
+    const deleteCheckoutBtn = getEl('deleteCheckoutBtn');
+    if (!bookingList || !pickedList || !results || !search || !pickedCountEl || !remainingCountEl || !pickedListCountEl || !saveCheckoutBtn || !deleteCheckoutBtn) return;
     const availableCatalog = catalog.filter((item) => item.status !== 'checked_out');
 
     const getSelectedEquipmentIds = () => new Set(
@@ -838,6 +864,18 @@ function setupCheckoutPage() {
     renderLists();
     renderResults();
 
+    deleteCheckoutBtn.onclick = async () => {
+      if (!confirm('Delete this entire booking/check-out?')) return;
+      try {
+        await deleteRental(rental.id);
+        setFlash({ notice: 'Booking deleted.' });
+        setRoute('/');
+      } catch (error) {
+        setFlash({ error: error.message || 'Failed to delete booking.' });
+        render();
+      }
+    };
+
     saveCheckoutBtn.onclick = async () => {
       try {
         await updateRental(rental.id, { items, status: 'checked_out', checkedOutAt: new Date().toISOString() });
@@ -855,7 +893,7 @@ function setupCheckoutPage() {
 
 function renderCheckin() {
   return shell(`
-    <div class="page-header"><div><div class="eyebrow">Check-in</div><h2>Register returned equipment</h2><p>Tick off each item as it comes back.</p></div></div>
+    <div class="page-header"><div><div class="eyebrow">Check-in</div><h2>Register returned equipment</h2><p>Move items into a Returned list as they come back so you can see what is still missing.</p></div></div>
     <section class="card"><label>Select active checkout</label><select id="checkinRentalSelect"><option value="">Loading active checkouts…</option></select></section>
     <div id="checkinDetails"></div>
   `);
@@ -890,28 +928,102 @@ function setupCheckinPage() {
       return;
     }
     const items = structuredClone(rental.items || []);
-    details.innerHTML = `<section class="card stack"><div class="row spread"><div><h3>${escapeHtml(rental.renterName)}</h3><div class="muted">Due ${escapeHtml(formatDate(rental.returnDate))}</div></div><div class="badge" id="checkinReturnedCount">${(items || []).filter((i) => i.returned).length}/${(items || []).length} returned</div></div><div class="checklist" id="checkinChecklist"></div><div class="row"><button class="primary" id="saveCheckinBtn">Save check-in</button></div></section>`;
-    const list = getEl('checkinChecklist');
-    const returnedCountEl = getEl('checkinReturnedCount');
-    const saveCheckinBtn = getEl('saveCheckinBtn');
-    if (!list || !returnedCountEl || !saveCheckinBtn) return;
-    const renderChecklist = () => {
-      returnedCountEl.textContent = `${items.filter((i) => i.returned).length}/${items.length} returned`;
-      list.innerHTML = items.map((item, index) => `
-        <div class="check-row ${item.returned ? 'checked' : ''}">
-          <input type="checkbox" data-return-index="${index}" ${item.returned ? 'checked' : ''} />
-          <div><strong>${escapeHtml(item.name)}</strong><div class="muted small">${escapeHtml(item.serialNumber || item.type || 'No serial')}</div></div>
+    details.innerHTML = `
+      <section class="card stack">
+        <div class="row spread align-start wrap-sm">
+          <div>
+            <h3>${escapeHtml(rental.renterName)}</h3>
+            <div class="muted">Due ${escapeHtml(formatDate(rental.returnDate))}</div>
+          </div>
+          <div class="badge" id="checkinReturnedCount">${(items || []).filter((i) => i.returned).length}/${(items || []).length} returned</div>
         </div>
-      `).join('');
-      list.querySelectorAll('[data-return-index]').forEach((el) => {
-        el.onchange = () => {
+        <div class="grid two checkout-columns">
+          <div class="stack">
+            <div class="row spread"><h4>Still out</h4><span class="muted small" id="checkinRemainingCount">…</span></div>
+            <div class="vertical-list" id="checkinRemainingList"></div>
+          </div>
+          <div class="stack">
+            <div class="row spread"><h4>Returned</h4><span class="muted small" id="checkinReturnedListCount">…</span></div>
+            <div class="vertical-list" id="checkinReturnedList"></div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="primary" id="saveCheckinBtn">Save check-in</button>
+          <button class="danger" type="button" id="deleteCheckinBtn">Delete booking</button>
+        </div>
+      </section>`;
+    const remainingList = getEl('checkinRemainingList');
+    const returnedList = getEl('checkinReturnedList');
+    const returnedCountEl = getEl('checkinReturnedCount');
+    const remainingCountEl = getEl('checkinRemainingCount');
+    const returnedListCountEl = getEl('checkinReturnedListCount');
+    const saveCheckinBtn = getEl('saveCheckinBtn');
+    const deleteCheckinBtn = getEl('deleteCheckinBtn');
+    if (!remainingList || !returnedList || !returnedCountEl || !remainingCountEl || !returnedListCountEl || !saveCheckinBtn || !deleteCheckinBtn) return;
+    const renderChecklist = () => {
+      const remainingItems = items.filter((item) => !item.returned);
+      const returnedItems = items.filter((item) => item.returned);
+      returnedCountEl.textContent = `${returnedItems.length}/${items.length} returned`;
+      remainingCountEl.textContent = `${remainingItems.length} still out`;
+      returnedListCountEl.textContent = `${returnedItems.length} returned`;
+
+      remainingList.innerHTML = remainingItems.length ? remainingItems.map((item) => {
+        const index = items.indexOf(item);
+        return `
+          <div class="list-row">
+            <div class="list-row-main">
+              <strong>${escapeHtml(item.name)}</strong>
+              <div class="muted small">${escapeHtml(item.serialNumber || item.type || 'No serial')}</div>
+            </div>
+            <div class="inline-actions">
+              <button class="primary slim" type="button" data-return-index="${index}">Pick</button>
+            </div>
+          </div>
+        `;
+      }).join('') : '<div class="muted">Everything is returned.</div>';
+
+      returnedList.innerHTML = returnedItems.length ? returnedItems.map((item) => {
+        const index = items.indexOf(item);
+        return `
+          <div class="list-row picked-row">
+            <div class="list-row-main">
+              <strong>${escapeHtml(item.name)}</strong>
+              <div class="muted small">${escapeHtml(item.serialNumber || item.type || 'No serial')}</div>
+            </div>
+            <div class="inline-actions">
+              <button class="secondary slim" type="button" data-unreturn-index="${index}">Move back</button>
+            </div>
+          </div>
+        `;
+      }).join('') : '<div class="muted">Nothing returned yet.</div>';
+
+      remainingList.querySelectorAll('[data-return-index]').forEach((el) => {
+        el.onclick = () => {
           const index = Number(el.getAttribute('data-return-index'));
-          items[index].returned = el.checked;
+          items[index].returned = true;
+          renderChecklist();
+        };
+      });
+      returnedList.querySelectorAll('[data-unreturn-index]').forEach((el) => {
+        el.onclick = () => {
+          const index = Number(el.getAttribute('data-unreturn-index'));
+          items[index].returned = false;
           renderChecklist();
         };
       });
     };
     renderChecklist();
+    deleteCheckinBtn.onclick = async () => {
+      if (!confirm('Delete this entire booking/check-out?')) return;
+      try {
+        await deleteRental(rental.id);
+        setFlash({ notice: 'Booking deleted.' });
+        setRoute('/');
+      } catch (error) {
+        setFlash({ error: error.message || 'Failed to delete booking.' });
+        render();
+      }
+    };
     saveCheckinBtn.onclick = async () => {
       try {
         const allReturned = items.every((item) => item.returned);
