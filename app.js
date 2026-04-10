@@ -541,12 +541,6 @@ function setupBookingPage() {
   if (!resultsEl || !selectedEl || !searchInput) return;
   let catalog = [];
 
-  const getSelectedIds = () => new Set(
-    selectedItems
-      .filter((item) => item && item.equipmentId)
-      .map((item) => item.equipmentId)
-  );
-
   getAllEquipment().then((items) => {
     if (!isCurrentRoute(routeBase)) return;
     catalog = items.filter((item) => item.status !== 'checked_out');
@@ -566,18 +560,13 @@ function setupBookingPage() {
       btn.onclick = () => {
         selectedItems.splice(Number(btn.dataset.removeIndex), 1);
         renderSelected();
-        renderResults();
       };
     });
   };
 
   const renderResults = () => {
     const q = searchInput.value.trim().toLowerCase();
-    const selectedIds = getSelectedIds();
-    let filtered = catalog.filter((item) => !selectedIds.has(item.id));
-    if (q) {
-      filtered = filtered.filter((item) => [item.displayName, item.name, item.type].filter(Boolean).some((v) => v.toLowerCase().includes(q)));
-    }
+    const filtered = q ? catalog.filter((item) => [item.displayName, item.name, item.type].filter(Boolean).some((v) => v.toLowerCase().includes(q))) : catalog;
     resultsEl.innerHTML = filtered.length ? filtered.map((item) => `
       <div class="result-row">
         <div><strong>${escapeHtml(item.displayName)}</strong><div class="muted small">${escapeHtml([item.type, item.manufacturer, item.model].filter(Boolean).join(' • ') || 'No details')}</div></div>
@@ -587,7 +576,7 @@ function setupBookingPage() {
     resultsEl.querySelectorAll('[data-add-id]').forEach((btn) => {
       btn.onclick = () => {
         const item = catalog.find((row) => row.id === btn.dataset.addId);
-        if (!item || selectedIds.has(item.id)) return;
+        if (!item) return;
         selectedItems.push({
           equipmentId: item.id,
           name: item.displayName,
@@ -599,7 +588,6 @@ function setupBookingPage() {
           returned: false,
         });
         renderSelected();
-        renderResults();
       };
     });
   };
@@ -608,11 +596,10 @@ function setupBookingPage() {
   const addCustomItemBtn = getEl('addCustomItemBtn');
   if (addCustomItemBtn) addCustomItemBtn.onclick = () => {
     const input = getEl('customItemInput');
-    if (!input || !input.value.trim()) return;
+    if (!input.value.trim()) return;
     selectedItems.push({ equipmentId: null, name: input.value.trim(), equipmentName: input.value.trim(), type: 'Custom', pickedUp: false, returned: false });
     input.value = '';
     renderSelected();
-    renderResults();
   };
   renderSelected();
 
@@ -648,7 +635,7 @@ function setupBookingPage() {
 
 function renderCheckout() {
   return shell(`
-    <div class="page-header"><div><div class="eyebrow">Checkout</div><h2>Prepare equipment pickup</h2><p>Find the booking, move found items into a picked list, and add or remove extras as needed.</p></div></div>
+    <div class="page-header"><div><div class="eyebrow">Checkout</div><h2>Prepare equipment pickup</h2><p>Find the booking, tick off found items, add extra items, or remove unwanted ones.</p></div></div>
     <section class="card stack">
       <div><label>Select booking</label><select id="checkoutBookingSelect"><option value="">Loading bookings…</option></select></div>
     </section>
@@ -690,118 +677,55 @@ function setupCheckoutPage() {
     const items = structuredClone(rental.items || []);
     details.innerHTML = `
       <section class="card stack">
-        <div class="row spread">
-          <div>
-            <h3>${escapeHtml(rental.renterName)}</h3>
-            <div class="muted">Pickup ${escapeHtml(formatDate(rental.pickupDate))} • Return ${escapeHtml(formatDate(rental.returnDate))}</div>
-          </div>
-          <div class="badge" id="checkoutPickedCount">${(items || []).filter((i) => i.pickedUp).length}/${(items || []).length} picked</div>
-        </div>
-        <div class="grid two checkout-columns">
-          <div class="stack">
-            <div class="row spread"><h3>Booking list</h3><span class="muted small">Items left to find</span></div>
-            <div class="checkout-list" id="checkoutPendingList"></div>
-          </div>
-          <div class="stack">
-            <div class="row spread"><h3>Picked</h3><span class="muted small">Ready for handoff</span></div>
-            <div class="checkout-list" id="checkoutPickedList"></div>
-          </div>
-        </div>
+        <div class="row spread"><div><h3>${escapeHtml(rental.renterName)}</h3><div class="muted">Pickup ${escapeHtml(formatDate(rental.pickupDate))} • Return ${escapeHtml(formatDate(rental.returnDate))}</div></div><div class="badge" id="checkoutPickedCount">${(items || []).filter((i) => i.pickedUp).length}/${(items || []).length} picked</div></div>
+        <div class="checklist" id="checkoutChecklist"></div>
       </section>
       <section class="card stack">
-        <div class="row spread">
-          <div><h3>Add more equipment</h3><div class="muted small">Only available units can be added.</div></div>
-          <input id="checkoutEquipmentSearch" placeholder="Search equipment" style="max-width:220px" />
-        </div>
+        <div class="row spread"><div><h3>Add more equipment</h3><div class="muted small">Only available units can be added.</div></div><input id="checkoutEquipmentSearch" placeholder="Search equipment" style="max-width:220px" /></div>
         <div class="search-results" id="checkoutEquipmentResults"></div>
         <div class="row"><button class="primary" id="saveCheckoutBtn">Save checkout</button></div>
       </section>
     `;
-    const pendingList = getEl('checkoutPendingList');
-    const pickedList = getEl('checkoutPickedList');
+    const list = getEl('checkoutChecklist');
     const results = getEl('checkoutEquipmentResults');
     const search = getEl('checkoutEquipmentSearch');
     const pickedCountEl = getEl('checkoutPickedCount');
     const saveCheckoutBtn = getEl('saveCheckoutBtn');
-    if (!pendingList || !pickedList || !results || !search || !pickedCountEl || !saveCheckoutBtn) return;
+    if (!list || !results || !search || !pickedCountEl || !saveCheckoutBtn) return;
     const availableCatalog = catalog.filter((item) => item.status !== 'checked_out');
 
-    const selectedEquipmentIds = () => new Set(items.filter((i) => i && i.equipmentId).map((i) => i.equipmentId));
-
-    const renderLists = () => {
-      const pending = items.filter((item) => !item.pickedUp);
-      const picked = items.filter((item) => item.pickedUp);
-      pickedCountEl.textContent = `${picked.length}/${items.length} picked`;
-
-      pendingList.innerHTML = pending.length ? pending.map((item, index) => {
-        const originalIndex = items.indexOf(item);
-        return `
-          <div class="check-row vertical ${item.pickedUp ? 'checked' : ''}">
-            <div class="check-row-main"><strong>${escapeHtml(item.name)}</strong><div class="muted small">${escapeHtml(item.serialNumber || item.type || 'No serial')}</div></div>
-            <div class="inline-actions">
-              <button class="primary slim" type="button" data-pick-index="${originalIndex}">Pick</button>
-              <button class="ghost slim" type="button" data-remove-index="${originalIndex}">Remove</button>
-            </div>
-          </div>
-        `;
-      }).join('') : '<div class="muted">Nothing left to pick.</div>';
-
-      pickedList.innerHTML = picked.length ? picked.map((item) => {
-        const originalIndex = items.indexOf(item);
-        return `
-          <div class="check-row vertical checked">
-            <div class="check-row-main"><strong>${escapeHtml(item.name)}</strong><div class="muted small">${escapeHtml(item.serialNumber || item.type || 'No serial')}</div></div>
-            <div class="inline-actions">
-              <button class="secondary slim" type="button" data-unpick-index="${originalIndex}">Move back</button>
-              <button class="ghost slim" type="button" data-remove-index="${originalIndex}">Remove</button>
-            </div>
-          </div>
-        `;
-      }).join('') : '<div class="muted">No items picked yet.</div>';
-
-      pendingList.querySelectorAll('[data-pick-index]').forEach((el) => el.onclick = () => {
-        items[Number(el.dataset.pickIndex)].pickedUp = true;
-        renderLists();
-        renderResults();
-      });
-      pickedList.querySelectorAll('[data-unpick-index]').forEach((el) => el.onclick = () => {
-        items[Number(el.dataset.unpickIndex)].pickedUp = false;
-        renderLists();
-        renderResults();
-      });
-      [pendingList, pickedList].forEach((root) => {
-        root.querySelectorAll('[data-remove-index]').forEach((el) => el.onclick = () => {
-          items.splice(Number(el.dataset.removeIndex), 1);
-          renderLists();
-          renderResults();
-        });
-      });
+    const renderChecklist = () => {
+      pickedCountEl.textContent = `${items.filter((i) => i.pickedUp).length}/${items.length} picked`;
+      list.innerHTML = items.length ? items.map((item, index) => `
+        <div class="check-row ${item.pickedUp ? 'checked' : ''}">
+          <input type="checkbox" data-pick-index="${index}" ${item.pickedUp ? 'checked' : ''} />
+          <div style="flex:1"><strong>${escapeHtml(item.name)}</strong><div class="muted small">${escapeHtml(item.serialNumber || item.type || 'No serial')}</div></div>
+          <button class="ghost" type="button" data-remove-index="${index}">Remove</button>
+        </div>
+      `).join('') : '<div class="muted">No items on this booking.</div>';
+      list.querySelectorAll('[data-pick-index]').forEach((el) => el.onchange = () => { items[Number(el.dataset.pickIndex)].pickedUp = el.checked; renderChecklist(); });
+      list.querySelectorAll('[data-remove-index]').forEach((el) => el.onclick = () => { items.splice(Number(el.dataset.removeIndex), 1); renderChecklist(); });
     };
 
     const renderResults = () => {
       const q = search.value.trim().toLowerCase();
-      const selectedIds = selectedEquipmentIds();
-      let filtered = availableCatalog.filter((item) => !selectedIds.has(item.id));
-      if (q) {
-        filtered = filtered.filter((item) => [item.displayName, item.name, item.type].filter(Boolean).some((v) => v.toLowerCase().includes(q)));
-      }
+      const filtered = q ? availableCatalog.filter((item) => [item.displayName, item.name, item.type].filter(Boolean).some((v) => v.toLowerCase().includes(q))) : availableCatalog;
       results.innerHTML = filtered.map((item) => `
         <div class="result-row">
           <div><strong>${escapeHtml(item.displayName)}</strong><div class="muted small">${escapeHtml(item.type)}</div></div>
-          <button class="secondary slim" type="button" data-add-id="${item.id}">Add</button>
+          <button class="secondary" type="button" data-add-id="${item.id}">Add</button>
         </div>
       `).join('') || '<div class="muted">No equipment found.</div>';
       results.querySelectorAll('[data-add-id]').forEach((btn) => btn.onclick = () => {
         const item = availableCatalog.find((row) => row.id === btn.dataset.addId);
-        if (!item || selectedIds.has(item.id)) return;
+        if (!item) return;
         items.push({ equipmentId: item.id, name: item.displayName, equipmentName: item.name, type: item.type, serialNumber: item.serialNumber || '', unitNumber: item.unitNumber || null, pickedUp: false, returned: false });
-        renderLists();
-        renderResults();
+        renderChecklist();
       });
     };
 
     search.oninput = renderResults;
-    renderLists();
+    renderChecklist();
     renderResults();
 
     saveCheckoutBtn.onclick = async () => {
